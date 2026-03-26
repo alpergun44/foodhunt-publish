@@ -1,15 +1,28 @@
-# root
-.DS_Store
-.env
-dist/
+# Dependencies
+node_modules/
+*/node_modules/
 
-# frontend
-frontend/node_modules/
+# Build outputs
 frontend/dist/
-frontend/.env
+frontend/.vite/
 
-# backend
-backend/node_modules/
-backend/uploads/
-backend/db/
+# Environment secrets
 backend/.env
+!backend/.env.example
+
+# Database (don't commit prod data)
+backend/db/*.db
+backend/db/*.db-wal
+backend/db/*.db-shm
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# OS
+.DS_Store
+*.log
+
+# IDE
+.vscode/
+.idea/

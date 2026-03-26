@@ -1,191 +1,205 @@
+/**
+ * FoodHunt Backend — v2.2 (Refactored & Production-Ready)
+ * Modular architecture with MongoDB support, JWT auth, structured logging
+ *
+ * Changes from v2.1:
+ * - Modular route/middleware/model structure
+ * - MongoDB + NeDB dual database support (DB_TYPE env)
+ * - JWT-based user authentication system
+ * - Structured JSON logging with file output
+ * - Custom error classes with consistent error responses
+ * - asyncHandler eliminating try/catch boilerplate
+ * - User favorites & tournament history
+ * - Enhanced admin dashboard with trends & leaderboards
+ * - CSV export support
+ * - Social proof endpoint
+ */
+const express = require('express');
+const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
+require('dotenv').config();
 
-import express from "express";
-import cors from "cors";
-import morgan from "morgan";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import Datastore from "nedb-promises";
-import { nanoid } from "nanoid";
-import dotenv from "dotenv";
-import { parse } from "csv-parse";
+const helmet = require('helmet');
+const { initDB } = require('./models/db');
+const { createCorsMiddleware } = require('./middleware/cors');
+const { rateLimit, optionalAuth } = require('./middleware/auth');
+const { errorHandler } = require('./utils/errors');
+const logger = require('./utils/logger');
 
-dotenv.config();
+// Routes
+const publicRoutes = require('./routes/public');
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
+const adminRoutes = require('./routes/admin');
+const nearbyRoutes = require('./routes/nearby');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Config
-const PORT = process.env.PORT || 5050;
-const ADMIN_TOKEN = process.env.ADMIN_TOKEN || "changeme";
-const UPLOAD_DIR = path.join(__dirname, "uploads");
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-// DB (file-based, no native build pain)
-const dbDir = path.join(__dirname, "db");
-if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
-const itemsDB = Datastore.create({ filename: path.join(dbDir, "items.db"), autoload: true });
-const eventsDB = Datastore.create({ filename: path.join(dbDir, "events.db"), autoload: true });
-
-// App
 const app = express();
-app.use(cors());
-app.use(express.json({ limit: "2mb" }));
-app.use(morgan("dev"));
-app.use("/uploads", express.static(UPLOAD_DIR));
+const PORT = process.env.PORT || 3001;
 
-// Helpers
-function requireAdmin(req, res, next) {
-  const header = req.headers.authorization || "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
-  if (!token || token !== ADMIN_TOKEN) {
-    return res.status(401).json({ ok:false, error:"unauthorized" });
-  }
-  next();
+// Admin token (legacy)
+let ADMIN_TOKEN = process.env.ADMIN_TOKEN || '';
+if (!ADMIN_TOKEN) ADMIN_TOKEN = crypto.randomBytes(32).toString('hex');
+global.__ADMIN_TOKEN = ADMIN_TOKEN;
+
+// ─── Production Security ─────────────────────────────────────────────────────
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect(301, `https://${req.hostname}${req.url}`);
+    }
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    next();
+  });
 }
 
-// Health
-app.get("/api/health", (req, res) => {
-  res.json({ ok:true, uptime: process.uptime(), version: "1.0.0" });
-});
+// ─── Global Middleware ───────────────────────────────────────────────────────
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(createCorsMiddleware());
+app.use(express.json({ limit: '2mb' }));
+app.use(logger.requestMiddleware);
+app.use(rateLimit(300, 60000));
+app.use(optionalAuth);
 
-// Catalog (public)
-app.get("/api/catalog", async (req, res) => {
-  const { city, area } = req.query;
-  const limit = Math.min(parseInt(req.query.limit || "16", 10), 48);
+// Static uploads
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+app.use('/uploads', express.static(UPLOADS_DIR));
 
-  const query = {};
-  if (city) query.city = new RegExp(`^${String(city)}$`, "i");
-  if (area) query.area = new RegExp(`^${String(area)}$`, "i");
-
-  let items = await itemsDB.find(query).sort({ updatedAt: -1 }).limit(limit);
-  if (items.length < Math.min(12, limit)) {
-    // top-up with any
-    const extra = await itemsDB.find({}).limit(Math.min(12, limit) - items.length);
-    // dedupe by id
-    const seen = new Set(items.map(x => x.id));
-    for (const x of extra) if (!seen.has(x.id)) items.push(x);
-  }
-  res.json({ area: area||null, city: city||null, version: new Date().toISOString(), items });
-});
-
-// Events (public)
-app.post("/api/events", async (req, res) => {
-  const { event_type, session_id, payload } = req.body || {};
-  if (!event_type) return res.status(400).json({ ok:false, error:"event_type required" });
-  const ev = { id: nanoid(), ts: new Date().toISOString(), event_type, session_id: session_id||null, payload: payload||{} };
-  await eventsDB.insert(ev);
-  res.json({ ok:true, id: ev.id });
-});
-
-// Admin: items CRUD
-app.get("/api/admin/items", requireAdmin, async (req, res) => {
-  const { city, area, q } = req.query;
-  const query = {};
-  if (city) query.city = new RegExp(String(city), "i");
-  if (area) query.area = new RegExp(String(area), "i");
-  if (q) query.name = new RegExp(String(q), "i");
-  const items = await itemsDB.find(query).sort({ updatedAt: -1 });
-  res.json({ ok:true, items });
-});
-
-app.post("/api/admin/items", requireAdmin, async (req, res) => {
-  const x = req.body || {};
-  const id = x.id || nanoid();
-  const now = new Date().toISOString();
-  const item = {
-    id,
-    name: String(x.name||"").trim(),
-    archetype: String(x.archetype||"").trim(),
-    cuisine: String(x.cuisine||"").trim(),
-    price_band: Number(x.price_band||1),
-    satiety: Number(x.satiety||3),
-    spicy: Number(x.spicy||0),
-    diet_tags: Array.isArray(x.diet_tags) ? x.diet_tags : String(x.diet_tags||"").split(",").map(s=>s.trim()).filter(Boolean),
-    temp: String(x.temp||"hot").trim(),
-    kcal_range: String(x.kcal_range||"").trim(),
-    macros_hint: String(x.macros_hint||"").trim(),
-    image_url: String(x.image_url||"").trim(),
-    city: String(x.city||"").trim(),
-    area: String(x.area||"").trim(),
-    createdAt: now,
-    updatedAt: now
-  };
-  if (!item.name || !item.city || !item.area) return res.status(400).json({ ok:false, error:"name, city, area required" });
-  await itemsDB.insert(item);
-  res.json({ ok:true, item });
-});
-
-app.put("/api/admin/items/:id", requireAdmin, async (req, res) => {
-  const id = req.params.id;
-  const patch = req.body || {};
-  patch.updatedAt = new Date().toISOString();
-  await itemsDB.update({ id }, { $set: patch }, { returnUpdatedDocs: true, multi: false });
-  const doc = await itemsDB.findOne({ id });
-  res.json({ ok:true, item: doc });
-});
-
-app.delete("/api/admin/items/:id", requireAdmin, async (req, res) => {
-  const id = req.params.id;
-  await itemsDB.remove({ id }, { multi: false });
-  res.json({ ok:true });
-});
-
-// Admin: upload (disk storage)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname || "").toLowerCase() || ".jpg";
-    const name = nanoid() + ext;
-    cb(null, name);
-  }
-});
-const upload = multer({ storage });
-
-app.post("/api/admin/upload", requireAdmin, upload.single("file"), async (req, res) => {
-  if (!req.file) return res.status(400).json({ ok:false, error:"file required" });
-  const url = `/uploads/${req.file.filename}`;
-  res.json({ ok:true, url });
-});
-
-// Admin: CSV import (header must match basic fields)
-app.post("/api/admin/import-csv", requireAdmin, express.urlencoded({ extended:true }), async (req, res) => {
-  const csvText = req.body.csv;
-  if (!csvText) return res.status(400).json({ ok:false, error:"csv field required (raw text)" });
-  parse(csvText, { columns:true, trim:true }, async (err, records) => {
-    if (err) return res.status(400).json({ ok:false, error:String(err) });
-    let added = 0;
-    for (const r of records) {
-      const now = new Date().toISOString();
-      const item = {
-        id: r.id || nanoid(),
-        name: r.name,
-        archetype: r.archetype || "",
-        cuisine: r.cuisine || "",
-        price_band: Number(r.price_band || 1),
-        satiety: Number(r.satiety || 3),
-        spicy: Number(r.spicy || 0),
-        diet_tags: (r.diet_tags||"").split(",").map(s=>s.trim()).filter(Boolean),
-        temp: r.temp || "hot",
-        kcal_range: r.kcal_range || "",
-        macros_hint: r.macros_hint || "",
-        image_url: r.image_url || "",
-        city: r.city || "",
-        area: r.area || "",
-        createdAt: now,
-        updatedAt: now
-      };
-      if (item.name && item.city && item.area) {
-        await itemsDB.insert(item);
-        added++;
-      }
-    }
-    res.json({ ok:true, added });
+// ─── API Documentation ──────────────────────────────────────────────────────
+app.get('/api/docs', (_req, res) => {
+  res.json({
+    name: 'FoodHunt API',
+    version: '2.2.0',
+    description: 'Gamified yemek karar motoru API',
+    base_url: '/api',
+    endpoints: {
+      public: {
+        'GET /api/health': 'Sunucu saglik kontrolu',
+        'GET /api/areas': 'Bolge listesi (restoran sayilariyla)',
+        'GET /api/cuisines?area=': 'Mutfak listesi (opsiyonel bolge filtresi)',
+        'GET /api/catalog?area=&cuisine=&limit=16': 'Turnuva icin karistirilmis restoran listesi',
+        'GET /api/restaurants/:id': 'Restoran detayi',
+        'GET /api/inspiration': 'Rastgele ilham karti',
+        'POST /api/events': 'Analitik olay kaydi',
+        'GET /api/stats/social': 'Sosyal kanit (turnuva sayisi)',
+        'GET /api/nearby?lat=&lng=&radius=2000&limit=16': 'Konum bazli restoran kesfet',
+        'GET /api/nearby/areas?lat=&lng=': 'Yakin bolgeler (mesafeye gore)',
+        'POST /api/nearby/save': 'Google Places restorani yerel DB ye kaydet',
+      },
+      auth: {
+        'POST /api/auth/register': 'Kullanici kaydi { email, password, name }',
+        'POST /api/auth/login': 'Kullanici girisi { email, password }',
+        'GET /api/auth/me': 'Profil bilgisi (JWT gerekli)',
+        'PATCH /api/auth/me/preferences': 'Tercih guncelleme (JWT gerekli)',
+        'POST /api/auth/admin/login': 'Admin girisi { password }',
+      },
+      user: {
+        'GET /api/user/favorites': 'Favori restoranlar (JWT gerekli)',
+        'POST /api/user/favorites': 'Favoriye ekle { restaurant_id }',
+        'DELETE /api/user/favorites/:id': 'Favoriden cikar',
+        'GET /api/user/history': 'Turnuva gecmisi',
+        'POST /api/user/history': 'Turnuva sonucu kaydet',
+        'GET /api/user/recommend?area=': 'Hizli oneri',
+      },
+      admin: {
+        'GET /api/admin/stats': 'Dashboard istatistikleri',
+        'GET /api/admin/restaurants': 'Tum restoranlar',
+        'POST /api/admin/restaurants': 'Restoran ekle',
+        'PUT /api/admin/restaurants/:id': 'Restoran guncelle',
+        'DELETE /api/admin/restaurants/:id': 'Restoran sil (soft)',
+        'POST /api/admin/restaurants/bulk': 'Toplu import',
+        'POST /api/admin/upload': 'Gorsel yukle (multipart)',
+        'GET /api/admin/events/export?format=json|csv': 'Olay disa aktarim',
+        'GET /api/admin/restaurants/export?format=json|csv': 'Restoran disa aktarim',
+        'GET /api/admin/cards': 'Ilham kartlari',
+        'POST /api/admin/cards': 'Kart ekle',
+        'DELETE /api/admin/cards/:id': 'Kart sil',
+      },
+    },
+    authentication: {
+      user: 'Authorization: Bearer <jwt_token>',
+      admin: 'Authorization: Bearer <admin_token>',
+    },
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`FoodHunt backend ready on http://localhost:${PORT}`);
-  console.log(`Admin token: ${ADMIN_TOKEN === "changeme" ? "changeme (set ADMIN_TOKEN in .env!)" : "********"}`);
+// ─── Routes ─────────────────────────────────────────────────────────────────
+app.use('/api', publicRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api', nearbyRoutes);
+
+// ─── 404 catch-all for undefined API routes ─────────────────────────────────
+app.use('/api/*', (_req, res) => {
+  res.status(404).json({ error: { message: 'Endpoint bulunamadi', code: 'NOT_FOUND' } });
 });
+
+// ─── Serve Frontend (built dist) ────────────────────────────────────────────
+const FRONTEND_DIR = path.join(__dirname, '..', 'frontend', 'dist');
+if (fs.existsSync(FRONTEND_DIR)) {
+  app.use(express.static(FRONTEND_DIR, { maxAge: '7d' }));
+  // SPA fallback: any non-API route serves index.html
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
+  });
+  logger.info('Serving frontend from', { dir: FRONTEND_DIR });
+}
+
+// ─── Error Handler (must be last) ───────────────────────────────────────────
+app.use(errorHandler);
+
+// ─── Seed Default Cards ─────────────────────────────────────────────────────
+async function seedCards() {
+  const { dbHelpers } = require('./models/db');
+  if (await dbHelpers.count('cards') > 0) return;
+  const defaults = [
+    { text: 'Hafif bir seyler yemek istiyorum', emoji: '🥗', category: 'mood' },
+    { text: 'Bugun kendimi simartacagim', emoji: '🍕', category: 'mood' },
+    { text: 'Hizli ve pratik olsun', emoji: '⚡', category: 'speed' },
+    { text: 'Protein agirlikli bir ogun', emoji: '💪', category: 'nutrition' },
+    { text: 'Farkli bir mutfak denemek istiyorum', emoji: '🌍', category: 'adventure' },
+    { text: 'Arkadaslarla paylasilabilir bir sey', emoji: '🤝', category: 'social' },
+    { text: 'Tatli bir seyler canim istiyor', emoji: '🍰', category: 'mood' },
+    { text: 'Butce dostu bir secenek', emoji: '💰', category: 'budget' },
+  ];
+  let nextId = Date.now();
+  for (const c of defaults) await dbHelpers.insert('cards', { ...c, id: ++nextId });
+  logger.info('Inspiration cards seeded', { count: defaults.length });
+}
+
+// ─── Start ───────────────────────────────────────────────────────────────────
+async function start() {
+  try {
+    await initDB();
+    await seedCards();
+    app.listen(PORT, () => {
+      logger.info(`FoodHunt API v2.2 running`, { port: PORT, db_type: process.env.DB_TYPE || 'nedb' });
+      console.log(`[FoodHunt] API running on http://localhost:${PORT}`);
+      console.log(`[FoodHunt] API docs: http://localhost:${PORT}/api/docs`);
+    });
+  } catch (err) {
+    logger.error('Failed to start server', { error: err.message });
+    process.exit(1);
+  }
+}
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  logger.info('SIGTERM received, shutting down...');
+  const { closeDB } = require('./models/db');
+  await closeDB();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  logger.info('SIGINT received, shutting down...');
+  const { closeDB } = require('./models/db');
+  await closeDB();
+  process.exit(0);
+});
+
+start();
+
+module.exports = app; // for testing

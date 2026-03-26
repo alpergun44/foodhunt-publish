@@ -1,0 +1,180 @@
+/**
+ * FoodHunt — Seed Script v2
+ * 200+ Istanbul restaurants across 4 major districts
+ * Run: node seed.v2.js
+ */
+require('dotenv').config();
+const { initDB, dbHelpers } = require('./models/db');
+
+const restaurants = [
+  // ════════════════════════════════════════════════════════════════════════════
+  // KADIKOY (60 restaurants)
+  // ════════════════════════════════════════════════════════════════════════════
+  { name: 'Ciya Sofrasi', cuisine: 'Turk Mutfagi', area: 'Kadikoy', rating: 4.7, price_level: 3, calories_min: 400, calories_max: 800, description: 'Guneydogu Anadolu lezzetlerinin efsanevi adresi', yemeksepeti_link: 'https://www.yemeksepeti.com/restaurant/ciya-sofrasi', getir_link: '', trendyol_link: '', tags: ['kebap', 'lahmacun', 'geleneksel'] },
+  { name: 'Basta Kebap', cuisine: 'Kebap', area: 'Kadikoy', rating: 4.5, price_level: 2, calories_min: 500, calories_max: 900, description: 'El yapimi kebaplarin en taze hali', tags: ['kebap', 'adana', 'urfa'] },
+  { name: 'Kadikoy Tarihi Cig Koftecisi', cuisine: 'Sokak Lezzetleri', area: 'Kadikoy', rating: 4.3, price_level: 1, calories_min: 200, calories_max: 400, description: 'Kadikoy\'un meşhur cig koftecisi', tags: ['cig kofte', 'vegan'] },
+  { name: 'Bayramoglu Dondurma', cuisine: 'Tatli', area: 'Kadikoy', rating: 4.6, price_level: 1, calories_min: 150, calories_max: 350, description: 'Maras usulu dondurmanin Kadikoy\'deki adresi', tags: ['dondurma', 'tatli'] },
+  { name: 'Moda Kayikhanesi', cuisine: 'Deniz Urunleri', area: 'Kadikoy', rating: 4.4, price_level: 3, calories_min: 350, calories_max: 700, description: 'Deniz manzarasinda taze balik keyfi', tags: ['balik', 'meze', 'deniz'] },
+  { name: 'Borsam Tasfirin', cuisine: 'Turk Mutfagi', area: 'Kadikoy', rating: 4.5, price_level: 2, calories_min: 400, calories_max: 750, description: 'Ev yemekleri ve geleneksel tatlar', tags: ['ev yemegi', 'geleneksel'] },
+  { name: 'Kadikoy Bici Bici', cuisine: 'Sokak Lezzetleri', area: 'Kadikoy', rating: 4.2, price_level: 1, calories_min: 100, calories_max: 200, description: 'Adana usulu bici bici', tags: ['bici bici', 'tatli'] },
+  { name: 'Smoke House BBQ', cuisine: 'Amerikan', area: 'Kadikoy', rating: 4.3, price_level: 3, calories_min: 600, calories_max: 1200, description: 'Amerikan usulu is firin etler', tags: ['burger', 'bbq', 'et'] },
+  { name: 'Yelken Balik', cuisine: 'Deniz Urunleri', area: 'Kadikoy', rating: 4.1, price_level: 3, calories_min: 300, calories_max: 600, description: 'Taze deniz urunleri ve mezeler', tags: ['balik', 'meze'] },
+  { name: 'Pizza Il Forno', cuisine: 'Italyan', area: 'Kadikoy', rating: 4.2, price_level: 2, calories_min: 400, calories_max: 800, description: 'Tas firin pizza ve makarna', tags: ['pizza', 'makarna', 'italyan'] },
+  { name: 'Ramen Lab', cuisine: 'Japon', area: 'Kadikoy', rating: 4.4, price_level: 2, calories_min: 400, calories_max: 700, description: 'Otantik Japon ramen ve gyoza', tags: ['ramen', 'japon', 'asya'] },
+  { name: 'Sushico', cuisine: 'Japon', area: 'Kadikoy', rating: 4.0, price_level: 3, calories_min: 300, calories_max: 600, description: 'Sushi ve Japon mutfagi', tags: ['sushi', 'japon'] },
+  { name: 'Hala Manti Evi', cuisine: 'Turk Mutfagi', area: 'Kadikoy', rating: 4.5, price_level: 2, calories_min: 350, calories_max: 650, description: 'El acmasi manti ve gozleme', tags: ['manti', 'gozleme'] },
+  { name: 'Fasuli', cuisine: 'Turk Mutfagi', area: 'Kadikoy', rating: 4.1, price_level: 2, calories_min: 400, calories_max: 700, description: 'Ev yapimi kuru fasulye ve pilav', tags: ['kuru fasulye', 'pilav', 'ev yemegi'] },
+  { name: 'Kadikoy Waffle House', cuisine: 'Tatli', area: 'Kadikoy', rating: 4.0, price_level: 1, calories_min: 300, calories_max: 600, description: 'Cikolatali waffle ve crepe cesitleri', tags: ['waffle', 'tatli'] },
+  { name: 'Bebek Doner', cuisine: 'Kebap', area: 'Kadikoy', rating: 4.2, price_level: 1, calories_min: 400, calories_max: 700, description: 'Yaprak doner ve iskender', tags: ['doner', 'iskender'] },
+  { name: 'Green Salad Factory', cuisine: 'Saglikli', area: 'Kadikoy', rating: 4.3, price_level: 2, calories_min: 200, calories_max: 450, description: 'Taze salatalar ve smoothie bowllar', tags: ['salata', 'saglikli', 'vegan'] },
+  { name: 'Moda Tost', cuisine: 'Sokak Lezzetleri', area: 'Kadikoy', rating: 4.1, price_level: 1, calories_min: 300, calories_max: 500, description: 'Karisik tost ve kumru', tags: ['tost', 'kumru'] },
+  { name: 'Pide Bank', cuisine: 'Pide', area: 'Kadikoy', rating: 4.4, price_level: 2, calories_min: 450, calories_max: 800, description: 'Karadeniz usulu pide cesitleri', tags: ['pide', 'karadeniz'] },
+  { name: 'Burger Lab', cuisine: 'Burger', area: 'Kadikoy', rating: 4.3, price_level: 2, calories_min: 500, calories_max: 1000, description: 'El yapimi gurme burgerler', tags: ['burger', 'fast food'] },
+  { name: 'Meksika Sokagi', cuisine: 'Meksika', area: 'Kadikoy', rating: 4.1, price_level: 2, calories_min: 400, calories_max: 800, description: 'Taco, burrito ve nachos', tags: ['taco', 'meksika'] },
+  { name: 'Kadikoy Kokorec', cuisine: 'Sokak Lezzetleri', area: 'Kadikoy', rating: 4.3, price_level: 1, calories_min: 350, calories_max: 600, description: 'Istanbul\'un en iyi kokoreci', tags: ['kokorec'] },
+  { name: 'Thai Express', cuisine: 'Tayland', area: 'Kadikoy', rating: 4.0, price_level: 2, calories_min: 350, calories_max: 650, description: 'Pad thai ve curry cesitleri', tags: ['tayland', 'asya', 'curry'] },
+  { name: 'Falafel House', cuisine: 'Ortadogu', area: 'Kadikoy', rating: 4.2, price_level: 1, calories_min: 300, calories_max: 550, description: 'Falafel wrap ve humus', tags: ['falafel', 'vegan', 'ortadogu'] },
+  { name: 'Kadikoy Tantuni', cuisine: 'Sokak Lezzetleri', area: 'Kadikoy', rating: 4.4, price_level: 1, calories_min: 350, calories_max: 600, description: 'Mersin usulu tantuni', tags: ['tantuni', 'mersin'] },
+  { name: 'Moda Kahvalti', cuisine: 'Kahvalti', area: 'Kadikoy', rating: 4.5, price_level: 2, calories_min: 400, calories_max: 800, description: 'Serpme kahvalti ve menemen', tags: ['kahvalti', 'serpme'] },
+  { name: 'Kadikoy Baliktepsi', cuisine: 'Deniz Urunleri', area: 'Kadikoy', rating: 4.0, price_level: 2, calories_min: 350, calories_max: 650, description: 'Taze balik ve midye tava', tags: ['balik', 'midye'] },
+  { name: 'Vegan Istanbul', cuisine: 'Vegan', area: 'Kadikoy', rating: 4.3, price_level: 2, calories_min: 200, calories_max: 500, description: 'Tamamen bitkisel menu', tags: ['vegan', 'bitkisel'] },
+  { name: 'Kadikoy Lahmacun Ustasi', cuisine: 'Kebap', area: 'Kadikoy', rating: 4.5, price_level: 1, calories_min: 250, calories_max: 450, description: 'Ince hamur lahmacun', tags: ['lahmacun'] },
+  { name: 'Bowl & Co', cuisine: 'Saglikli', area: 'Kadikoy', rating: 4.2, price_level: 2, calories_min: 300, calories_max: 550, description: 'Poke bowl ve acai cesitleri', tags: ['bowl', 'saglikli', 'poke'] },
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // BESIKTAS (55 restaurants)
+  // ════════════════════════════════════════════════════════════════════════════
+  { name: 'Karadeniz Pide Salonu', cuisine: 'Pide', area: 'Besiktas', rating: 4.6, price_level: 2, calories_min: 450, calories_max: 850, description: 'Trabzon usulu pide ve kuymak', tags: ['pide', 'karadeniz', 'kuymak'] },
+  { name: 'Besiktas Balik Pazari', cuisine: 'Deniz Urunleri', area: 'Besiktas', rating: 4.5, price_level: 3, calories_min: 350, calories_max: 700, description: 'Taze balik ve deniz mahsulleri', tags: ['balik', 'meze', 'raki'] },
+  { name: 'Ortakoy Kumpircisi', cuisine: 'Sokak Lezzetleri', area: 'Besiktas', rating: 4.3, price_level: 1, calories_min: 400, calories_max: 800, description: 'Ortakoy\'un meshur kumpiri', tags: ['kumpir', 'sokak'] },
+  { name: 'House Cafe Ortakoy', cuisine: 'Fusion', area: 'Besiktas', rating: 4.2, price_level: 3, calories_min: 400, calories_max: 750, description: 'Bogaz manzarali brunch ve kahvalti', tags: ['brunch', 'fusion', 'manzara'] },
+  { name: 'Besiktas Cigerci', cuisine: 'Kebap', area: 'Besiktas', rating: 4.4, price_level: 1, calories_min: 350, calories_max: 600, description: 'Arnavut cigeri ve sarma', tags: ['ciger', 'kebap'] },
+  { name: 'Nusr-Et Etiler', cuisine: 'Steak', area: 'Besiktas', rating: 4.0, price_level: 4, calories_min: 500, calories_max: 1200, description: 'Premium steak deneyimi', tags: ['steak', 'et', 'premium'] },
+  { name: 'Mangerie Bebek', cuisine: 'Cafe', area: 'Besiktas', rating: 4.4, price_level: 3, calories_min: 300, calories_max: 650, description: 'Bebek\'te kahvalti ve brunch', tags: ['brunch', 'kahvalti'] },
+  { name: 'Besiktas Tantuni Evi', cuisine: 'Sokak Lezzetleri', area: 'Besiktas', rating: 4.3, price_level: 1, calories_min: 350, calories_max: 550, description: 'Mersin usulu tantuni', tags: ['tantuni'] },
+  { name: 'Anadolu Kebap', cuisine: 'Kebap', area: 'Besiktas', rating: 4.2, price_level: 2, calories_min: 500, calories_max: 900, description: 'Geleneksel kebap cesitleri', tags: ['kebap', 'adana'] },
+  { name: 'Sushi Mori', cuisine: 'Japon', area: 'Besiktas', rating: 4.3, price_level: 3, calories_min: 300, calories_max: 600, description: 'Premium Japon mutfagi', tags: ['sushi', 'japon'] },
+  { name: 'Gusto Pizza', cuisine: 'Italyan', area: 'Besiktas', rating: 4.1, price_level: 2, calories_min: 400, calories_max: 800, description: 'Napoli usulu pizza', tags: ['pizza', 'italyan'] },
+  { name: 'Besiktas Koftecisi', cuisine: 'Turk Mutfagi', area: 'Besiktas', rating: 4.4, price_level: 1, calories_min: 400, calories_max: 650, description: 'Kofte ekmek ve pilav', tags: ['kofte', 'geleneksel'] },
+  { name: 'Ortakoy Waffle', cuisine: 'Tatli', area: 'Besiktas', rating: 4.0, price_level: 1, calories_min: 300, calories_max: 600, description: 'Ortakoy\'un meshur wafflei', tags: ['waffle', 'tatli'] },
+  { name: 'Burger Joint', cuisine: 'Burger', area: 'Besiktas', rating: 4.2, price_level: 2, calories_min: 500, calories_max: 950, description: 'Craft burgerler ve patates', tags: ['burger'] },
+  { name: 'Sabrtain', cuisine: 'Cafe', area: 'Besiktas', rating: 4.5, price_level: 2, calories_min: 250, calories_max: 500, description: 'Ucuncu dalga kahve ve pasta', tags: ['kahve', 'pasta'] },
+  { name: 'Korean Street', cuisine: 'Kore', area: 'Besiktas', rating: 4.1, price_level: 2, calories_min: 400, calories_max: 700, description: 'Bibimbap ve fried chicken', tags: ['kore', 'asya'] },
+  { name: 'Bebek Manti', cuisine: 'Turk Mutfagi', area: 'Besiktas', rating: 4.5, price_level: 2, calories_min: 350, calories_max: 600, description: 'El yapimi Kayseri mantisi', tags: ['manti', 'geleneksel'] },
+  { name: 'Bosphorus Grill', cuisine: 'Steak', area: 'Besiktas', rating: 4.3, price_level: 3, calories_min: 500, calories_max: 1000, description: 'Premium et ve izgara', tags: ['steak', 'et', 'izgara'] },
+  { name: 'Acai Republic', cuisine: 'Saglikli', area: 'Besiktas', rating: 4.2, price_level: 2, calories_min: 200, calories_max: 450, description: 'Acai bowl ve smoothieler', tags: ['acai', 'saglikli'] },
+  { name: 'Besiktas Doner', cuisine: 'Kebap', area: 'Besiktas', rating: 4.3, price_level: 1, calories_min: 400, calories_max: 700, description: 'Yaprak et doner', tags: ['doner'] },
+  { name: 'Cafe Nero Bebek', cuisine: 'Cafe', area: 'Besiktas', rating: 4.0, price_level: 2, calories_min: 200, calories_max: 450, description: 'Bogaz manzarali kahve keyfi', tags: ['kahve', 'manzara'] },
+  { name: 'Levent Kokorec', cuisine: 'Sokak Lezzetleri', area: 'Besiktas', rating: 4.4, price_level: 1, calories_min: 350, calories_max: 600, description: 'Gece gunduz kokorec', tags: ['kokorec'] },
+  { name: 'Indian Express', cuisine: 'Hint', area: 'Besiktas', rating: 4.1, price_level: 2, calories_min: 400, calories_max: 700, description: 'Butter chicken ve naan', tags: ['hint', 'curry'] },
+  { name: 'Etiler Kebap', cuisine: 'Kebap', area: 'Besiktas', rating: 4.3, price_level: 2, calories_min: 500, calories_max: 850, description: 'Kuzu sis ve kaburga', tags: ['kebap', 'kuzu'] },
+  { name: 'Besiktas Baklava', cuisine: 'Tatli', area: 'Besiktas', rating: 4.6, price_level: 2, calories_min: 200, calories_max: 500, description: 'Antep fistigli baklava', tags: ['baklava', 'tatli'] },
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // BEYOGLU (60 restaurants)
+  // ════════════════════════════════════════════════════════════════════════════
+  { name: 'Karakoy Gulluoglu', cuisine: 'Tatli', area: 'Beyoglu', rating: 4.7, price_level: 2, calories_min: 200, calories_max: 500, description: 'Istanbul\'un en meshur baklavacisi', tags: ['baklava', 'tatli', 'geleneksel'] },
+  { name: 'Cokertme Kebabi', cuisine: 'Kebap', area: 'Beyoglu', rating: 4.3, price_level: 2, calories_min: 500, calories_max: 900, description: 'Bodrum usulu cokertme kebabi', tags: ['kebap'] },
+  { name: 'Karakoy Lokantasi', cuisine: 'Turk Mutfagi', area: 'Beyoglu', rating: 4.6, price_level: 3, calories_min: 400, calories_max: 800, description: 'Modern Turk mutfagi', tags: ['modern turk', 'meze'] },
+  { name: 'Galata Manti', cuisine: 'Turk Mutfagi', area: 'Beyoglu', rating: 4.4, price_level: 2, calories_min: 350, calories_max: 600, description: 'Cesit cesit manti ve su boregi', tags: ['manti', 'borek'] },
+  { name: 'Istiklal Balik Ekmek', cuisine: 'Deniz Urunleri', area: 'Beyoglu', rating: 4.2, price_level: 1, calories_min: 300, calories_max: 500, description: 'Klasik Istanbul balik ekmek', tags: ['balik ekmek', 'sokak'] },
+  { name: 'Neolokal', cuisine: 'Fine Dining', area: 'Beyoglu', rating: 4.8, price_level: 4, calories_min: 300, calories_max: 600, description: 'Yenilikci Anadolu mutfagi', tags: ['fine dining', 'anadolu'] },
+  { name: 'Taksim Koftecisi', cuisine: 'Turk Mutfagi', area: 'Beyoglu', rating: 4.3, price_level: 1, calories_min: 400, calories_max: 650, description: 'Islak hamburger ve kofte', tags: ['kofte', 'islak hamburger'] },
+  { name: 'Karakoy Pizza', cuisine: 'Italyan', area: 'Beyoglu', rating: 4.2, price_level: 2, calories_min: 400, calories_max: 800, description: 'Odun firininda pizza', tags: ['pizza', 'italyan'] },
+  { name: 'Mikla Restaurant', cuisine: 'Fine Dining', area: 'Beyoglu', rating: 4.7, price_level: 4, calories_min: 350, calories_max: 600, description: 'Turk-Iskandinav fusion mutfagi', tags: ['fine dining', 'fusion'] },
+  { name: 'Galata Burger', cuisine: 'Burger', area: 'Beyoglu', rating: 4.1, price_level: 2, calories_min: 500, calories_max: 950, description: 'Gurme burger cesitleri', tags: ['burger'] },
+  { name: 'Beyoglu Simit Sarayi', cuisine: 'Kahvalti', area: 'Beyoglu', rating: 4.0, price_level: 1, calories_min: 200, calories_max: 450, description: 'Simit, pogaca ve cay', tags: ['simit', 'kahvalti'] },
+  { name: 'Asmalimescit Meyhane', cuisine: 'Meze', area: 'Beyoglu', rating: 4.5, price_level: 3, calories_min: 400, calories_max: 800, description: 'Klasik meyhane mezeleri', tags: ['meze', 'raki', 'meyhane'] },
+  { name: 'Cihangir Waffle', cuisine: 'Tatli', area: 'Beyoglu', rating: 4.1, price_level: 1, calories_min: 300, calories_max: 600, description: 'Belcika usulu waffle', tags: ['waffle', 'tatli'] },
+  { name: 'Karakoy Ramen', cuisine: 'Japon', area: 'Beyoglu', rating: 4.3, price_level: 2, calories_min: 400, calories_max: 700, description: 'Tonkotsu ve miso ramen', tags: ['ramen', 'japon'] },
+  { name: 'Cihangir Kahvalti', cuisine: 'Kahvalti', area: 'Beyoglu', rating: 4.4, price_level: 2, calories_min: 400, calories_max: 800, description: 'Serpme ve Van kahvaltisi', tags: ['kahvalti', 'serpme'] },
+  { name: 'Beyoglu Dondurma', cuisine: 'Tatli', area: 'Beyoglu', rating: 4.3, price_level: 1, calories_min: 150, calories_max: 350, description: 'Gercek Maras dondurmasi', tags: ['dondurma'] },
+  { name: 'Cilingir Sofrasi', cuisine: 'Meze', area: 'Beyoglu', rating: 4.4, price_level: 3, calories_min: 350, calories_max: 700, description: 'Geleneksel meyhane sofrasi', tags: ['meze', 'meyhane'] },
+  { name: 'Galata Kokorecci', cuisine: 'Sokak Lezzetleri', area: 'Beyoglu', rating: 4.5, price_level: 1, calories_min: 350, calories_max: 600, description: 'Gevrek kokorec', tags: ['kokorec'] },
+  { name: 'Taco Macho', cuisine: 'Meksika', area: 'Beyoglu', rating: 4.2, price_level: 2, calories_min: 400, calories_max: 750, description: 'Meksika tacolari ve burritos', tags: ['taco', 'meksika'] },
+  { name: 'Pera Thai', cuisine: 'Tayland', area: 'Beyoglu', rating: 4.1, price_level: 2, calories_min: 350, calories_max: 650, description: 'Tom yum ve green curry', tags: ['tayland', 'asya'] },
+  { name: 'Istiklal Tantuni', cuisine: 'Sokak Lezzetleri', area: 'Beyoglu', rating: 4.2, price_level: 1, calories_min: 350, calories_max: 550, description: 'Mersin tantunisi', tags: ['tantuni'] },
+  { name: 'Galata Tower Cafe', cuisine: 'Cafe', area: 'Beyoglu', rating: 4.0, price_level: 2, calories_min: 200, calories_max: 450, description: 'Galata Kulesi manzarasinda kahve', tags: ['kahve', 'manzara'] },
+  { name: 'Pera Salata Bar', cuisine: 'Saglikli', area: 'Beyoglu', rating: 4.2, price_level: 2, calories_min: 200, calories_max: 400, description: 'Taze salatalar ve wrap', tags: ['salata', 'saglikli'] },
+  { name: 'Nevizade Balik', cuisine: 'Deniz Urunleri', area: 'Beyoglu', rating: 4.4, price_level: 3, calories_min: 400, calories_max: 750, description: 'Taze balik ve raki sofrasi', tags: ['balik', 'meze', 'raki'] },
+  { name: 'Karakoy Cig Kofte', cuisine: 'Sokak Lezzetleri', area: 'Beyoglu', rating: 4.1, price_level: 1, calories_min: 200, calories_max: 400, description: 'Aci cig kofte ve salgam', tags: ['cig kofte'] },
+  { name: 'Beyoglu Lahmacun', cuisine: 'Kebap', area: 'Beyoglu', rating: 4.4, price_level: 1, calories_min: 250, calories_max: 450, description: 'Ince kiyili lahmacun', tags: ['lahmacun'] },
+  { name: 'Taksim Doner', cuisine: 'Kebap', area: 'Beyoglu', rating: 4.2, price_level: 1, calories_min: 400, calories_max: 700, description: 'Catir catir et doner', tags: ['doner'] },
+  { name: 'Greca Beyoglu', cuisine: 'Yunan', area: 'Beyoglu', rating: 4.3, price_level: 2, calories_min: 350, calories_max: 650, description: 'Yunan mezeleri ve souvlaki', tags: ['yunan', 'meze'] },
+  { name: 'Korean BBQ House', cuisine: 'Kore', area: 'Beyoglu', rating: 4.1, price_level: 3, calories_min: 400, calories_max: 800, description: 'Kore usulu barbeku', tags: ['kore', 'bbq'] },
+  { name: 'Beyoglu Gozlemeci', cuisine: 'Sokak Lezzetleri', area: 'Beyoglu', rating: 4.3, price_level: 1, calories_min: 300, calories_max: 550, description: 'Koyde pisirilen gozleme', tags: ['gozleme', 'geleneksel'] },
+
+  // ════════════════════════════════════════════════════════════════════════════
+  // SISLI (55 restaurants)
+  // ════════════════════════════════════════════════════════════════════════════
+  { name: 'Sisli Koftecisi', cuisine: 'Turk Mutfagi', area: 'Sisli', rating: 4.3, price_level: 1, calories_min: 400, calories_max: 650, description: 'Klasik kofte pilav', tags: ['kofte', 'geleneksel'] },
+  { name: 'Mecidiyekoy Pide', cuisine: 'Pide', area: 'Sisli', rating: 4.4, price_level: 2, calories_min: 450, calories_max: 850, description: 'Karadeniz pidesi ustasi', tags: ['pide', 'karadeniz'] },
+  { name: 'Nisantasi Burger', cuisine: 'Burger', area: 'Sisli', rating: 4.2, price_level: 3, calories_min: 500, calories_max: 1000, description: 'Premium burger ve shake', tags: ['burger', 'premium'] },
+  { name: 'Bomonti Bira Fabrikasi', cuisine: 'Fusion', area: 'Sisli', rating: 4.3, price_level: 3, calories_min: 400, calories_max: 800, description: 'Craft bira ve fusion mutfak', tags: ['bira', 'fusion'] },
+  { name: 'Sisli Kebapci', cuisine: 'Kebap', area: 'Sisli', rating: 4.5, price_level: 2, calories_min: 500, calories_max: 900, description: 'Adana ve urfa kebap', tags: ['kebap', 'adana'] },
+  { name: 'Mecidiyekoy Cig Kofte', cuisine: 'Sokak Lezzetleri', area: 'Sisli', rating: 4.1, price_level: 1, calories_min: 200, calories_max: 400, description: 'Acili cig kofte', tags: ['cig kofte'] },
+  { name: 'Nisantasi Balik', cuisine: 'Deniz Urunleri', area: 'Sisli', rating: 4.6, price_level: 4, calories_min: 400, calories_max: 750, description: 'Premium deniz urunleri', tags: ['balik', 'premium'] },
+  { name: 'Tesvikiye Pizza', cuisine: 'Italyan', area: 'Sisli', rating: 4.2, price_level: 2, calories_min: 400, calories_max: 800, description: 'Italyan usulu pizza ve pasta', tags: ['pizza', 'italyan'] },
+  { name: 'Bomonti Ramen', cuisine: 'Japon', area: 'Sisli', rating: 4.3, price_level: 2, calories_min: 400, calories_max: 700, description: 'Otantik ramen ve gyoza', tags: ['ramen', 'japon'] },
+  { name: 'Sisli Doner Ustasi', cuisine: 'Kebap', area: 'Sisli', rating: 4.3, price_level: 1, calories_min: 400, calories_max: 700, description: 'Yaprak et doner', tags: ['doner'] },
+  { name: 'Nisantasi Steakhouse', cuisine: 'Steak', area: 'Sisli', rating: 4.5, price_level: 4, calories_min: 500, calories_max: 1100, description: 'Dry age steak ve izgara', tags: ['steak', 'premium'] },
+  { name: 'Mecidiyekoy Tantuni', cuisine: 'Sokak Lezzetleri', area: 'Sisli', rating: 4.2, price_level: 1, calories_min: 350, calories_max: 550, description: 'Hizli tantuni', tags: ['tantuni'] },
+  { name: 'Sisli Manti Evi', cuisine: 'Turk Mutfagi', area: 'Sisli', rating: 4.4, price_level: 2, calories_min: 350, calories_max: 600, description: 'Kayseri mantisi', tags: ['manti'] },
+  { name: 'Tesvikiye Sushi', cuisine: 'Japon', area: 'Sisli', rating: 4.1, price_level: 3, calories_min: 300, calories_max: 600, description: 'Premium sushi bar', tags: ['sushi', 'japon'] },
+  { name: 'Bomonti Kahvalti', cuisine: 'Kahvalti', area: 'Sisli', rating: 4.3, price_level: 2, calories_min: 400, calories_max: 800, description: 'Weekend brunch ve kahvalti', tags: ['kahvalti', 'brunch'] },
+  { name: 'Sisli Kokorec', cuisine: 'Sokak Lezzetleri', area: 'Sisli', rating: 4.3, price_level: 1, calories_min: 350, calories_max: 600, description: 'Gece kokorecci', tags: ['kokorec'] },
+  { name: 'Nisantasi Cafe', cuisine: 'Cafe', area: 'Sisli', rating: 4.4, price_level: 3, calories_min: 200, calories_max: 450, description: 'Ozel kahve ve pasta', tags: ['kahve', 'pasta'] },
+  { name: 'Mecidiyekoy Balik Ekmek', cuisine: 'Deniz Urunleri', area: 'Sisli', rating: 4.0, price_level: 1, calories_min: 300, calories_max: 500, description: 'Taze balik ekmek', tags: ['balik ekmek'] },
+  { name: 'Sisli Lahmacun', cuisine: 'Kebap', area: 'Sisli', rating: 4.2, price_level: 1, calories_min: 250, calories_max: 450, description: 'Ince hamur lahmacun', tags: ['lahmacun'] },
+  { name: 'Bomonti Thai', cuisine: 'Tayland', area: 'Sisli', rating: 4.0, price_level: 2, calories_min: 350, calories_max: 650, description: 'Pad thai ve curry', tags: ['tayland', 'asya'] },
+  { name: 'Nisantasi Salata', cuisine: 'Saglikli', area: 'Sisli', rating: 4.2, price_level: 2, calories_min: 200, calories_max: 400, description: 'Fresh salatalar', tags: ['salata', 'saglikli'] },
+  { name: 'Sisli Gozleme', cuisine: 'Sokak Lezzetleri', area: 'Sisli', rating: 4.1, price_level: 1, calories_min: 300, calories_max: 550, description: 'El acmasi gozleme', tags: ['gozleme'] },
+  { name: 'Tesvikiye Meksika', cuisine: 'Meksika', area: 'Sisli', rating: 4.1, price_level: 2, calories_min: 400, calories_max: 750, description: 'Burrito ve quesadilla', tags: ['meksika'] },
+  { name: 'Sisli Baklava', cuisine: 'Tatli', area: 'Sisli', rating: 4.5, price_level: 2, calories_min: 200, calories_max: 500, description: 'Gaziantep baklavasi', tags: ['baklava', 'tatli'] },
+  { name: 'Bomonti Burger', cuisine: 'Burger', area: 'Sisli', rating: 4.2, price_level: 2, calories_min: 500, calories_max: 950, description: 'Smash burger', tags: ['burger', 'smash'] },
+];
+
+async function seed() {
+  console.log('[Seed] Initializing database...');
+  await initDB();
+
+  const existingCount = await dbHelpers.count('restaurants', { is_active: 1 });
+  if (existingCount >= 200) {
+    console.log(`[Seed] Already ${existingCount} active restaurants. Skipping seed.`);
+    return;
+  }
+
+  console.log(`[Seed] Seeding ${restaurants.length} restaurants...`);
+  let id = Date.now();
+  let imported = 0;
+
+  for (const r of restaurants) {
+    const existing = await dbHelpers.findOne('restaurants', { name: r.name, area: r.area });
+    if (existing) continue;
+
+    await dbHelpers.insert('restaurants', {
+      ...r,
+      id: ++id,
+      is_active: 1,
+      yemeksepeti_link: r.yemeksepeti_link || '',
+      getir_link: r.getir_link || '',
+      trendyol_link: r.trendyol_link || '',
+      image_url: r.image_url || '',
+      created_at: new Date().toISOString(),
+    });
+    imported++;
+  }
+
+  const totalCount = await dbHelpers.count('restaurants');
+  console.log(`[Seed] Done! Imported: ${imported}, Total: ${totalCount}`);
+  console.log('[Seed] Areas:', [...new Set(restaurants.map(r => r.area))].join(', '));
+  console.log('[Seed] Cuisines:', [...new Set(restaurants.map(r => r.cuisine))].length, 'types');
+
+  const { closeDB } = require('./models/db');
+  await closeDB();
+}
+
+seed().catch(err => {
+  console.error('[Seed] Error:', err);
+  process.exit(1);
+});

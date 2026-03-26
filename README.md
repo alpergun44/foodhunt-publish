@@ -1,36 +1,52 @@
+# FoodHunt — Launch-Ready MVP
 
-# FoodHunt (Publish-ready MVP)
+**"Ne yesem?" sorusunu 60 saniyede bracket turnuvasıyla çöz.**
 
-Bu paket yayınlanabilir bir Aşama 1 sürümüdür:
-- Frontend: React + Tailwind, şık UI
-- Admin panel: CRUD + görsel yükleme + CSV import
-- Backend: Express + NeDB dosya DB + görüntü yükleme (disk)
+## Quick Start
 
-## Yerel Çalıştırma
 ### Backend
-```
+```bash
 cd backend
 npm install
-cp .env.example .env
-# .env içindeki ADMIN_TOKEN değerini değiştirin
-npm run dev
+node server.js
+# → http://localhost:3001
 ```
-- Sağlık: `http://localhost:5050/api/health`
 
 ### Frontend
-```
+```bash
 cd frontend
 npm install
-echo "VITE_API_BASE=http://localhost:5050" > .env
 npm run dev
+# → http://localhost:5173
 ```
-- Uygulama: `http://localhost:5173`
-- Admin: `http://localhost:5173/admin` (token: .env'deki ADMIN_TOKEN)
 
-## Üretime Altyapı (öneri)
-- **Backend:** Render / Railway (Node server). Kalıcı disk veya external storage kullanın.
-- **Frontend:** Vercel / Netlify (static build). ENV: `VITE_API_BASE` = backend URL.
-- **Görseller:** Varsayılan disk yükleme. Üretimde Cloud storage (S3/Cloudinary) entegre etmek için upload endpointini uyarlayın.
+## Admin Panel
+- URL: `http://localhost:5173/admin`
+- Şifre: `.env` dosyasındaki `ADMIN_PASSWORD` (varsayılan: `foodhunt2026`)
 
-## CSV Şablon Alanları
-`name,archetype,cuisine,price_band,satiety,spicy,diet_tags,temp,kcal_range,macros_hint,image_url,city,area`
+## CSV Import Formatı
+Admin panelinden `Şablon İndir` butonu ile örnek CSV indir.
+
+Zorunlu sütun: `name`
+Opsiyonel: `cuisine, area, price_level, rating, calories_min, calories_max, yemeksepeti_link, getir_link, trendyol_link, image_url, description`
+
+## GA4 Kurulumu
+`frontend/index.html` içindeki `GA_MEASUREMENT_ID` değerini kendi GA4 ölçüm ID'nle değiştir.
+
+## Deploy
+- **Frontend:** Vercel (root: `frontend/`, build: `npm run build`, output: `dist/`)
+- **Backend:** Railway / Render / Fly.io
+- **Env:** `ADMIN_PASSWORD`, `PORT`, `ALLOWED_ORIGINS` set et
+
+## Özellikler (v2.0)
+- ✅ Bracket turnuvası (8 veya 16 restoran)
+- ✅ Filtre: bölge + mutfak
+- ✅ Deeplink: Yemeksepeti / Getir / Trendyol
+- ✅ Sonucu paylaş (WhatsApp, Twitter, kopyala)
+- ✅ Food Radio (mini player)
+- ✅ İlham kartları
+- ✅ GA4 + backend analytics
+- ✅ Admin panel: CRUD + CSV import + fotoğraf yükleme
+- ✅ KVKK / Kullanım Şartları / Çerez sayfaları
+- ✅ Mobile-first responsive
+- ✅ Dark theme

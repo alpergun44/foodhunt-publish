@@ -1,14 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root { --radius: 16px; }
-.container { @apply max-w-4xl mx-auto px-4; }
-.card { @apply bg-slate-900 rounded-2xl shadow-card border border-slate-800; }
-.btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-semibold bg-slate-800 border border-slate-700 hover:bg-slate-700 transition; }
-.btn-primary { @apply bg-brand text-slate-900 border-0 hover:bg-brand-dark; }
-.pill { @apply text-xs px-2 py-1 rounded-full bg-slate-800 text-slate-300; }
-.input { @apply bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 w-full outline-none focus:border-brand; }
-.label { @apply text-xs text-slate-400 mb-1; }
-.grid-2 { @apply grid grid-cols-1 md:grid-cols-2 gap-4; }
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-brand-dark text-brand-cream font-sans antialiased;
+    min-height: 100dvh;
+    -webkit-tap-highlight-color: transparent;
+    /* iOS Safe Area support */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  * { box-sizing: border-box; }
+  :focus-visible { @apply outline-2 outline-brand-coral outline-offset-2; }
+
+  /* Prevent iOS rubber-band overscroll background showing white */
+  html { background: #0D0D0D; }
+
+  /* iOS standalone PWA / Capacitor - fix status bar area */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    .safe-top { padding-top: env(safe-area-inset-top); }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  }
+
+  /* Prevent text selection on game cards (mobile UX) */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* Custom scrollbar for dark theme */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #1A1A1A; }
+  ::-webkit-scrollbar-thumb { background: #3A3A3A; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #FF6B35; }
+}
+
+@layer components {
+  /* ─── Buttons ─────────────────────────────────────────────── */
+  .btn-primary {
+    @apply bg-brand-coral hover:bg-brand-coral-light active:scale-95
+           text-white font-bold rounded-2xl px-6 py-3
+           transition-all duration-150 select-none cursor-pointer
+           shadow-lg shadow-brand-coral/20;
+  }
+  .btn-secondary {
+    @apply border-2 border-white/10 hover:border-brand-coral
+           text-white rounded-2xl px-6 py-3
+           transition-all duration-150 select-none cursor-pointer
+           hover:bg-white/5;
+  }
+  .btn-amber {
+    @apply bg-brand-amber hover:bg-brand-amber-light active:scale-95
+           text-brand-dark font-bold rounded-2xl px-6 py-3
+           transition-all duration-150 select-none cursor-pointer;
+  }
+
+  /* ─── Cards ───────────────────────────────────────────────── */
+  .card {
+    @apply bg-brand-card rounded-3xl border border-white/5
+           shadow-xl overflow-hidden;
+  }
+  .card-hover {
+    @apply hover:border-brand-coral/40 hover:shadow-brand-coral/10 hover:shadow-2xl
+           hover:-translate-y-1
+           transition-all duration-300 cursor-pointer;
+  }
+  .card-glass {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    @apply rounded-3xl border border-white/5;
+  }
+
+  /* ─── Badges & Tags ───────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-3 py-1
+           text-xs font-semibold uppercase tracking-wide;
+  }
+  .badge-coral {
+    @apply badge bg-brand-coral/15 text-brand-coral;
+  }
+  .badge-amber {
+    @apply badge bg-brand-amber/15 text-brand-amber;
+  }
+  .badge-fresh {
+    @apply badge bg-brand-fresh/15 text-brand-fresh;
+  }
+
+  /* ─── Inputs ──────────────────────────────────────────────── */
+  .input-field {
+    @apply bg-brand-surface border border-white/10 rounded-xl px-4 py-3
+           text-brand-cream placeholder:text-brand-muted w-full
+           focus:outline-none focus:border-brand-coral focus:ring-1 focus:ring-brand-coral/30
+           transition-all duration-150;
+  }
+  .select-field {
+    @apply input-field appearance-none cursor-pointer
+           bg-no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23A8A29E' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #FF6B35, #FFB627);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-warm {
+    background: linear-gradient(135deg, #FF6B35, #FF8A5C, #FFB627);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .glass {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.05) 50%, transparent 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+}
+
+/* ─── VS Battle ─────────────────────────────────────────────── */
+.vs-badge {
+  animation: vsPulse 1.5s ease-in-out infinite;
+}
+@keyframes vsPulse {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.2); }
+}
+
+/* ─── Progress bar glow ──────────────────────────────────────── */
+.progress-glow {
+  box-shadow: 0 0 16px rgba(255,107,53,0.5), 0 0 32px rgba(255,107,53,0.2);
+}
+
+/* ─── Food image overlay gradient ────────────────────────────── */
+.food-overlay {
+  background: linear-gradient(to top, rgba(13,13,13,0.95) 0%, rgba(13,13,13,0.4) 40%, transparent 100%);
+}
+
+/* ─── Bracket connector lines ────────────────────────────────── */
+.bracket-line {
+  border-right: 2px solid rgba(255,107,53,0.2);
+  border-top: 2px solid rgba(255,107,53,0.2);
+  border-bottom: 2px solid rgba(255,107,53,0.2);
+}
+
+/* ─── Ambient glow behind hero ───────────────────────────────── */
+.ambient-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+.ambient-coral {
+  background: #FF6B35;
+}
+.ambient-amber {
+  background: #FFB627;
+}

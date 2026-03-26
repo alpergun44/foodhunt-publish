@@ -1,82 +1,370 @@
+// ─── FoodHunt API Client v2.2 (Unified) ─────────────────────────────────────
+// Works with both Vite dev proxy (/api) and production backend.
+// Supports: public API, user auth (JWT), admin auth (legacy token), analytics.
 
-export const API_BASE = (import.meta.env.VITE_API_BASE as string) || "http://localhost:5050";
+const BASE = '/api';
 
-function authHeaders() {
-  const t = localStorage.getItem("fh_admin_token");
-  return t ? { Authorization: `Bearer ${t}` } : {};
+// ─── Safe Storage Helper (incognito/private mode safe) ──────────────────────
+const memoryStore: Record<string, string> = {};
+
+export function safeStorage(type: 'local' | 'session'): Storage | null {
+  try {
+    const s = type === 'local' ? localStorage : sessionStorage;
+    s.setItem('__test', '1');
+    s.removeItem('__test');
+    return s;
+  } catch {
+    return null;
+  }
 }
 
-export async function fetchCatalog(city: string, area: string, limit = 16) {
-  const res = await fetch(`${API_BASE}/api/catalog?city=${encodeURIComponent(city)}&area=${encodeURIComponent(area)}&limit=${limit}`);
-  if (!res.ok) throw new Error("Catalog fetch failed");
+export function safeGetItem(type: 'local' | 'session', key: string): string | null {
+  const s = safeStorage(type);
+  if (s) return s.getItem(key);
+  return memoryStore[key] ?? null;
+}
+
+export function safeSetItem(type: 'local' | 'session', key: string, value: string): void {
+  const s = safeStorage(type);
+  if (s) s.setItem(key, value);
+  else memoryStore[key] = value;
+}
+
+export function safeRemoveItem(type: 'local' | 'session', key: string): void {
+  const s = safeStorage(type);
+  if (s) s.removeItem(key);
+  else delete memoryStore[key];
+}
+
+// ─── Session + Analytics ────────────────────────────────────────────────────
+function getSessionId(): string {
+  let sid = safeGetItem('session', 'fh_sid');
+  if (!sid) {
+    sid = crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    safeSetItem('session', 'fh_sid', sid);
+  }
+  return sid;
+}
+
+function ga4(name: string, params: Record<string, unknown> = {}) {
+  try {
+    (window as any).gtag?.('event', name, params);
+  } catch (e) {
+    if (import.meta.env.DEV) console.warn('[GA4]', e);
+  }
+}
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+export interface Restaurant {
+  id: number;
+  name: string;
+  cuisine?: string;
+  area?: string;
+  rating?: number;
+  price_level?: number;
+  calories_min?: number;
+  calories_max?: number;
+  image_url?: string;
+  description?: string;
+  yemeksepeti_link?: string;
+  getir_link?: string;
+  trendyol_link?: string;
+  is_active?: number; // 0 or 1
+  address?: string;
+  lat?: number;
+  lng?: number;
+  tags?: string[];
+  google_place_id?: string;
+  google_maps_url?: string;
+  website?: string;
+  rating_count?: number;
+  is_open?: boolean | null;
+  source?: string;
+}
+
+export interface InspirationCard {
+  id: number;
+  text: string;
+  emoji: string;
+  category?: string;
+}
+
+export interface AdminStats {
+  total: number;
+  active: number;
+  areas: number;
+  users: number;
+  todayEvents: number;
+  totalEvents: number;
+  completions: number;
+  deeplinks: number;
+  topCuisines: { cuisine: string; n: number }[];
+  topAreas: { area: string; n: number }[];
+  topWinners: { restaurant_id: number; wins: number; name: string }[];
+  recentEvents: { event_type: string; created_at: string; area?: string; game_type?: string }[];
+  dailyTrend: { date: string; count: number }[];
+}
+
+export interface SocialStats {
+  todayGames: number;
+  totalGames: number;
+  totalRestaurants: number;
+}
+
+export interface NearbyResult {
+  restaurants: Restaurant[];
+  meta: {
+    total: number;
+    returned: number;
+    google_count: number;
+    seed_count: number;
+    location: { lat: number; lng: number };
+    radius: number;
+    area_detected: string | null;
+  };
+}
+
+export interface NearbyArea {
+  area: string;
+  count: number;
+  distance: number | null;
+}
+
+// ─── Safe Fetch Helper ──────────────────────────────────────────────────────
+async function safeFetch<T>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, init);
+  if (res.status === 401) {
+    // Clear both user and admin tokens on 401
+    safeRemoveItem('local', 'fh_admin_token');
+    safeRemoveItem('local', 'foodhunt_token');
+    safeRemoveItem('local', 'foodhunt_user');
+    throw new Error('Unauthorized — session expired');
+  }
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    const error = new Error(data.error?.message || data.error || `HTTP ${res.status}`);
+    (error as any).status = res.status;
+    (error as any).code = data.error?.code;
+    throw error;
+  }
   return res.json();
 }
 
-export async function track(event_type: string, payload: Record<string, any> = {}, session_id?: string) {
-  await fetch(`${API_BASE}/api/events`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ event_type, session_id, payload })
-  }).catch(() => {});
+function authHeaders(token: string): Record<string, string> {
+  return { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 }
 
-// Admin
-export async function adminList(params: { city?: string; area?: string; q?: string }) {
-  const qs = new URLSearchParams(params as any).toString();
-  const res = await fetch(`${API_BASE}/api/admin/items?${qs}`, { headers: authHeaders() });
-  if (!res.ok) throw new Error("Admin list failed");
-  return res.json();
-}
+// ─── Public API ─────────────────────────────────────────────────────────────
+export const api = {
+  getCatalog: (area?: string, cuisine?: string, limit = 16, signal?: AbortSignal): Promise<Restaurant[]> => {
+    const p = new URLSearchParams();
+    if (area) p.set('area', area);
+    if (cuisine) p.set('cuisine', cuisine);
+    p.set('limit', String(limit));
+    return safeFetch(`${BASE}/catalog?${p}`, { signal });
+  },
 
-export async function adminCreate(item: any) {
-  const res = await fetch(`${API_BASE}/api/admin/items`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify(item)
-  });
-  if (!res.ok) throw new Error("Create failed");
-  return res.json();
-}
+  getAreas: (): Promise<{ area: string; count: number }[]> =>
+    safeFetch(`${BASE}/areas`),
 
-export async function adminUpdate(id: string, patch: any) {
-  const res = await fetch(`${API_BASE}/api/admin/items/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify(patch)
-  });
-  if (!res.ok) throw new Error("Update failed");
-  return res.json();
-}
+  getCuisines: (area?: string): Promise<{ cuisine: string; count: number }[]> =>
+    safeFetch(`${BASE}/cuisines${area ? `?area=${encodeURIComponent(area)}` : ''}`),
 
-export async function adminDelete(id: string) {
-  const res = await fetch(`${API_BASE}/api/admin/items/${id}`, {
-    method: "DELETE",
-    headers: authHeaders()
-  });
-  if (!res.ok) throw new Error("Delete failed");
-  return res.json();
-}
+  getInspiration: (): Promise<InspirationCard> =>
+    safeFetch(`${BASE}/inspiration`),
 
-export async function adminUpload(file: File) {
-  const fd = new FormData();
-  fd.append("file", file);
-  const res = await fetch(`${API_BASE}/api/admin/upload`, {
-    method: "POST",
-    headers: authHeaders(),
-    body: fd
-  });
-  if (!res.ok) throw new Error("Upload failed");
-  return res.json();
-}
+  getRestaurant: (id: number): Promise<Restaurant> =>
+    safeFetch(`${BASE}/restaurants/${id}`),
 
-export async function adminImportCSV(csvText: string) {
-  const body = new URLSearchParams();
-  body.set("csv", csvText);
-  const res = await fetch(`${API_BASE}/api/admin/import-csv`, {
-    method: "POST",
-    headers: { ...authHeaders(), "Content-Type": "application/x-www-form-urlencoded" },
-    body
-  });
-  if (!res.ok) throw new Error("Import failed");
-  return res.json();
-}
+  getSocialStats: (): Promise<SocialStats> =>
+    safeFetch(`${BASE}/stats/social`),
+
+  trackEvent: (event_type: string, extra?: Record<string, unknown>) => {
+    ga4(event_type, extra || {});
+    return fetch(`${BASE}/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_type, session_id: getSessionId(), ...extra }),
+    }).catch(() => {});
+  },
+
+  // ─── Nearby / Location-based ──────────────────────────────────────────────
+  getNearby: (lat: number, lng: number, radius = 2000, limit = 16, cuisine?: string): Promise<NearbyResult> => {
+    const p = new URLSearchParams({
+      lat: String(lat),
+      lng: String(lng),
+      radius: String(radius),
+      limit: String(limit),
+    });
+    if (cuisine) p.set('cuisine', cuisine);
+    return safeFetch(`${BASE}/nearby?${p}`);
+  },
+
+  getNearbyAreas: (lat?: number, lng?: number): Promise<NearbyArea[]> => {
+    const p = new URLSearchParams();
+    if (lat !== undefined && lng !== undefined) {
+      p.set('lat', String(lat));
+      p.set('lng', String(lng));
+    }
+    return safeFetch(`${BASE}/nearby/areas?${p}`);
+  },
+
+  saveNearbyRestaurant: (data: Partial<Restaurant>): Promise<Restaurant> =>
+    safeFetch(`${BASE}/nearby/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }),
+};
+
+// ─── User API (requires JWT from user login) ────────────────────────────────
+export const userApi = {
+  getFavorites: (token: string): Promise<Restaurant[]> =>
+    safeFetch(`${BASE}/user/favorites`, { headers: authHeaders(token) }),
+
+  addFavorite: (token: string, restaurantId: number): Promise<{ ok: boolean }> =>
+    safeFetch(`${BASE}/user/favorites`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({ restaurant_id: restaurantId }),
+    }),
+
+  removeFavorite: (token: string, restaurantId: number): Promise<{ ok: boolean }> =>
+    safeFetch(`${BASE}/user/favorites/${restaurantId}`, {
+      method: 'DELETE',
+      headers: authHeaders(token),
+    }),
+
+  getHistory: (token: string, limit = 20): Promise<any[]> =>
+    safeFetch(`${BASE}/user/history?limit=${limit}`, { headers: authHeaders(token) }),
+
+  saveHistory: (token: string, data: Record<string, any>): Promise<{ ok: boolean }> =>
+    safeFetch(`${BASE}/user/history`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    }),
+
+  getRecommendation: (token: string, area?: string): Promise<{ restaurant: Restaurant }> =>
+    safeFetch(`${BASE}/user/recommend${area ? `?area=${encodeURIComponent(area)}` : ''}`, {
+      headers: authHeaders(token),
+    }),
+};
+
+// ─── Auth API ───────────────────────────────────────────────────────────────
+export const authApi = {
+  register: (email: string, password: string, name: string): Promise<{ token: string; user: any }> =>
+    safeFetch(`${BASE}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name }),
+    }),
+
+  login: (email: string, password: string): Promise<{ token: string; user: any }> =>
+    safeFetch(`${BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    }),
+
+  getProfile: (token: string): Promise<any> =>
+    safeFetch(`${BASE}/auth/me`, { headers: authHeaders(token) }),
+
+  updatePreferences: (token: string, prefs: Record<string, any>): Promise<any> =>
+    safeFetch(`${BASE}/auth/me/preferences`, {
+      method: 'PATCH',
+      headers: authHeaders(token),
+      body: JSON.stringify(prefs),
+    }),
+};
+
+// ─── Admin API (requires admin token from legacy login) ─────────────────────
+export const adminApi = {
+  login: async (password: string): Promise<{ token: string }> =>
+    safeFetch(`${BASE}/auth/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    }),
+
+  getRestaurants: (token: string): Promise<Restaurant[]> =>
+    safeFetch(`${BASE}/admin/restaurants`, { headers: authHeaders(token) }),
+
+  getStats: (token: string): Promise<AdminStats> =>
+    safeFetch(`${BASE}/admin/stats`, { headers: authHeaders(token) }),
+
+  createRestaurant: (token: string, data: Partial<Restaurant>): Promise<Restaurant> =>
+    safeFetch(`${BASE}/admin/restaurants`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    }),
+
+  updateRestaurant: (token: string, id: number, data: Partial<Restaurant>): Promise<{ ok: boolean }> =>
+    safeFetch(`${BASE}/admin/restaurants/${id}`, {
+      method: 'PUT',
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    }),
+
+  deleteRestaurant: (token: string, id: number): Promise<{ ok: boolean }> =>
+    safeFetch(`${BASE}/admin/restaurants/${id}`, {
+      method: 'DELETE',
+      headers: authHeaders(token),
+    }),
+
+  bulkImport: (token: string, restaurants: Partial<Restaurant>[]): Promise<{ imported: number }> =>
+    safeFetch(`${BASE}/admin/restaurants/bulk`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({ restaurants }),
+    }),
+
+  uploadImage: async (token: string, file: File): Promise<string> => {
+    const fd = new FormData();
+    fd.append('image', file);
+    const res = await fetch(`${BASE}/admin/upload`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd,
+    });
+    if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+    const data = await res.json();
+    return data.url;
+  },
+
+  getCards: (token: string): Promise<InspirationCard[]> =>
+    safeFetch(`${BASE}/admin/cards`, { headers: authHeaders(token) }),
+
+  createCard: (token: string, data: { text: string; emoji: string; category: string }): Promise<InspirationCard> =>
+    safeFetch(`${BASE}/admin/cards`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    }),
+
+  deleteCard: (token: string, id: number): Promise<{ ok: boolean }> =>
+    safeFetch(`${BASE}/admin/cards/${id}`, {
+      method: 'DELETE',
+      headers: authHeaders(token),
+    }),
+
+  getExportUrl: (type: 'events' | 'restaurants', format: 'json' | 'csv' = 'json'): string =>
+    `${BASE}/admin/${type}/export?format=${format}`,
+
+  searchByLocation: (token: string, lat: number, lng: number, radius = 2000): Promise<{ results: Restaurant[] }> =>
+    safeFetch(`${BASE}/admin/restaurants/search-location`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({ lat, lng, radius }),
+    }),
+
+  searchByQuery: (token: string, query: string): Promise<{ results: Restaurant[] }> =>
+    safeFetch(`${BASE}/admin/restaurants/search-location`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({ query }),
+    }),
+};
