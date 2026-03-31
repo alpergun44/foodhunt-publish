@@ -121,11 +121,10 @@ router.patch('/me/preferences', requireAuth, asyncHandler(async (req, res) => {
 
 // Admin login (legacy — kept for backward compatibility)
 router.post('/admin/login', loginRateLimit, asyncHandler(async (req, res) => {
-  if (!process.env.ADMIN_PASSWORD && process.env.NODE_ENV === 'production') {
-    console.error('CRITICAL: ADMIN_PASSWORD environment variable is required in production!');
-    process.exit(1);
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'foodhunt2026';
+  if (!process.env.ADMIN_PASSWORD) {
+    console.warn('WARNING: ADMIN_PASSWORD not set — using default. Set ADMIN_PASSWORD env var.');
   }
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123'; // dev only
   const pw = typeof req.body.password === 'string' ? req.body.password : '';
   if (!safeCompare(pw, ADMIN_PASSWORD)) throw new UnauthorizedError('Yanlis sifre');
 
