@@ -184,11 +184,66 @@ async function seedCards() {
   logger.info('Inspiration cards seeded', { count: defaults.length });
 }
 
+// ─── Seed Restaurants on Startup ────────────────────────────────────────────
+async function seedRestaurants() {
+  const { dbHelpers } = require('./models/db');
+  const existingCount = await dbHelpers.count('restaurants');
+  if (existingCount >= 50) {
+    logger.info('Restaurants already seeded', { count: existingCount });
+    return;
+  }
+
+  logger.info('Seeding restaurants...');
+  try {
+    const { TUZLA_RESTAURANTS } = require('./seed-tuzla');
+    const seedData = require('./seed.v2.data.json');
+    const allRestaurants = [...seedData, ...TUZLA_RESTAURANTS];
+
+    let id = Date.now();
+    let imported = 0;
+    for (const r of allRestaurants) {
+      const existing = await dbHelpers.findOne('restaurants', { name: r.name, area: r.area });
+      if (existing) continue;
+      await dbHelpers.insert('restaurants', {
+        ...r, id: ++id, is_active: 1,
+        yemeksepeti_link: r.yemeksepeti_link || '',
+        getir_link: r.getir_link || '',
+        trendyol_link: r.trendyol_link || '',
+        image_url: r.image_url || '',
+        created_at: new Date().toISOString(),
+      });
+      imported++;
+    }
+    logger.info('Restaurants seeded', { imported, total: await dbHelpers.count('restaurants') });
+  } catch (err) {
+    // Fallback: run seed inline with data from seed.v2.js arrays
+    logger.warn('JSON seed not found, using inline seed', { error: err.message });
+    const seedModule = require('./seed-tuzla');
+    let id = Date.now();
+    let imported = 0;
+    for (const r of (seedModule.TUZLA_RESTAURANTS || [])) {
+      const existing = await dbHelpers.findOne('restaurants', { name: r.name, area: r.area });
+      if (existing) continue;
+      await dbHelpers.insert('restaurants', {
+        ...r, id: ++id, is_active: 1,
+        yemeksepeti_link: r.yemeksepeti_link || '',
+        getir_link: r.getir_link || '',
+        trendyol_link: r.trendyol_link || '',
+        image_url: r.image_url || '',
+        created_at: new Date().toISOString(),
+      });
+      imported++;
+    }
+    logger.info('Tuzla restaurants seeded (fallback)', { imported });
+  }
+}
+
 // ─── Start ───────────────────────────────────────────────────────────────────
 async function start() {
   try {
     await initDB();
     await seedCards();
+    await seedRestaurants();
     app.listen(PORT, () => {
       logger.info(`FoodHunt API v2.3 running`, { port: PORT, db_type: process.env.DB_TYPE || 'nedb' });
       console.log(`[FoodHunt] API running on http://localhost:${PORT}`);
