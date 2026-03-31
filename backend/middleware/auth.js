@@ -7,11 +7,13 @@ const { UnauthorizedError, RateLimitError } = require('../utils/errors');
 const { safeCompare } = require('../utils/validation');
 
 // Simple JWT implementation (no external dependency)
-if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
-  console.error('CRITICAL: JWT_SECRET environment variable is required in production!');
-  process.exit(1);
+let JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+  // Auto-generate a secret if not provided (tokens won't survive restarts)
+  JWT_SECRET = crypto.randomBytes(48).toString('hex');
+  console.warn('WARNING: JWT_SECRET not set — auto-generated. Tokens will reset on restart. Set JWT_SECRET env var for persistence.');
 }
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-secret-do-not-use-in-production';
+if (!JWT_SECRET) JWT_SECRET = 'dev-only-secret-do-not-use-in-production';
 const JWT_EXPIRY = parseInt(process.env.JWT_EXPIRY) || 7 * 24 * 60 * 60; // 7 days
 
 function base64url(str) {

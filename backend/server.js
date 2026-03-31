@@ -43,10 +43,12 @@ if (!ADMIN_TOKEN) ADMIN_TOKEN = crypto.randomBytes(32).toString('hex');
 global.__ADMIN_TOKEN = ADMIN_TOKEN;
 
 // ─── Production Security ─────────────────────────────────────────────────────
+app.set('trust proxy', 1); // Trust Railway's reverse proxy
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] !== 'https') {
-      return res.redirect(301, `https://${req.hostname}${req.url}`);
+    const proto = req.headers['x-forwarded-proto'];
+    if (proto && proto !== 'https') {
+      return res.redirect(301, `https://${req.headers.host || req.hostname}${req.url}`);
     }
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
     next();
@@ -59,7 +61,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       connectSrc: ["'self'", "https://places.googleapis.com", "https://www.google-analytics.com"],
       fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
