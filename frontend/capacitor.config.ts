@@ -4,6 +4,9 @@ const config: CapacitorConfig = {
   appId: 'com.foodhunt.app',
   appName: 'FoodHunt',
   webDir: 'dist',
+  server: {
+    androidScheme: 'https',
+  },
   ios: {
     contentInset: 'automatic',
     backgroundColor: '#0D0D0D',
@@ -12,14 +15,23 @@ const config: CapacitorConfig = {
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
-      backgroundColor: '#0D0D0D',
-      showSpinner: false,
       launchAutoHide: true,
+      launchFadeOutDuration: 3000,
+      backgroundColor: '#0D0D0D',
+      androidScaleType: 'centerCrop',
+      showSpinner: false,
+      iosSpinnerStyle: 'white',
+      spinnerColor: '#FF6B35',
     },
     Keyboard: {
       resize: 'body',
       resizeOnFullScreen: true,
+    },
+    PushNotifications: {
+      presentationOptions: ['badge', 'sound', 'alert'],
+    },
+    Geolocation: {
+      permissions: ['location'],
     },
   },
 };

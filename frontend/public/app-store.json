@@ -1,0 +1,37 @@
+{
+  "app_id": "com.foodhunt.app",
+  "app_name": "FoodHunt",
+  "bundle_id": "com.foodhunt.app",
+  "version": "2.5.0",
+  "build_number": "25",
+  "description": "Turnuva sistemiyle restoran kesfet. Ogle mi, aksam mi? FoodHunt karar verir!",
+  "keywords": [
+    "restoran",
+    "yemek",
+    "turnuva",
+    "oyun",
+    "istanbul",
+    "tuzla",
+    "ogrenci",
+    "yemek-secimi"
+  ],
+  "privacy_policy_url": "https://foodhunt.app/kvkk",
+  "terms_url": "https://foodhunt.app/kullanim",
+  "support_url": "https://foodhunt.app",
+  "screenshots": [
+    "screenshot-landing.jpg",
+    "screenshot-tournament.jpg",
+    "screenshot-battle.jpg",
+    "screenshot-results.jpg",
+    "screenshot-admin.jpg"
+  ],
+  "categories": {
+    "primary": "Food & Drink",
+    "secondary": "Entertainment"
+  },
+  "age_rating": "4+",
+  "languages": ["tr"],
+  "subtitle": "Restoran turnuvasi ile kesfet",
+  "promotional_text": "Tuzla bolgesinde 50+ restoran ile turnuva oyna!",
+  "release_notes": "v2.5: Zaman bazli turnuva slotlari, freemium model, Tuzla pilot bolgesi"
+}

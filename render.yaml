@@ -12,7 +12,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_PASSWORD
-        value: FoodHunt2026Admin
+        generateValue: true
       - key: JWT_EXPIRY
         value: "604800"
       - key: LOG_LEVEL

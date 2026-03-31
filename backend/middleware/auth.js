@@ -7,7 +7,11 @@ const { UnauthorizedError, RateLimitError } = require('../utils/errors');
 const { safeCompare } = require('../utils/validation');
 
 // Simple JWT implementation (no external dependency)
-const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  console.error('CRITICAL: JWT_SECRET environment variable is required in production!');
+  process.exit(1);
+}
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-only-secret-do-not-use-in-production';
 const JWT_EXPIRY = parseInt(process.env.JWT_EXPIRY) || 7 * 24 * 60 * 60; // 7 days
 
 function base64url(str) {
@@ -78,22 +82,30 @@ function optionalAuth(req, _res, next) {
 
 // Middleware: require authenticated user
 function requireAuth(req, _res, next) {
-  const auth = req.headers.authorization || '';
-  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-  if (!token) throw new UnauthorizedError('Giris yapmaniz gerekiyor');
-  const payload = verifyToken(token);
-  if (!payload) throw new UnauthorizedError('Oturum suresi dolmus. Tekrar giris yapin.');
-  req.user = payload;
-  next();
+  try {
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+    if (!token) throw new UnauthorizedError('Giris yapmaniz gerekiyor');
+    const payload = verifyToken(token);
+    if (!payload) throw new UnauthorizedError('Oturum suresi dolmus. Tekrar giris yapin.');
+    req.user = payload;
+    next();
+  } catch (err) {
+    next(err);
+  }
 }
 
 // Middleware: require admin token (legacy admin auth)
 function requireAdmin(req, _res, next) {
-  const ADMIN_TOKEN = process.env.ADMIN_TOKEN || global.__ADMIN_TOKEN;
-  const auth = req.headers.authorization || '';
-  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-  if (!safeCompare(token, ADMIN_TOKEN)) throw new UnauthorizedError('Admin yetkisi gerekli');
-  next();
+  try {
+    const ADMIN_TOKEN = process.env.ADMIN_TOKEN || global.__ADMIN_TOKEN;
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+    if (!safeCompare(token, ADMIN_TOKEN)) throw new UnauthorizedError('Admin yetkisi gerekli');
+    next();
+  } catch (err) {
+    next(err);
+  }
 }
 
 // Rate limiter with cleanup
@@ -117,7 +129,7 @@ function rateLimit(maxRequests = 300, windowMs = 60000) {
     const w = rateBuckets[ip];
     if (!w || now - w.start > windowMs) {
       rateBuckets[ip] = { start: now, count: 1 };
-    } else if (w.count > maxRequests) {
+    } else if (w.count >= maxRequests) {
       throw new RateLimitError(Math.ceil(windowMs / 1000));
     } else {
       w.count++;
@@ -142,6 +154,38 @@ function resetLoginAttempts(ip) {
   if (loginAttempts[ip]) loginAttempts[ip].count = 0;
 }
 
+// Tournament limit check middleware (freemium)
+async function checkTournamentLimit(req, _res, next) {
+  if (!req.user) return next();
+  try {
+    const { dbHelpers } = require('../models/db');
+    const user = await dbHelpers.findOne('users', { id: req.user.id });
+    if (!user) return next();
+
+    // Reset daily count if past reset time
+    if (user.daily_reset_at && new Date(user.daily_reset_at) <= new Date()) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      await dbHelpers.update('users', { id: user.id }, {
+        $set: { daily_tournaments: 0, daily_reset_at: tomorrow.toISOString() },
+      });
+      user.daily_tournaments = 0;
+    }
+
+    const limit = user.plan === 'premium' ? 999 : 3;
+    req.tournament_info = {
+      used: user.daily_tournaments || 0,
+      limit,
+      remaining: Math.max(0, limit - (user.daily_tournaments || 0)),
+      can_play: (user.daily_tournaments || 0) < limit,
+    };
+  } catch (e) {
+    // Non-blocking — continue if check fails
+  }
+  next();
+}
+
 module.exports = {
   createToken,
   verifyToken,
@@ -153,4 +197,5 @@ module.exports = {
   rateLimit,
   loginRateLimit,
   resetLoginAttempts,
+  checkTournamentLimit,
 };

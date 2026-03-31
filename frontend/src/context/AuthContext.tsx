@@ -3,7 +3,7 @@
  * Manages user authentication state across the app
  */
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { authApi } from '../api';
+import { authApi, safeGetItem, safeSetItem, safeRemoveItem } from '../api';
 
 interface User {
   id: number;
@@ -46,16 +46,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Restore session on mount
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    const userStr = localStorage.getItem(USER_KEY);
+    const token = safeGetItem('local', TOKEN_KEY);
+    const userStr = safeGetItem('local', USER_KEY);
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr);
         setState({ user, token, isLoading: false, isAuthenticated: true });
         // Verify token is still valid
         authApi.getProfile(token).catch(() => {
-          localStorage.removeItem(TOKEN_KEY);
-          localStorage.removeItem(USER_KEY);
+          safeRemoveItem('local', TOKEN_KEY);
+          safeRemoveItem('local', USER_KEY);
           setState({ user: null, token: null, isLoading: false, isAuthenticated: false });
         });
       } catch {
@@ -68,21 +68,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const data = await authApi.login(email, password);
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    safeSetItem('local', TOKEN_KEY, data.token);
+    safeSetItem('local', USER_KEY, JSON.stringify(data.user));
     setState({ user: data.user, token: data.token, isLoading: false, isAuthenticated: true });
   }, []);
 
   const register = useCallback(async (email: string, password: string, name: string) => {
     const data = await authApi.register(email, password, name);
-    localStorage.setItem(TOKEN_KEY, data.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+    safeSetItem('local', TOKEN_KEY, data.token);
+    safeSetItem('local', USER_KEY, JSON.stringify(data.user));
     setState({ user: data.user, token: data.token, isLoading: false, isAuthenticated: true });
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    safeRemoveItem('local', TOKEN_KEY);
+    safeRemoveItem('local', USER_KEY);
     setState({ user: null, token: null, isLoading: false, isAuthenticated: false });
   }, []);
 
@@ -91,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await authApi.updatePreferences(state.token, prefs);
     if (state.user) {
       const updated = { ...state.user, preferences: { ...state.user.preferences, ...prefs } };
-      localStorage.setItem(USER_KEY, JSON.stringify(updated));
+      safeSetItem('local', USER_KEY, JSON.stringify(updated));
       setState(s => ({ ...s, user: updated }));
     }
   }, [state.token, state.user]);

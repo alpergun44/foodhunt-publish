@@ -1,6 +1,6 @@
 {
   "name": "foodhunt-backend",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "FoodHunt Backend API — Gamified restaurant decision engine",
   "main": "server.js",
   "scripts": {
@@ -16,6 +16,9 @@
     "helmet": "^8.1.0",
     "multer": "^1.4.5-lts.1",
     "nedb-promises": "^6.2.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

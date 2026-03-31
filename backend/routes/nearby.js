@@ -12,6 +12,14 @@ const { searchNearby } = require('../services/places');
 
 const router = express.Router();
 
+let _nextNearbyId = Date.now();
+function nextNearbyId() {
+  const id = ++_nextNearbyId;
+  const now = Date.now();
+  if (now > _nextNearbyId) _nextNearbyId = now;
+  return id;
+}
+
 /**
  * GET /api/nearby?lat=&lng=&radius=2000&limit=16&cuisine=&merge=true
  *
@@ -148,7 +156,7 @@ router.post('/nearby/save', asyncHandler(async (req, res) => {
 
   // Save to local DB
   const doc = {
-    id: Date.now(),
+    id: nextNearbyId(),
     google_place_id: data.google_place_id,
     name: safeStr(data.name, 200) || 'Bilinmeyen',
     cuisine: safeStr(data.cuisine, 100) || 'Restoran',

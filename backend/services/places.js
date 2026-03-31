@@ -126,11 +126,11 @@ function transformPlace(place, index) {
   // Extract area from address
   const area = extractArea(place.formattedAddress || '');
 
-  // Build image URL from photo reference
+  // Build image URL from photo reference (proxied to hide API key)
   let imageUrl = '';
   if (place.photos?.length > 0) {
     const photoRef = place.photos[0].name;
-    imageUrl = `https://places.googleapis.com/v1/${photoRef}/media?maxHeightPx=400&maxWidthPx=600&key=${API_KEY}`;
+    imageUrl = `/api/places/photo/${encodeURIComponent(photoRef)}`;
   }
 
   // Build tags from types

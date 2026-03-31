@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { adminApi, Restaurant, AdminStats, safeGetItem, safeSetItem, safeRemoveItem } from '../api'
+import { adminApi, Restaurant, AdminStats, District, Tournament, CompetitionSlot, AvailableHours, safeGetItem, safeSetItem, safeRemoveItem } from '../api'
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 const CUISINES = ['Turk Mutfagi','Italyan','Japon','Cin','Meksika','Hint','Fast Food','Deniz Urunleri','Vegan','Kahvalti','Tatlici','Cafe','Kokorec','Doner','Kebap','Pizza','Burger','Sushi','Thai','Kore','Balik','Ev Yemekleri','Meyhane','Sokak Lezzetleri','Diger']
-const AREAS = ['Kadikoy','Besiktas','Beyoglu','Sisli','Uskudar','Fatih','Bakirkoy','Atasehir','Maltepe','Sariyer','Diger']
-const DISTRICTS = [
+const AREAS = ['Tuzla','Kadikoy','Besiktas','Beyoglu','Sisli','Uskudar','Fatih','Bakirkoy','Atasehir','Maltepe','Sariyer','Diger']
+const AREA_DISTRICTS = [
+  { name: 'Tuzla', lat: 40.8169, lng: 29.3003 },
   { name: 'Kadikoy', lat: 40.9828, lng: 29.0290 },
   { name: 'Besiktas', lat: 41.0420, lng: 29.0070 },
   { name: 'Beyoglu', lat: 41.0370, lng: 28.9770 },
@@ -16,6 +17,14 @@ const DISTRICTS = [
   { name: 'Maltepe', lat: 40.9340, lng: 29.1320 },
   { name: 'Sariyer', lat: 41.1670, lng: 29.0500 },
 ]
+const SLOT_PRESETS = [
+  { slot: 'breakfast', label: 'Kahvalti', start: '07:00', end: '10:00' },
+  { slot: 'lunch', label: 'Ogle', start: '11:00', end: '14:00' },
+  { slot: 'afternoon', label: 'Ikindi', start: '14:00', end: '17:00' },
+  { slot: 'dinner', label: 'Aksam', start: '18:00', end: '22:00' },
+  { slot: 'late', label: 'Gece', start: '22:00', end: '02:00' },
+]
+const DAY_LABELS = ['Pzt','Sal','Car','Per','Cum','Cmt','Paz']
 const PRICE_LABELS = ['', '\u20BA', '\u20BA\u20BA', '\u20BA\u20BA\u20BA', '\u20BA\u20BA\u20BA\u20BA']
 const PER_PAGE = 20
 
@@ -90,6 +99,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
   const [form, setForm] = useState<Partial<Restaurant>>(initial || {
     name: '', cuisine: '', area: '', rating: 4.0, price_level: 2,
     calories_min: 300, calories_max: 800, is_active: 1, description: '', address: '', tags: [],
+    competition_slots: [], available_hours: { open: '09:00', close: '23:00', days: [1,2,3,4,5,6,7] }, district: '',
   })
   const [tagInput, setTagInput] = useState((initial?.tags || []).join(', '))
   const [loading, setLoading] = useState(false)
@@ -114,6 +124,21 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
     if (!form.name?.trim()) { show('Restoran adi zorunlu', 'err'); return }
     if (!form.cuisine?.trim()) { show('Mutfak tipi zorunlu', 'err'); return }
     if (!form.area?.trim()) { show('Bolge zorunlu', 'err'); return }
+    if (form.rating !== undefined && (form.rating < 0 || form.rating > 5)) {
+      show('Puan 0-5 arasinda olmali', 'err'); return
+    }
+    if (form.price_level !== undefined && (form.price_level < 1 || form.price_level > 4)) {
+      show('Fiyat seviyesi 1-4 arasinda olmali', 'err'); return
+    }
+    if (form.calories_min && form.calories_max && form.calories_min > form.calories_max) {
+      show('Min kalori max kaloriden buyuk olamaz', 'err'); return
+    }
+    if (form.lat && (form.lat < -90 || form.lat > 90)) {
+      show('Gecersiz enlem degeri', 'err'); return
+    }
+    if (form.lng && (form.lng < -180 || form.lng > 180)) {
+      show('Gecersiz boylam degeri', 'err'); return
+    }
     setLoading(true)
     try {
       const data = { ...form, tags: tagInput.split(',').map(t => t.trim()).filter(Boolean) }
@@ -160,7 +185,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
           <div>
             <label className="block text-xs text-brand-muted mb-1">Bolge *</label>
             <div className="flex gap-2 flex-wrap mt-1">
-              {DISTRICTS.map(d => (
+              {AREA_DISTRICTS.map(d => (
                 <button key={d.name} type="button" onClick={() => { set('area', d.name); set('lat', d.lat); set('lng', d.lng) }}
                   className={`px-2 py-1 rounded text-xs transition ${form.area === d.name ? 'bg-brand-coral text-white' : 'bg-brand-elevated text-brand-muted hover:bg-white/10'}`}>
                   {d.name}
@@ -232,6 +257,74 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
               </div>
             )}
           </div>
+          {/* District */}
+          <div>
+            <label className="block text-xs text-brand-muted mb-1">Alt Bolge (District)</label>
+            <input type="text" value={form.district || ''} onChange={e => set('district', e.target.value)} placeholder="Tuzla Merkez, Kampus Cevresi vb."
+              className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+          </div>
+          {/* Available Hours */}
+          <div className="border-t border-white/10 pt-4">
+            <label className="block text-xs text-brand-muted mb-2 font-semibold">Acilis Saatleri</label>
+            <div className="grid grid-cols-2 gap-4 mb-2">
+              <div>
+                <label className="text-xs text-brand-muted">Acilis</label>
+                <input type="time" value={form.available_hours?.open || '09:00'} onChange={e => set('available_hours', { ...form.available_hours, open: e.target.value, close: form.available_hours?.close || '23:00', days: form.available_hours?.days || [1,2,3,4,5,6,7] })}
+                  className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs text-brand-muted">Kapanis</label>
+                <input type="time" value={form.available_hours?.close || '23:00'} onChange={e => set('available_hours', { ...form.available_hours, open: form.available_hours?.open || '09:00', close: e.target.value, days: form.available_hours?.days || [1,2,3,4,5,6,7] })}
+                  className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+              </div>
+            </div>
+            <label className="text-xs text-brand-muted">Acik Gunler</label>
+            <div className="flex gap-1 mt-1">
+              {DAY_LABELS.map((d, i) => {
+                const dayNum = i + 1
+                const days = form.available_hours?.days || [1,2,3,4,5,6,7]
+                const active = days.includes(dayNum)
+                return (
+                  <button key={d} type="button" onClick={() => {
+                    const newDays = active ? days.filter(x => x !== dayNum) : [...days, dayNum].sort()
+                    set('available_hours', { ...form.available_hours, open: form.available_hours?.open || '09:00', close: form.available_hours?.close || '23:00', days: newDays })
+                  }} className={`flex-1 py-1.5 rounded text-xs font-bold transition ${active ? 'bg-brand-coral text-white' : 'bg-brand-surface text-brand-muted hover:bg-white/10'}`}>{d}</button>
+                )
+              })}
+            </div>
+          </div>
+          {/* Competition Slots */}
+          <div className="border-t border-white/10 pt-4">
+            <label className="block text-xs text-brand-muted mb-2 font-semibold">Turnuva Slotlari</label>
+            <div className="flex gap-1 flex-wrap mb-2">
+              {SLOT_PRESETS.map(sp => {
+                const exists = (form.competition_slots || []).some(s => s.slot === sp.slot)
+                return (
+                  <button key={sp.slot} type="button" onClick={() => {
+                    if (exists) {
+                      set('competition_slots', (form.competition_slots || []).filter(s => s.slot !== sp.slot))
+                    } else {
+                      set('competition_slots', [...(form.competition_slots || []), { slot: sp.slot, start: sp.start, end: sp.end }])
+                    }
+                  }} className={`px-2 py-1 rounded text-xs transition ${exists ? 'bg-brand-coral text-white' : 'bg-brand-surface text-brand-muted hover:bg-white/10'}`}>
+                    {sp.label} ({sp.start}-{sp.end})
+                  </button>
+                )
+              })}
+            </div>
+            {(form.competition_slots || []).map((slot, idx) => (
+              <div key={idx} className="flex gap-2 items-center mb-1">
+                <input type="text" value={slot.slot} onChange={e => { const u = [...(form.competition_slots || [])]; u[idx] = { ...u[idx], slot: e.target.value }; set('competition_slots', u) }}
+                  className="flex-1 px-2 py-1 bg-brand-surface border border-white/10 rounded text-brand-cream text-xs" placeholder="Slot adi" />
+                <input type="time" value={slot.start} onChange={e => { const u = [...(form.competition_slots || [])]; u[idx] = { ...u[idx], start: e.target.value }; set('competition_slots', u) }}
+                  className="w-24 px-2 py-1 bg-brand-surface border border-white/10 rounded text-brand-cream text-xs" />
+                <input type="time" value={slot.end} onChange={e => { const u = [...(form.competition_slots || [])]; u[idx] = { ...u[idx], end: e.target.value }; set('competition_slots', u) }}
+                  className="w-24 px-2 py-1 bg-brand-surface border border-white/10 rounded text-brand-cream text-xs" />
+                <button type="button" onClick={() => set('competition_slots', (form.competition_slots || []).filter((_, i) => i !== idx))}
+                  className="text-red-400 hover:text-red-300 text-xs px-1">Sil</button>
+              </div>
+            ))}
+          </div>
           <label className="flex items-center gap-3 cursor-pointer" onClick={() => set('is_active', form.is_active ? 0 : 1)}>
             <div className={`w-10 h-5 rounded-full transition relative ${form.is_active ? 'bg-brand-fresh' : 'bg-brand-elevated'}`}>
               <div className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-all ${form.is_active ? 'left-5' : 'left-0.5'}`} />
@@ -253,13 +346,14 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
 
 // ─── Main Admin ─────────────────────────────────────────────────────────────
 export default function Admin() {
-  const [view, setView] = useState<'dashboard' | 'restaurants' | 'cards' | 'export'>('dashboard')
+  const [view, setView] = useState<'dashboard' | 'restaurants' | 'districts' | 'tournaments' | 'cards' | 'export'>('dashboard')
   const [token, setToken] = useState(safeGetItem('local', 'fh_admin_token') || '')
   const [password, setPassword] = useState('')
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [search, setSearch] = useState('')
   const [filterArea, setFilterArea] = useState('')
+  const [filterCuisine, setFilterCuisine] = useState('')
   const [filterActive, setFilterActive] = useState<''|'1'|'0'>('')
   const [sortBy, setSortBy] = useState<'name'|'rating'|'id'>('id')
   const [page, setPage] = useState(0)
@@ -273,16 +367,24 @@ export default function Admin() {
   const [nearbyDistrict, setNearbyDistrict] = useState('')
   const [nearbyResults, setNearbyResults] = useState<Restaurant[]>([])
   const [nearbyLoading, setNearbyLoading] = useState(false)
+  const [districts, setDistricts] = useState<District[]>([])
+  const [newDistrictName, setNewDistrictName] = useState('')
+  const [tournaments, setTournaments] = useState<Tournament[]>([])
+  const [tournamentForm, setTournamentForm] = useState({ title: '', description: '', slot_start: '11:00', slot_end: '14:00', cuisine_filter: '', area_filter: '' })
+  const [showTournamentForm, setShowTournamentForm] = useState(false)
+  const [bulkLoading, setBulkLoading] = useState(false)
+  const [importLoading, setImportLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState<number | null>(null)
 
   const { toasts, show } = useToasts()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { if (token) loadData() }, [token])
+  useEffect(() => { if (token) loadData(); return () => {} }, [token])
 
   const loadData = async () => {
     setLoading(true)
     try {
-      const [s, r] = await Promise.all([adminApi.getStats(token), adminApi.getRestaurants(token)])
+      const [s, r] = await Promise.all([adminApi.getStats(token), adminApi.getRestaurants(token, 1, 100)])
       setStats(s); setRestaurants(r)
     } catch (err: any) {
       if (err.message?.includes('Unauthorized') || err.status === 401) {
@@ -295,7 +397,16 @@ export default function Admin() {
     try { setCards(await adminApi.getCards(token)) } catch { show('Kartlar yuklenemedi', 'err') }
   }
 
+  const loadDistricts = async () => {
+    try { setDistricts(await adminApi.getDistricts(token)) } catch { show('Bolgeler yuklenemedi', 'err') }
+  }
+  const loadTournaments = async () => {
+    try { setTournaments(await adminApi.getTournaments(token)) } catch { show('Turnuvalar yuklenemedi', 'err') }
+  }
+
   useEffect(() => { if (token && view === 'cards') loadCards() }, [token, view])
+  useEffect(() => { if (token && view === 'districts') loadDistricts() }, [token, view])
+  useEffect(() => { if (token && view === 'tournaments') loadTournaments() }, [token, view])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -309,8 +420,10 @@ export default function Admin() {
 
   const handleDelete = async (id: number) => {
     if (!confirm('Bu restorani silmek istediginize emin misiniz?')) return
+    setDeleteLoading(id)
     try { await adminApi.deleteRestaurant(token, id); show('Silindi', 'ok'); loadData() }
     catch { show('Silme basarisiz', 'err') }
+    finally { setDeleteLoading(null) }
   }
 
   const handleToggle = async (r: Restaurant) => {
@@ -323,12 +436,15 @@ export default function Admin() {
   const handleBulkAction = async (action: 'activate' | 'deactivate' | 'delete') => {
     if (selected.size === 0) return
     if (!confirm(`${selected.size} restoran uzerinde islem yapilacak. Emin misiniz?`)) return
-    for (const id of selected) {
-      if (action === 'delete') await adminApi.deleteRestaurant(token, id).catch(() => {})
-      else await adminApi.updateRestaurant(token, id, { is_active: action === 'activate' ? 1 : 0 } as any).catch(() => {})
-    }
-    show(`${selected.size} restoran guncellendi`, 'ok')
-    setSelected(new Set()); loadData()
+    setBulkLoading(true)
+    try {
+      for (const id of selected) {
+        if (action === 'delete') await adminApi.deleteRestaurant(token, id).catch(() => {})
+        else await adminApi.updateRestaurant(token, id, { is_active: action === 'activate' ? 1 : 0 } as any).catch(() => {})
+      }
+      show(`${selected.size} restoran guncellendi`, 'ok')
+      setSelected(new Set()); loadData()
+    } finally { setBulkLoading(false) }
   }
 
   const handleCSVImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -336,6 +452,7 @@ export default function Admin() {
     if (!file) return
     const reader = new FileReader()
     reader.onload = async (evt) => {
+      setImportLoading(true)
       try {
         const text = evt.target?.result as string
         let list: Partial<Restaurant>[]
@@ -352,13 +469,14 @@ export default function Admin() {
         const result = await adminApi.bulkImport(token, list)
         show(`${result.imported} restoran eklendi`, 'ok'); loadData()
       } catch { show('Import basarisiz', 'err') }
+      finally { setImportLoading(false) }
     }
     reader.readAsText(file)
     e.target.value = ''
   }
 
   const handleNearbySearch = async () => {
-    const d = DISTRICTS.find(x => x.name === nearbyDistrict)
+    const d = AREA_DISTRICTS.find(x => x.name === nearbyDistrict)
     if (!d) { show('Ilce secin', 'err'); return }
     setNearbyLoading(true)
     try {
@@ -378,14 +496,15 @@ export default function Admin() {
 
   const filtered = useMemo(() => {
     let list = restaurants
-    if (search) { const q = search.toLowerCase(); list = list.filter(r => (r.name||'').toLowerCase().includes(q) || (r.cuisine||'').toLowerCase().includes(q)) }
+    if (search) { const q = search.toLowerCase(); list = list.filter(r => (r.name||'').toLowerCase().includes(q) || (r.cuisine||'').toLowerCase().includes(q) || (r.area||'').toLowerCase().includes(q)) }
     if (filterArea) list = list.filter(r => r.area === filterArea)
+    if (filterCuisine) list = list.filter(r => r.cuisine === filterCuisine)
     if (filterActive) list = list.filter(r => String(r.is_active) === filterActive)
     if (sortBy === 'name') list = [...list].sort((a,b) => (a.name||'').localeCompare(b.name||''))
     else if (sortBy === 'rating') list = [...list].sort((a,b) => (b.rating||0) - (a.rating||0))
     else list = [...list].sort((a,b) => (b.id||0) - (a.id||0))
     return list
-  }, [restaurants, search, filterArea, filterActive, sortBy])
+  }, [restaurants, search, filterArea, filterCuisine, filterActive, sortBy])
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
   const paged = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE)
@@ -409,6 +528,8 @@ export default function Admin() {
   const navItems: { key: typeof view; label: string; icon: JSX.Element }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: <I.Grid /> },
     { key: 'restaurants', label: 'Restoranlar', icon: <I.Menu /> },
+    { key: 'districts', label: 'Bolgeler', icon: <I.MapPin /> },
+    { key: 'tournaments', label: 'Turnuvalar', icon: <I.BarChart /> },
     { key: 'cards', label: 'Kartlar', icon: <I.Sparkles /> },
     { key: 'export', label: 'Export', icon: <I.Download /> },
   ]
@@ -442,11 +563,20 @@ export default function Admin() {
             <div className="space-y-6">
               <h2 className="text-xl font-bold">Dashboard</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[{l:'Toplam Restoran',v:stats.total,c:'text-brand-coral'},{l:'Aktif',v:stats.active,c:'text-brand-fresh'},{l:'Bolge',v:stats.areas,c:'text-brand-amber'},{l:'Bugun Event',v:stats.todayEvents,c:'text-purple-400'}].map(s=>(
+                {[{l:'Toplam Restoran',v:stats.total,c:'text-brand-coral'},{l:'Aktif Restoran',v:stats.active,c:'text-brand-fresh'},{l:'Toplam Kullanici',v:stats.users,c:'text-brand-amber'},{l:'Bugun Event',v:stats.todayEvents,c:'text-purple-400'}].map(s=>(
                   <div key={s.l} className="bg-brand-card border border-white/5 rounded-xl p-4"><p className="text-brand-muted text-xs">{s.l}</p><p className={`text-2xl font-bold ${s.c}`}>{s.v}</p></div>
                 ))}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+                  <h3 className="font-bold text-sm mb-3">Bolge Dagilimi</h3>
+                  {stats.topAreas?.slice(0,10).map(a=>(
+                    <div key={a.area} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                      <span className="text-sm">{a.area}</span>
+                      <div className="flex items-center gap-2"><div className="w-24 h-1.5 bg-brand-surface rounded-full overflow-hidden"><div className="h-full bg-brand-amber rounded-full" style={{width:`${(a.n/(stats.topAreas?.[0]?.n||1))*100}%`}}/></div><span className="text-xs text-brand-muted w-6 text-right">{a.n}</span></div>
+                    </div>
+                  ))}
+                </div>
                 <div className="bg-brand-card border border-white/5 rounded-xl p-4">
                   <h3 className="font-bold text-sm mb-3">Mutfak Dagilimi</h3>
                   {stats.topCuisines?.slice(0,8).map(c=>(
@@ -456,6 +586,22 @@ export default function Admin() {
                     </div>
                   ))}
                 </div>
+              </div>
+              {/* 30 Gun Event Trendi */}
+              {stats.dailyTrend && stats.dailyTrend.length > 0 && (
+                <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+                  <h3 className="font-bold text-sm mb-3">Son 30 Gun Event Trendi</h3>
+                  <div className="flex items-end gap-[2px] h-28">
+                    {stats.dailyTrend.map((d,i)=>{const maxC=Math.max(...stats.dailyTrend.map(x=>x.count),1);return(
+                      <div key={i} className="flex-1 flex flex-col items-center justify-end group relative">
+                        <div className="w-full bg-brand-coral/80 rounded-t transition-all hover:bg-brand-coral" style={{height:`${Math.max((d.count/maxC)*100,2)}%`}}/>
+                        <div className="absolute -top-6 bg-brand-dark text-brand-cream text-[10px] px-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap">{d.date.slice(5)} ({d.count})</div>
+                      </div>
+                    )})}
+                  </div>
+                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-brand-card border border-white/5 rounded-xl p-4">
                   <h3 className="font-bold text-sm mb-3">Son Olaylar</h3>
                   <div className="max-h-56 overflow-y-auto space-y-1">
@@ -467,23 +613,23 @@ export default function Admin() {
                     ))}
                   </div>
                 </div>
+                {stats.topWinners && stats.topWinners.length > 0 && (
+                  <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+                    <h3 className="font-bold text-sm mb-3">En Cok Kazanan</h3>
+                    {stats.topWinners.slice(0,5).map((w,i)=>(
+                      <div key={w.restaurant_id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                        <span className="text-sm"><span className="text-brand-amber font-bold mr-2">{i+1}.</span>{w.name}</span>
+                        <span className="text-xs text-brand-coral font-bold">{w.wins} galibiyet</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="grid grid-cols-3 gap-4">
                 {[{l:'Toplam Event',v:stats.totalEvents},{l:'Tamamlama',v:stats.completions},{l:'Deeplink',v:stats.deeplinks}].map(s=>(
                   <div key={s.l} className="bg-brand-card border border-white/5 rounded-xl p-4 text-center"><p className="text-brand-muted text-xs">{s.l}</p><p className="text-xl font-bold">{s.v}</p></div>
                 ))}
               </div>
-              {stats.topWinners && stats.topWinners.length > 0 && (
-                <div className="bg-brand-card border border-white/5 rounded-xl p-4">
-                  <h3 className="font-bold text-sm mb-3">En Cok Kazanan</h3>
-                  {stats.topWinners.slice(0,5).map((w,i)=>(
-                    <div key={w.restaurant_id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                      <span className="text-sm"><span className="text-brand-amber font-bold mr-2">{i+1}.</span>{w.name}</span>
-                      <span className="text-xs text-brand-coral font-bold">{w.wins} galibiyet</span>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 
@@ -494,7 +640,7 @@ export default function Admin() {
                 <h2 className="text-xl font-bold">Restoranlar ({filtered.length})</h2>
                 <div className="flex gap-2 flex-wrap">
                   <button onClick={() => { setEditRest(undefined); setShowForm(true) }} className="flex items-center gap-1.5 px-3 py-2 bg-brand-coral text-white rounded-lg text-xs font-semibold hover:bg-brand-coral-light transition"><I.Plus /> Yeni</button>
-                  <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-1.5 px-3 py-2 bg-brand-surface text-brand-muted rounded-lg text-xs hover:bg-white/10 transition"><I.Upload /> Import</button>
+                  <button onClick={() => fileInputRef.current?.click()} disabled={importLoading} className="flex items-center gap-1.5 px-3 py-2 bg-brand-surface text-brand-muted rounded-lg text-xs hover:bg-white/10 transition disabled:opacity-50"><I.Upload /> {importLoading ? 'Import ediliyor...' : 'Import'}</button>
                   <input ref={fileInputRef} type="file" accept=".csv,.json" onChange={handleCSVImport} className="hidden" />
                   <a href={adminApi.getExportUrl('restaurants','csv')} target="_blank" className="flex items-center gap-1.5 px-3 py-2 bg-brand-surface text-brand-muted rounded-lg text-xs hover:bg-white/10 transition"><I.Download /> CSV</a>
                 </div>
@@ -507,6 +653,9 @@ export default function Admin() {
                 <select value={filterArea} onChange={e=>{setFilterArea(e.target.value);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
                   <option value="">Tum Bolgeler</option>{AREAS.map(a=><option key={a} value={a}>{a}</option>)}
                 </select>
+                <select value={filterCuisine} onChange={e=>{setFilterCuisine(e.target.value);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
+                  <option value="">Tum Mutfaklar</option>{CUISINES.map(c=><option key={c} value={c}>{c}</option>)}
+                </select>
                 <select value={filterActive} onChange={e=>{setFilterActive(e.target.value as any);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
                   <option value="">Tum Durum</option><option value="1">Aktif</option><option value="0">Pasif</option>
                 </select>
@@ -517,9 +666,9 @@ export default function Admin() {
               {selected.size > 0 && (
                 <div className="flex items-center gap-3 bg-brand-coral/10 border border-brand-coral/30 rounded-lg px-4 py-2">
                   <span className="text-sm font-semibold text-brand-coral">{selected.size} secili</span>
-                  <button onClick={()=>handleBulkAction('activate')} className="text-xs px-2 py-1 bg-brand-fresh/20 text-brand-fresh rounded hover:bg-brand-fresh/30">Aktif</button>
-                  <button onClick={()=>handleBulkAction('deactivate')} className="text-xs px-2 py-1 bg-brand-amber/20 text-brand-amber rounded hover:bg-brand-amber/30">Pasif</button>
-                  <button onClick={()=>handleBulkAction('delete')} className="text-xs px-2 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30">Sil</button>
+                  <button onClick={()=>handleBulkAction('activate')} disabled={bulkLoading} className="text-xs px-2 py-1 bg-brand-fresh/20 text-brand-fresh rounded hover:bg-brand-fresh/30 disabled:opacity-50">{bulkLoading ? '...' : 'Aktif'}</button>
+                  <button onClick={()=>handleBulkAction('deactivate')} disabled={bulkLoading} className="text-xs px-2 py-1 bg-brand-amber/20 text-brand-amber rounded hover:bg-brand-amber/30 disabled:opacity-50">{bulkLoading ? '...' : 'Pasif'}</button>
+                  <button onClick={()=>handleBulkAction('delete')} disabled={bulkLoading} className="text-xs px-2 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 disabled:opacity-50">{bulkLoading ? '...' : 'Sil'}</button>
                   <button onClick={()=>setSelected(new Set())} className="text-xs text-brand-muted ml-auto">Temizle</button>
                 </div>
               )}
@@ -527,7 +676,7 @@ export default function Admin() {
                 <summary className="px-4 py-3 cursor-pointer text-sm font-semibold flex items-center gap-2 text-brand-muted hover:text-white"><I.MapPin /> Konumdan Restoran Ekle</summary>
                 <div className="px-4 pb-4 space-y-3">
                   <div className="flex flex-wrap gap-2">
-                    {DISTRICTS.map(d=>(<button key={d.name} onClick={()=>setNearbyDistrict(d.name)} className={`px-3 py-1.5 rounded-lg text-xs transition ${nearbyDistrict===d.name?'bg-brand-coral text-white':'bg-brand-surface text-brand-muted hover:bg-white/10'}`}>{d.name}</button>))}
+                    {AREA_DISTRICTS.map(d=>(<button key={d.name} onClick={()=>setNearbyDistrict(d.name)} className={`px-3 py-1.5 rounded-lg text-xs transition ${nearbyDistrict===d.name?'bg-brand-coral text-white':'bg-brand-surface text-brand-muted hover:bg-white/10'}`}>{d.name}</button>))}
                   </div>
                   <button onClick={handleNearbySearch} disabled={nearbyLoading||!nearbyDistrict} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light disabled:opacity-50 transition">{nearbyLoading?'Araniyor...':'Restoranlari Getir'}</button>
                   {nearbyResults.length>0&&(<div className="max-h-60 overflow-y-auto space-y-2">{nearbyResults.map((r,i)=>(<div key={i} className="flex items-center justify-between bg-brand-surface rounded-lg px-3 py-2"><div><span className="text-sm font-semibold">{r.name}</span><span className="text-xs text-brand-muted ml-2">{r.cuisine} - {r.area}</span></div><button onClick={()=>handleSaveNearby(r)} className="px-2 py-1 bg-brand-fresh/20 text-brand-fresh text-xs rounded hover:bg-brand-fresh/30">Kaydet</button></div>))}</div>)}
@@ -573,6 +722,110 @@ export default function Admin() {
             </div>
           )}
 
+          {/* DISTRICTS */}
+          {view === 'districts' && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold">Bolge Yonetimi</h2>
+              <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+                <h3 className="font-bold text-sm mb-3">Yeni Bolge Ekle</h3>
+                <div className="flex gap-2">
+                  <input type="text" placeholder="Bolge adi (orn. Tuzla Merkez, Icmeler, Aydınlı)" value={newDistrictName} onChange={e => setNewDistrictName(e.target.value)}
+                    className="flex-1 px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                  <button onClick={async () => { if (!newDistrictName.trim()) { show('Bolge adi gerekli', 'err'); return }; try { await adminApi.createDistrict(token, newDistrictName); show('Bolge eklendi', 'ok'); setNewDistrictName(''); loadDistricts() } catch { show('Ekleme basarisiz', 'err') } }}
+                    className="px-4 py-2 bg-brand-fresh text-white rounded-lg text-sm font-semibold hover:bg-brand-fresh/80 transition">Ekle</button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {districts.map(d => (
+                  <div key={d.name} className="flex items-center justify-between bg-brand-card border border-white/5 rounded-xl px-4 py-3">
+                    <div>
+                      <p className="font-semibold text-sm">{d.name}</p>
+                      <p className="text-xs text-brand-muted">{d.count} restoran</p>
+                    </div>
+                    <button onClick={async () => { try { await adminApi.toggleDistrict(token, d.name, !d.is_active); loadDistricts() } catch { show('Guncelleme basarisiz', 'err') } }}
+                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${d.is_active ? 'bg-brand-fresh/20 text-brand-fresh' : 'bg-white/5 text-brand-muted'}`}>
+                      {d.is_active ? 'Aktif' : 'Inaktif'}
+                    </button>
+                  </div>
+                ))}
+                {districts.length === 0 && <p className="text-brand-muted text-sm text-center py-4">Henuz bolge yok</p>}
+              </div>
+            </div>
+          )}
+
+          {/* TOURNAMENTS */}
+          {view === 'tournaments' && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-bold">Turnuva Yonetimi</h2>
+                <button onClick={() => setShowTournamentForm(!showTournamentForm)}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-brand-coral text-white rounded-lg text-xs font-semibold hover:bg-brand-coral-light transition">
+                  <I.Plus /> Ozel Turnuva
+                </button>
+              </div>
+              {showTournamentForm && (
+                <div className="bg-brand-card border border-white/5 rounded-xl p-4 space-y-3">
+                  <input type="text" placeholder="Turnuva Basligi" value={tournamentForm.title} onChange={e => setTournamentForm(p => ({ ...p, title: e.target.value }))}
+                    className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                  <textarea placeholder="Aciklama" value={tournamentForm.description} onChange={e => setTournamentForm(p => ({ ...p, description: e.target.value }))} rows={2}
+                    className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none resize-none" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs text-brand-muted">Baslangic</label>
+                      <input type="time" value={tournamentForm.slot_start} onChange={e => setTournamentForm(p => ({ ...p, slot_start: e.target.value }))}
+                        className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-brand-muted">Bitis</label>
+                      <input type="time" value={tournamentForm.slot_end} onChange={e => setTournamentForm(p => ({ ...p, slot_end: e.target.value }))}
+                        className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <input type="text" placeholder="Mutfak Filtresi (istege bagli)" value={tournamentForm.cuisine_filter} onChange={e => setTournamentForm(p => ({ ...p, cuisine_filter: e.target.value }))}
+                      className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                    <input type="text" placeholder="Bolge Filtresi (istege bagli)" value={tournamentForm.area_filter} onChange={e => setTournamentForm(p => ({ ...p, area_filter: e.target.value }))}
+                      className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={async () => { if (!tournamentForm.title.trim()) { show('Baslik gerekli', 'err'); return }; try { await adminApi.createTournament(token, tournamentForm); show('Turnuva olusturuldu', 'ok'); setTournamentForm({ title: '', description: '', slot_start: '11:00', slot_end: '14:00', cuisine_filter: '', area_filter: '' }); setShowTournamentForm(false); loadTournaments() } catch { show('Olusturma basarisiz', 'err') } }}
+                      className="px-4 py-2 bg-brand-fresh text-white rounded-lg text-sm font-semibold hover:bg-brand-fresh/80 transition">Olustur</button>
+                    <button onClick={() => setShowTournamentForm(false)}
+                      className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">Iptal</button>
+                  </div>
+                </div>
+              )}
+              <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+                <h3 className="font-bold text-sm mb-3">Sabit Turnuva Slotlari</h3>
+                <div className="space-y-2">
+                  {SLOT_PRESETS.map(s => (
+                    <div key={s.slot} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                      <span className="text-sm font-semibold">{s.label}</span>
+                      <span className="text-xs text-brand-muted">{s.start} - {s.end}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {tournaments.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="font-bold text-sm">Ozel Turnuvalar</h3>
+                  {tournaments.map(t => (
+                    <div key={t.id} className="bg-brand-card border border-white/5 rounded-xl px-4 py-3">
+                      <p className="font-semibold text-sm">{t.title}</p>
+                      <p className="text-xs text-brand-muted">{t.slot_start} - {t.slot_end}</p>
+                      {t.description && <p className="text-xs text-brand-muted mt-1">{t.description}</p>}
+                      <div className="flex gap-2 mt-1">
+                        {t.cuisine_filter && <span className="text-xs px-2 py-0.5 bg-brand-coral/20 text-brand-coral-light rounded-full">Mutfak: {t.cuisine_filter}</span>}
+                        {t.area_filter && <span className="text-xs px-2 py-0.5 bg-brand-amber/20 text-brand-amber rounded-full">Bolge: {t.area_filter}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {tournaments.length === 0 && !showTournamentForm && <p className="text-brand-muted text-sm text-center py-4">Henuz ozel turnuva yok</p>}
+            </div>
+          )}
+
           {/* CARDS */}
           {view === 'cards' && (
             <div className="space-y-4">
@@ -605,15 +858,15 @@ export default function Admin() {
                 <div className="bg-brand-card border border-white/5 rounded-xl p-6 text-center space-y-3">
                   <h3 className="font-bold">Restoran Verisi</h3>
                   <div className="flex gap-2 justify-center">
-                    <a href={adminApi.getExportUrl('restaurants','json')} target="_blank" className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition">JSON</a>
-                    <a href={adminApi.getExportUrl('restaurants','csv')} target="_blank" className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">CSV</a>
+                    <button onClick={async()=>{try{const d=await adminApi.exportRestaurants(token,'json');const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='restaurants.json';a.click();URL.revokeObjectURL(u);show('JSON indirildi','ok')}catch{show('Export basarisiz','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition">JSON</button>
+                    <button onClick={async()=>{try{const res=await fetch(`/api/admin/restaurants/export?format=csv`,{headers:{Authorization:`Bearer ${token}`}});const text=await res.text();const b=new Blob([text],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='restaurants.csv';a.click();URL.revokeObjectURL(u);show('CSV indirildi','ok')}catch{show('Export basarisiz','err')}}} className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">CSV</button>
                   </div>
                 </div>
                 <div className="bg-brand-card border border-white/5 rounded-xl p-6 text-center space-y-3">
                   <h3 className="font-bold">Event Verisi</h3>
                   <div className="flex gap-2 justify-center">
-                    <a href={adminApi.getExportUrl('events','json')} target="_blank" className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition">JSON</a>
-                    <a href={adminApi.getExportUrl('events','csv')} target="_blank" className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">CSV</a>
+                    <button onClick={async()=>{try{const d=await adminApi.exportEvents(token,'json');const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='events.json';a.click();URL.revokeObjectURL(u);show('JSON indirildi','ok')}catch{show('Export basarisiz','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition">JSON</button>
+                    <button onClick={async()=>{try{const res=await fetch(`/api/admin/events/export?format=csv`,{headers:{Authorization:`Bearer ${token}`}});const text=await res.text();const b=new Blob([text],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='events.csv';a.click();URL.revokeObjectURL(u);show('CSV indirildi','ok')}catch{show('Export basarisiz','err')}}} className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">CSV</button>
                   </div>
                 </div>
               </div>

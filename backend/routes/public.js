@@ -7,13 +7,26 @@ const { asyncHandler } = require('../utils/errors');
 const { NotFoundError, ValidationError } = require('../utils/errors');
 const { safeStr, shuffle } = require('../utils/validation');
 const { dbHelpers } = require('../models/db');
+const { checkTournamentLimit, rateLimit } = require('../middleware/auth');
 
 const router = express.Router();
 
 // Health check
 router.get('/health', asyncHandler(async (_req, res) => {
-  const count = await dbHelpers.count('restaurants', { is_active: 1 });
-  res.json({ status: 'ok', restaurants: count, ts: Date.now(), version: '2.2.0' });
+  const [rCount, eCount, uCount] = await Promise.all([
+    dbHelpers.count('restaurants'),
+    dbHelpers.count('events'),
+    dbHelpers.count('users'),
+  ]);
+  res.json({
+    status: 'ok',
+    version: '2.5.0',
+    uptime: Math.floor(process.uptime()),
+    restaurants: rCount,
+    events: eCount,
+    users: uCount,
+    timestamp: new Date().toISOString(),
+  });
 }));
 
 // List areas with restaurant counts
@@ -62,6 +75,80 @@ router.get('/catalog', asyncHandler(async (req, res) => {
   res.json(shuffle(all).slice(0, l));
 }));
 
+// Active restaurants at given time
+router.get('/restaurants/active', asyncHandler(async (req, res) => {
+  const { time } = req.query;
+  if (!time || !/^\d{2}:\d{2}$/.test(time)) {
+    throw new ValidationError('time HH:MM formatinda olmali', 'time');
+  }
+
+  const now = new Date();
+  const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay(); // 1-7 (Mon-Sun)
+  const currentTime = time;
+
+  const all = await dbHelpers.find('restaurants', { is_active: 1 });
+
+  const active = all.filter(r => {
+    if (!r.available_hours) return true; // Default: open
+    if (r.available_hours.days && !r.available_hours.days.includes(dayOfWeek)) return false;
+    const open = r.available_hours.open || '00:00';
+    const close = r.available_hours.close || '23:59';
+    if (currentTime < open || currentTime > close) return false;
+    return true;
+  });
+
+  res.json({
+    restaurants: active,
+    meta: {
+      total: active.length,
+      time: currentTime,
+      day_of_week: dayOfWeek,
+      timestamp: new Date().toISOString(),
+    },
+  });
+}));
+
+// Scheduled tournament slots for today
+router.get('/tournaments/scheduled', asyncHandler(async (_req, res) => {
+  const slots = [
+    { slot: 'Kahvalti Turnuvasi', start: '07:00', end: '10:00', icon: '🥐' },
+    { slot: 'Ogle Turnuvasi', start: '11:00', end: '14:00', icon: '🍝' },
+    { slot: 'Ogleden Sonra', start: '14:00', end: '17:00', icon: '☕' },
+    { slot: 'Aksam Turnuvasi', start: '18:00', end: '22:00', icon: '🍽️' },
+    { slot: 'Gece Turnuvasi', start: '22:00', end: '02:00', icon: '🌙' },
+  ];
+
+  const now = new Date();
+  const currentTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+  const scheduled = slots.map(s => {
+    const [startHr, startMin] = s.start.split(':').map(Number);
+    const [endHr] = s.end.split(':').map(Number);
+
+    let isActive;
+    if (endHr < startHr) {
+      // Gece yarisi gecen slot (22:00-02:00)
+      isActive = currentTime >= s.start || currentTime < s.end;
+    } else {
+      isActive = currentTime >= s.start && currentTime < s.end;
+    }
+
+    const startObj = new Date(now);
+    startObj.setHours(startHr, startMin, 0, 0);
+    if (startObj < now) startObj.setDate(startObj.getDate() + 1);
+    const timeUntilStart = isActive ? 0 : Math.max(0, startObj.getTime() - now.getTime());
+
+    return {
+      ...s,
+      is_active: isActive,
+      starts_in_ms: timeUntilStart,
+      starts_in_minutes: Math.ceil(timeUntilStart / 60000),
+    };
+  });
+
+  res.json(scheduled);
+}));
+
 // Single restaurant detail
 router.get('/restaurants/:id', asyncHandler(async (req, res) => {
   const id = parseInt(req.params.id);
@@ -79,7 +166,9 @@ router.get('/inspiration', asyncHandler(async (_req, res) => {
 }));
 
 // Track event (analytics)
-router.post('/events', asyncHandler(async (req, res) => {
+const eventRateLimit = rateLimit(30, 60000); // 30 events/minute
+
+router.post('/events', eventRateLimit, checkTournamentLimit, asyncHandler(async (req, res) => {
   const { event_type, session_id, area, cuisine, game_type, duration_s, winner_id, extra } = req.body;
   await dbHelpers.insert('events', {
     event_type: safeStr(event_type, 50) || 'unknown',
@@ -109,6 +198,20 @@ router.get('/stats/social', asyncHandler(async (_req, res) => {
       ? `Bugun ${todayCount} kisi turnuva oynadi!`
       : `Toplam ${totalCount} turnuva oynandi!`,
   });
+}));
+
+// Google Places photo proxy (hides API key from client)
+router.get('/places/photo/:ref', asyncHandler(async (req, res) => {
+  const API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+  if (!API_KEY) return res.status(404).json({ error: 'No API key' });
+  const photoRef = decodeURIComponent(req.params.ref);
+  const url = `https://places.googleapis.com/v1/${photoRef}/media?maxHeightPx=400&maxWidthPx=600&key=${API_KEY}`;
+  const response = await fetch(url);
+  if (!response.ok) return res.status(response.status).end();
+  res.set('Content-Type', response.headers.get('content-type'));
+  res.set('Cache-Control', 'public, max-age=86400');
+  const { Readable } = require('stream');
+  Readable.fromWeb(response.body).pipe(res);
 }));
 
 module.exports = router;

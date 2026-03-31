@@ -1,0 +1,6 @@
+<svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="38" fill="#0D0D0D"/>
+  <circle cx="96" cy="80" r="50" fill="#FF6B35" opacity="0.15"/>
+  <text x="96" y="100" font-size="80" font-family="Arial, sans-serif" fill="#FF6B35" text-anchor="middle" dominant-baseline="central">&#x1F354;</text>
+  <text x="96" y="160" font-size="32" font-family="Arial, sans-serif" fill="#FFB627" text-anchor="middle" font-weight="bold">FH</text>
+</svg>

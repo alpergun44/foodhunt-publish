@@ -8,6 +8,7 @@ frontend/.vite/
 
 # Environment secrets
 backend/.env
+frontend/.env
 !backend/.env.example
 
 # Database (don't commit prod data)
@@ -26,3 +27,18 @@ backend/uploads/*
 # IDE
 .vscode/
 .idea/
+
+# Mobile / native
+ios/
+frontend/ios/
+
+# Editor
+*.swp
+*.swo
+
+# Cache
+.eslintcache
+.turbo/
+
+# Claude
+.claude/

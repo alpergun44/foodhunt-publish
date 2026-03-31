@@ -27,7 +27,9 @@ function shouldLog(level) {
 function writeToFile(line) {
   const date = new Date().toISOString().slice(0, 10);
   const logFile = path.join(LOG_DIR, `foodhunt-${date}.log`);
-  fs.appendFileSync(logFile, line + '\n');
+  fs.appendFile(logFile, line + '\n', (err) => {
+    if (err) console.error('Log write failed:', err.message);
+  });
 }
 
 const logger = {};

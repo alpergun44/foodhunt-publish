@@ -1,5 +1,5 @@
 /**
- * FoodHunt Backend — v2.2 (Refactored & Production-Ready)
+ * FoodHunt Backend — v2.3 (Refactored & Production-Ready)
  * Modular architecture with MongoDB support, JWT auth, structured logging
  *
  * Changes from v2.1:
@@ -54,7 +54,20 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // ─── Global Middleware ───────────────────────────────────────────────────────
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      connectSrc: ["'self'", "https://places.googleapis.com", "https://www.google-analytics.com"],
+      fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+    },
+  },
+}));
 app.use(createCorsMiddleware());
 app.use(express.json({ limit: '2mb' }));
 app.use(logger.requestMiddleware);
@@ -70,7 +83,7 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 app.get('/api/docs', (_req, res) => {
   res.json({
     name: 'FoodHunt API',
-    version: '2.2.0',
+    version: '2.3.0',
     description: 'Gamified yemek karar motoru API',
     base_url: '/api',
     endpoints: {
@@ -128,8 +141,8 @@ app.get('/api/docs', (_req, res) => {
 app.use('/api', publicRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api', nearbyRoutes);       // /api/nearby/*
 app.use('/api/admin', adminRoutes);
-app.use('/api', nearbyRoutes);
 
 // ─── 404 catch-all for undefined API routes ─────────────────────────────────
 app.use('/api/*', (_req, res) => {
@@ -175,7 +188,7 @@ async function start() {
     await initDB();
     await seedCards();
     app.listen(PORT, () => {
-      logger.info(`FoodHunt API v2.2 running`, { port: PORT, db_type: process.env.DB_TYPE || 'nedb' });
+      logger.info(`FoodHunt API v2.3 running`, { port: PORT, db_type: process.env.DB_TYPE || 'nedb' });
       console.log(`[FoodHunt] API running on http://localhost:${PORT}`);
       console.log(`[FoodHunt] API docs: http://localhost:${PORT}/api/docs`);
     });

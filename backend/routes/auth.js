@@ -15,7 +15,12 @@ const logger = require('../utils/logger');
 const router = express.Router();
 
 let _nextUserId = Date.now();
-function nextUserId() { return ++_nextUserId; }
+function nextUserId() {
+  const id = ++_nextUserId;
+  const now = Date.now();
+  if (now > _nextUserId) _nextUserId = now;
+  return id;
+}
 
 // Register
 router.post('/register', asyncHandler(async (req, res) => {
@@ -29,12 +34,18 @@ router.post('/register', asyncHandler(async (req, res) => {
   if (existing) throw new ValidationError('Bu e-posta adresi zaten kayitli', 'email');
 
   const hashedPw = await hashPassword(password);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
   const user = {
     id: nextUserId(),
     email: email.toLowerCase().trim(),
     name: safeStr(name, 100),
     password_hash: hashedPw,
     role: 'user',
+    plan: 'free',
+    daily_tournaments: 0,
+    daily_reset_at: tomorrow.toISOString(),
     preferences: { dark_mode: true, sound: false },
     created_at: new Date().toISOString(),
   };
@@ -74,9 +85,26 @@ router.post('/login', loginRateLimit, asyncHandler(async (req, res) => {
 router.get('/me', requireAuth, asyncHandler(async (req, res) => {
   const user = await dbHelpers.findOne('users', { id: req.user.id });
   if (!user) throw new UnauthorizedError('Kullanici bulunamadi');
+
+  // Reset daily tournaments if past reset time
+  if (user.daily_reset_at && new Date(user.daily_reset_at) <= new Date()) {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    await dbHelpers.update('users', { id: user.id }, {
+      $set: { daily_tournaments: 0, daily_reset_at: tomorrow.toISOString() },
+    });
+    user.daily_tournaments = 0;
+  }
+
+  const dailyLimit = user.plan === 'premium' ? 999 : 3;
   res.json({
     id: user.id, email: user.email, name: user.name,
     role: user.role, preferences: user.preferences, created_at: user.created_at,
+    plan: user.plan || 'free',
+    daily_tournaments: user.daily_tournaments || 0,
+    daily_limit: dailyLimit,
+    can_play: (user.daily_tournaments || 0) < dailyLimit,
   });
 }));
 
@@ -93,7 +121,11 @@ router.patch('/me/preferences', requireAuth, asyncHandler(async (req, res) => {
 
 // Admin login (legacy — kept for backward compatibility)
 router.post('/admin/login', loginRateLimit, asyncHandler(async (req, res) => {
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'foodhunt2026';
+  if (!process.env.ADMIN_PASSWORD && process.env.NODE_ENV === 'production') {
+    console.error('CRITICAL: ADMIN_PASSWORD environment variable is required in production!');
+    process.exit(1);
+  }
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123'; // dev only
   const pw = typeof req.body.password === 'string' ? req.body.password : '';
   if (!safeCompare(pw, ADMIN_PASSWORD)) throw new UnauthorizedError('Yanlis sifre');
 

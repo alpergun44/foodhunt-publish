@@ -57,6 +57,18 @@ function ga4(name: string, params: Record<string, unknown> = {}) {
 }
 
 // ─── Types ──────────────────────────────────────────────────────────────────
+export interface CompetitionSlot {
+  slot: string;
+  start: string;
+  end: string;
+}
+
+export interface AvailableHours {
+  open: string;
+  close: string;
+  days: number[];
+}
+
 export interface Restaurant {
   id: number;
   name: string;
@@ -82,6 +94,36 @@ export interface Restaurant {
   rating_count?: number;
   is_open?: boolean | null;
   source?: string;
+  competition_slots?: CompetitionSlot[];
+  available_hours?: AvailableHours;
+  district?: string;
+}
+
+export interface TournamentSlot {
+  slot: string;
+  start: string;
+  end: string;
+  icon: string;
+  is_active: boolean;
+  starts_in_ms: number;
+  starts_in_minutes: number;
+}
+
+export interface District {
+  name: string;
+  count: number;
+  is_active: boolean;
+}
+
+export interface Tournament {
+  id: number;
+  title: string;
+  description: string;
+  slot_start: string;
+  slot_end: string;
+  cuisine_filter: string;
+  area_filter: string;
+  created_at: string;
 }
 
 export interface InspirationCard {
@@ -217,6 +259,12 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     }),
+
+  getScheduledTournaments: (): Promise<TournamentSlot[]> =>
+    safeFetch(`${BASE}/tournaments/scheduled`),
+
+  getActiveRestaurants: (time: string): Promise<{ restaurants: Restaurant[]; meta: any }> =>
+    safeFetch(`${BASE}/restaurants/active?time=${encodeURIComponent(time)}`),
 };
 
 // ─── User API (requires JWT from user login) ────────────────────────────────
@@ -289,8 +337,11 @@ export const adminApi = {
       body: JSON.stringify({ password }),
     }),
 
-  getRestaurants: (token: string): Promise<Restaurant[]> =>
-    safeFetch(`${BASE}/admin/restaurants`, { headers: authHeaders(token) }),
+  getRestaurants: async (token: string, page = 1, limit = 50): Promise<Restaurant[]> => {
+    const data = await safeFetch<any>(`${BASE}/admin/restaurants?page=${page}&limit=${limit}`, { headers: authHeaders(token) });
+    // Support both paginated response and legacy array response
+    return Array.isArray(data) ? data : data.restaurants;
+  },
 
   getStats: (token: string): Promise<AdminStats> =>
     safeFetch(`${BASE}/admin/stats`, { headers: authHeaders(token) }),
@@ -366,5 +417,51 @@ export const adminApi = {
       method: 'POST',
       headers: authHeaders(token),
       body: JSON.stringify({ query }),
+    }),
+
+  // Export
+  exportRestaurants: (token: string, format: 'json' | 'csv' = 'json'): Promise<any> =>
+    safeFetch(`${BASE}/admin/restaurants/export?format=${format}`, { headers: authHeaders(token) }),
+
+  exportEvents: (token: string, format: 'json' | 'csv' = 'json'): Promise<any> =>
+    safeFetch(`${BASE}/admin/events/export?format=${format}`, { headers: authHeaders(token) }),
+
+  // Users
+  getUsers: (token: string): Promise<any[]> =>
+    safeFetch(`${BASE}/admin/users`, { headers: authHeaders(token) }),
+
+  deleteUser: (token: string, id: string): Promise<{ ok: boolean }> =>
+    safeFetch(`${BASE}/admin/users/${id}`, {
+      method: 'DELETE',
+      headers: authHeaders(token),
+    }),
+
+  // Districts
+  getDistricts: (token: string): Promise<District[]> =>
+    safeFetch(`${BASE}/admin/districts`, { headers: authHeaders(token) }),
+
+  createDistrict: (token: string, name: string): Promise<District> =>
+    safeFetch(`${BASE}/admin/districts`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({ name, is_active: true }),
+    }),
+
+  toggleDistrict: (token: string, name: string, is_active: boolean): Promise<{ ok: boolean }> =>
+    safeFetch(`${BASE}/admin/districts/${encodeURIComponent(name)}`, {
+      method: 'PUT',
+      headers: authHeaders(token),
+      body: JSON.stringify({ is_active }),
+    }),
+
+  // Tournaments
+  getTournaments: (token: string): Promise<Tournament[]> =>
+    safeFetch(`${BASE}/admin/tournaments`, { headers: authHeaders(token) }),
+
+  createTournament: (token: string, data: Omit<Tournament, 'id' | 'created_at'>): Promise<Tournament> =>
+    safeFetch(`${BASE}/admin/tournaments`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
     }),
 };

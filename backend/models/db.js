@@ -28,6 +28,8 @@ async function initNeDB() {
   db.users = Datastore.create({ filename: path.join(DB_DIR, 'users.db'), autoload: true });
   db.favorites = Datastore.create({ filename: path.join(DB_DIR, 'favorites.db'), autoload: true });
   db.history = Datastore.create({ filename: path.join(DB_DIR, 'history.db'), autoload: true });
+  db.districts = Datastore.create({ filename: path.join(DB_DIR, 'districts.db'), autoload: true });
+  db.tournaments = Datastore.create({ filename: path.join(DB_DIR, 'tournaments.db'), autoload: true });
 
   // Indexes
   await db.restaurants.ensureIndex({ fieldName: 'id', unique: true });
@@ -55,6 +57,8 @@ async function initMongoDB() {
   db.users = database.collection('users');
   db.favorites = database.collection('favorites');
   db.history = database.collection('history');
+  db.districts = database.collection('districts');
+  db.tournaments = database.collection('tournaments');
 
   // MongoDB indexes
   await db.restaurants.createIndex({ id: 1 }, { unique: true });

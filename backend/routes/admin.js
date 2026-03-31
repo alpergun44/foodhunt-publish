@@ -29,7 +29,12 @@ const upload = multer({
 });
 
 let _nextId = Date.now();
-function nextId() { return ++_nextId; }
+function nextId() {
+  const id = ++_nextId;
+  const now = Date.now();
+  if (now > _nextId) _nextId = now;
+  return id;
+}
 
 // ─── Dashboard Stats ─────────────────────────────────────────────────────────
 router.get('/stats', asyncHandler(async (_req, res) => {
@@ -108,8 +113,19 @@ router.get('/stats', asyncHandler(async (_req, res) => {
 }));
 
 // ─── Restaurant CRUD ─────────────────────────────────────────────────────────
-router.get('/restaurants', asyncHandler(async (_req, res) => {
-  res.json(await dbHelpers.find('restaurants', {}, { sort: { id: -1 } }));
+router.get('/restaurants', asyncHandler(async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
+  const skip = (page - 1) * limit;
+
+  const total = await dbHelpers.count('restaurants');
+  const restaurants = await dbHelpers.find('restaurants', {}, {
+    sort: { id: -1 },
+    skip,
+    limit,
+  });
+
+  res.json({ restaurants, total, page, limit, pages: Math.ceil(total / limit) });
 }));
 
 router.post('/restaurants', asyncHandler(async (req, res) => {
@@ -164,13 +180,16 @@ router.post('/restaurants/bulk', asyncHandler(async (req, res) => {
 }));
 
 // Image upload
-router.post('/upload', upload.single('image'), (req, res) => {
+const SAFE_EXTENSIONS = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
+
+router.post('/upload', upload.single('image'), asyncHandler(async (req, res) => {
   if (!req.file) throw new ValidationError('Dosya yuklenemedi');
-  const ext = req.file.mimetype.split('/')[1] || 'jpg';
+  const ext = SAFE_EXTENSIONS[req.file.mimetype];
+  if (!ext) throw new ValidationError('Desteklenmeyen dosya tipi: ' + req.file.mimetype);
   const nm = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}.${ext}`;
   fs.renameSync(req.file.path, path.join(UPLOADS_DIR, nm));
   res.json({ url: `/uploads/${nm}` });
-});
+}));
 
 // ─── Cards (Inspiration) ────────────────────────────────────────────────────
 router.get('/cards', asyncHandler(async (_req, res) => {
@@ -261,10 +280,84 @@ router.post('/restaurants/search-location', asyncHandler(async (req, res) => {
       (r.area || '').toLowerCase().includes(q) ||
       (r.address || '').toLowerCase().includes(q)
     );
-    results = [...results, ...matches];
+    // Duplicate'leri cikar
+    const existingIds = new Set(results.map(r => r.name?.toLowerCase()));
+    for (const m of matches) {
+      if (!existingIds.has(m.name?.toLowerCase())) results.push(m);
+    }
   }
 
-  res.json({ results });
+  res.json({ results, total: results.length });
+}));
+
+// ─── User Management ───────────────────────────────────────────────────────
+router.get('/users', asyncHandler(async (_req, res) => {
+  const users = await dbHelpers.find('users', {}, { sort: { created_at: -1 } });
+  // Password hash'leri gonderme
+  res.json(users.map(u => ({ ...u, password: undefined, password_hash: undefined })));
+}));
+
+router.delete('/users/:id', asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  await dbHelpers.remove('users', { _id: id });
+  logger.info('User deleted by admin', { id });
+  res.json({ ok: true });
+}));
+
+// ─── District Management ───────────────────────────────────────────────────
+router.get('/districts', asyncHandler(async (_req, res) => {
+  const all = await dbHelpers.find('restaurants', {});
+  const districtMap = {};
+  for (const r of all) {
+    const d = r.district || r.area || 'Bilinmeyen';
+    if (!districtMap[d]) districtMap[d] = { name: d, count: 0, is_active: true };
+    districtMap[d].count++;
+  }
+  res.json(Object.values(districtMap).sort((a, b) => b.count - a.count));
+}));
+
+router.post('/districts', asyncHandler(async (req, res) => {
+  const { name, is_active = true } = req.body;
+  if (!name) throw new ValidationError('Bolge adi gerekli');
+  const district = {
+    id: nextId(),
+    name: safeStr(name, 100),
+    is_active,
+    created_at: new Date().toISOString(),
+  };
+  await dbHelpers.insert('districts', district);
+  res.status(201).json(district);
+}));
+
+router.put('/districts/:name', asyncHandler(async (req, res) => {
+  const { is_active } = req.body;
+  const name = safeStr(req.params.name, 100);
+  await dbHelpers.update('districts', { name }, {
+    $set: { is_active, updated_at: new Date().toISOString() },
+  });
+  res.json({ ok: true });
+}));
+
+// ─── Tournament Management ─────────────────────────────────────────────────
+router.get('/tournaments', asyncHandler(async (_req, res) => {
+  const tournaments = await dbHelpers.find('tournaments', {}, { sort: { created_at: -1 } });
+  res.json(tournaments);
+}));
+
+router.post('/tournaments', asyncHandler(async (req, res) => {
+  const { title, description, slot_start, slot_end, cuisine_filter, area_filter } = req.body;
+  const tournament = {
+    id: nextId(),
+    title: safeStr(title, 200),
+    description: safeStr(description, 500),
+    slot_start: safeStr(slot_start, 5),
+    slot_end: safeStr(slot_end, 5),
+    cuisine_filter: safeStr(cuisine_filter, 100),
+    area_filter: safeStr(area_filter, 100),
+    created_at: new Date().toISOString(),
+  };
+  await dbHelpers.insert('tournaments', tournament);
+  res.status(201).json(tournament);
 }));
 
 module.exports = router;

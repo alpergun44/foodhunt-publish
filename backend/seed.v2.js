@@ -5,6 +5,7 @@
  */
 require('dotenv').config();
 const { initDB, dbHelpers } = require('./models/db');
+const { TUZLA_RESTAURANTS } = require('./seed-tuzla');
 
 const restaurants = [
   // ════════════════════════════════════════════════════════════════════════════
@@ -148,7 +149,26 @@ async function seed() {
   let id = Date.now();
   let imported = 0;
 
+  // Seed Istanbul restaurants
   for (const r of restaurants) {
+    const existing = await dbHelpers.findOne('restaurants', { name: r.name, area: r.area });
+    if (existing) continue;
+
+    await dbHelpers.insert('restaurants', {
+      ...r,
+      id: ++id,
+      is_active: 1,
+      yemeksepeti_link: r.yemeksepeti_link || '',
+      getir_link: r.getir_link || '',
+      trendyol_link: r.trendyol_link || '',
+      image_url: r.image_url || '',
+      created_at: new Date().toISOString(),
+    });
+    imported++;
+  }
+
+  // Seed Tuzla pilot restaurants
+  for (const r of TUZLA_RESTAURANTS) {
     const existing = await dbHelpers.findOne('restaurants', { name: r.name, area: r.area });
     if (existing) continue;
 

@@ -9,6 +9,9 @@ const R_FIELDS = [
   'trendyol_link', 'image_url', 'description', 'is_active',
   'lat', 'lng', 'address', 'phone', 'tags',
   'google_place_id', 'google_maps_url', 'website', 'rating_count', 'source',
+  'competition_slots',  // [{ slot: "lunch", start: "11:00", end: "14:00" }, ...]
+  'available_hours',    // { open: "09:00", close: "23:00", days: [1,2,3,4,5,6,7] }
+  'district',           // Tuzla sub-areas
 ];
 
 function sanitizeRestaurant(body) {
@@ -30,6 +33,28 @@ function sanitizeRestaurant(body) {
   if (c.lng !== undefined) c.lng = parseFloat(c.lng) || null;
   if (c.is_active !== undefined) c.is_active = c.is_active ? 1 : 0;
   if (c.tags && Array.isArray(c.tags)) c.tags = c.tags.slice(0, 10).map(t => String(t).trim().slice(0, 50));
+  if (c.district && typeof c.district === 'string') c.district = c.district.trim().slice(0, 100);
+
+  // competition_slots validation
+  if (c.competition_slots && Array.isArray(c.competition_slots)) {
+    c.competition_slots = c.competition_slots.slice(0, 10).map(s => ({
+      slot: String(s.slot || '').trim().slice(0, 50),
+      start: String(s.start || '').trim().slice(0, 5),
+      end: String(s.end || '').trim().slice(0, 5),
+    }));
+  }
+
+  // available_hours validation
+  if (c.available_hours && typeof c.available_hours === 'object') {
+    c.available_hours = {
+      open: String(c.available_hours.open || '09:00').slice(0, 5),
+      close: String(c.available_hours.close || '23:00').slice(0, 5),
+      days: Array.isArray(c.available_hours.days)
+        ? c.available_hours.days.map(d => Math.max(1, Math.min(7, parseInt(d)))).filter(d => !isNaN(d))
+        : [1, 2, 3, 4, 5, 6, 7],
+    };
+  }
+
   return c;
 }
 
@@ -42,7 +67,8 @@ function safeCompare(a, b) {
   const bA = Buffer.from(a);
   const bB = Buffer.from(b);
   if (bA.length !== bB.length) {
-    crypto.timingSafeEqual(bA, bA);
+    const dummy = Buffer.alloc(bA.length);
+    crypto.timingSafeEqual(bA, dummy);
     return false;
   }
   return crypto.timingSafeEqual(bA, bB);

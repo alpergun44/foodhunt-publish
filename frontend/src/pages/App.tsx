@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { api, Restaurant, InspirationCard, safeGetItem, safeSetItem } from '../api'
+import { api, Restaurant, InspirationCard, TournamentSlot, safeGetItem, safeSetItem } from '../api'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { hapticImpact, hapticNotification, nativeShare, configureStatusBar, hideSplashScreen } from '../utils/native'
 import { SocialProof } from '../components/ui/SocialProof'
@@ -7,6 +7,10 @@ import { CookieConsent } from '../components/ui/CookieConsent'
 import { Onboarding, shouldShowOnboarding } from '../components/ui/Onboarding'
 import { NoRestaurantsFound } from '../components/ui/EmptyState'
 import { SkeletonCard } from '../components/ui/LoadingSkeleton'
+
+const PLACEHOLDER_IMG = 'data:image/svg+xml,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#1a1a1a"/><text x="200" y="160" text-anchor="middle" fill="#666" font-size="48">&#127869;</text></svg>'
+)
 
 // ─── Icons (Lucide-style inline SVGs) ───────────────────────────────────────
 const Icon = {
@@ -43,7 +47,7 @@ interface VSCardProps {
 
 const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps) => {
   const stars = (restaurant.rating ?? 0).toFixed(1)
-  const imgSrc = restaurant.image_url || `https://picsum.photos/seed/${restaurant.id}/400/300`
+  const imgSrc = restaurant.image_url || PLACEHOLDER_IMG
 
   return (
     <button
@@ -65,7 +69,7 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
           alt={restaurant.name}
           loading="lazy"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          onError={(e) => { (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${restaurant.id}/400/300` }}
+          onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMG }}
         />
         <div className="food-overlay absolute inset-0" />
 
@@ -254,6 +258,9 @@ export default function App() {
   const [nearbyMeta, setNearbyMeta] = useState<{ area_detected: string | null; google_count: number; seed_count: number } | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [serverDown, setServerDown] = useState(false)
+  const [scheduledSlots, setScheduledSlots] = useState<TournamentSlot[]>([])
+  const [currentSlot, setCurrentSlot] = useState<TournamentSlot | null>(null)
+  const [tournamentInfo, setTournamentInfo] = useState<{ used: number; limit: number; remaining: number; can_play: boolean } | null>(null)
 
   const abortRef = useRef<AbortController | null>(null)
   const pickLockRef = useRef(false)
@@ -266,14 +273,16 @@ export default function App() {
   const thirdPlace = useMemo(() => (eliminated.length > 1 ? eliminated[eliminated.length - 2] : null), [eliminated])
 
   useEffect(() => {
+    const controller = new AbortController()
+
     // Native iOS setup
     configureStatusBar()
     hideSplashScreen()
 
     // Health check
-    fetch('/api/health')
+    fetch('/api/health', { signal: controller.signal })
       .then(r => { if (!r.ok) setServerDown(true) })
-      .catch(() => setServerDown(true))
+      .catch(e => { if (e.name !== 'AbortError') setServerDown(true) })
 
     // Check onboarding
     if (shouldShowOnboarding()) {
@@ -281,7 +290,34 @@ export default function App() {
     }
 
     api.trackEvent('page_view')
-    api.getAreas().then(setAreas).catch(() => setApiError('Baglanti hatasi. Tekrar deneyin.'))
+    api.getAreas().then(setAreas).catch(e => { if (e.name !== 'AbortError') setApiError('Baglanti hatasi. Tekrar deneyin.') })
+
+    // Load freemium info
+    const userToken = safeGetItem('local', 'foodhunt_token')
+    if (userToken) {
+      fetch('/api/auth/me', { headers: { Authorization: `Bearer ${userToken}` }, signal: controller.signal })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data) setTournamentInfo({
+            used: data.daily_tournaments || 0,
+            limit: data.daily_limit || 3,
+            remaining: Math.max(0, (data.daily_limit || 3) - (data.daily_tournaments || 0)),
+            can_play: data.can_play !== false,
+          })
+        })
+        .catch(() => {})
+    }
+
+    // Load tournament slots
+    const loadSlots = () => {
+      api.getScheduledTournaments().then(slots => {
+        setScheduledSlots(slots)
+        setCurrentSlot(slots.find(s => s.is_active) || null)
+      }).catch(() => {})
+    }
+    loadSlots()
+    const slotInterval = setInterval(loadSlots, 60000)
+    return () => { clearInterval(slotInterval); controller.abort() }
   }, [])
 
   useEffect(() => {
@@ -414,17 +450,46 @@ export default function App() {
           <div className="text-center max-w-md animate-fade-in space-y-6">
             {/* Hero */}
             <div className="space-y-3">
-              <div className="text-6xl animate-float">🍽️</div>
-              <h1 className="font-display text-5xl sm:text-6xl font-extrabold">
-                <span className="text-gradient-warm">Food</span>
-                <span className="text-brand-cream">Hunt</span>
-              </h1>
+              {currentSlot ? (
+                <>
+                  <div className="text-6xl animate-float">{currentSlot.icon}</div>
+                  <h1 className="font-display text-4xl sm:text-5xl font-extrabold">
+                    <span className="text-gradient-warm">{currentSlot.slot}</span>
+                  </h1>
+                  <p className="text-brand-muted text-sm">Simdi aktif! Turnuvaya katil.</p>
+                </>
+              ) : (
+                <>
+                  <div className="text-6xl animate-float">🍽️</div>
+                  <h1 className="font-display text-5xl sm:text-6xl font-extrabold">
+                    <span className="text-gradient-warm">Food</span>
+                    <span className="text-brand-cream">Hunt</span>
+                  </h1>
+                </>
+              )}
               <p className="text-brand-muted text-base leading-relaxed">
                 Favorin restorani turnuva usulu sec.
                 <br />
                 <span className="text-brand-coral">Tap. Sec. Kazan.</span>
               </p>
             </div>
+
+            {/* Tournament Slots */}
+            {scheduledSlots.length > 0 && (
+              <div className="grid grid-cols-2 gap-2 w-full">
+                {scheduledSlots.map(slot => (
+                  <div key={slot.slot} className={`p-2.5 rounded-xl border text-center transition-all ${slot.is_active ? 'bg-brand-coral/15 border-brand-coral/50' : 'bg-brand-surface/50 border-white/5'}`}>
+                    <div className="text-xl mb-0.5">{slot.icon}</div>
+                    <p className="text-xs font-semibold text-brand-cream">{slot.slot}</p>
+                    <p className="text-[10px] text-brand-muted">{slot.start} - {slot.end}</p>
+                    {slot.is_active && <span className="text-[10px] text-brand-coral font-bold">AKTIF</span>}
+                    {!slot.is_active && slot.starts_in_minutes > 0 && slot.starts_in_minutes < 120 && (
+                      <span className="text-[10px] text-brand-amber">{slot.starts_in_minutes} dk</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Mode Toggle */}
             <div className="flex bg-brand-surface rounded-2xl p-1 border border-white/5">
@@ -507,23 +572,45 @@ export default function App() {
               )}
             </div>
 
+            {/* Freemium Info */}
+            {tournamentInfo && (
+              <div className="text-center space-y-1">
+                <p className="text-sm font-semibold text-brand-amber">
+                  {tournamentInfo.remaining} / {tournamentInfo.limit} turnuva
+                </p>
+                <p className="text-xs text-brand-muted">
+                  {tournamentInfo.can_play
+                    ? `Bugun ${tournamentInfo.remaining} turnuva hakkiniz kaldi`
+                    : 'Gunluk limit tamamlandi'}
+                </p>
+              </div>
+            )}
+
             {/* Start Buttons */}
             <div className="flex gap-3">
               <button
                 onClick={() => handleStartTournament(8)}
-                disabled={loading || serverDown}
+                disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
                 className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm"
               >
                 <Icon.Zap /> {loading ? 'Yukleniyor...' : 'Hizli (8)'}
               </button>
               <button
                 onClick={() => handleStartTournament(16)}
-                disabled={loading || serverDown}
+                disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
                 className="btn-secondary flex-1 flex items-center justify-center gap-2 text-sm"
               >
                 {loading ? 'Yukleniyor...' : 'Klasik (16)'}
               </button>
             </div>
+
+            {/* Premium Upgrade Prompt */}
+            {tournamentInfo && !tournamentInfo.can_play && (
+              <div className="p-4 bg-brand-amber/10 border border-brand-amber/30 rounded-xl text-center space-y-2">
+                <p className="text-brand-amber font-semibold text-sm">Unlimited turnuva oynamak ister misin?</p>
+                <p className="text-brand-muted text-xs">Premium ile sinir olmadan oyna!</p>
+              </div>
+            )}
 
             {/* Social Proof */}
             <SocialProof />
