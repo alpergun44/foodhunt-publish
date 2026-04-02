@@ -71,6 +71,8 @@ app.use(helmet({
       frameSrc: ["'self'", "https://accounts.google.com", "https://appleid.apple.com"],
     },
   },
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginEmbedderPolicy: false,
 }));
 app.use(createCorsMiddleware());
 app.use(express.json({ limit: '2mb' }));
@@ -210,8 +212,8 @@ async function seedRestaurants() {
     for (const r of allRestaurants) {
       const existing = await dbHelpers.findOne('restaurants', { name: r.name, area: r.area });
       if (existing) {
-        // Update image_url if missing in DB but present in seed
-        if (!existing.image_url && r.image_url) {
+        // Force-update image_url from seed if seed has one and DB value differs
+        if (r.image_url && existing.image_url !== r.image_url) {
           await dbHelpers.update('restaurants', { name: r.name, area: r.area }, { $set: { image_url: r.image_url } });
           updated++;
         }

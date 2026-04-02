@@ -2,7 +2,7 @@
  * FoodHunt — Service Worker v3
  * Network-first for HTML/JS/CSS, cache fallback for offline
  */
-const CACHE_NAME = 'foodhunt-v3';
+const CACHE_NAME = 'foodhunt-v4';
 
 // Install — skip waiting immediately
 self.addEventListener('install', () => {
@@ -28,8 +28,11 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET
   if (request.method !== 'GET') return;
 
-  // Skip auth/admin API requests entirely
+  // Skip cross-origin requests (external images, fonts, etc.)
   const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  // Skip auth/admin API requests entirely
   if (url.pathname.includes('/auth/') || url.pathname.includes('/admin/')) return;
 
   // Network-first: try network, fallback to cache for offline support
