@@ -206,9 +206,17 @@ async function seedRestaurants() {
 
     let id = Date.now();
     let imported = 0;
+    let updated = 0;
     for (const r of allRestaurants) {
       const existing = await dbHelpers.findOne('restaurants', { name: r.name, area: r.area });
-      if (existing) continue;
+      if (existing) {
+        // Update image_url if missing in DB but present in seed
+        if (!existing.image_url && r.image_url) {
+          await dbHelpers.update('restaurants', { name: r.name, area: r.area }, { $set: { image_url: r.image_url } });
+          updated++;
+        }
+        continue;
+      }
       await dbHelpers.insert('restaurants', {
         ...r, id: ++id, is_active: 1,
         yemeksepeti_link: r.yemeksepeti_link || '',
@@ -220,8 +228,8 @@ async function seedRestaurants() {
       imported++;
     }
     const total = await dbHelpers.count('restaurants');
-    if (imported > 0) {
-      logger.info('New restaurants seeded', { imported, total });
+    if (imported > 0 || updated > 0) {
+      logger.info('Restaurants seeded/updated', { imported, updated, total });
     } else {
       logger.info('All restaurants already in DB', { total });
     }
