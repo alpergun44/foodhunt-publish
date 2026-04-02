@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { api, authApi, Restaurant, InspirationCard, TournamentSlot, safeGetItem, safeSetItem } from '../api'
+import { api, authApi, Restaurant, InspirationCard, TournamentSlot, PublicRegion, safeGetItem, safeSetItem } from '../api'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { hapticImpact, hapticNotification, nativeShare, configureStatusBar, hideSplashScreen } from '../utils/native'
 import { SocialProof } from '../components/ui/SocialProof'
@@ -295,6 +295,8 @@ export default function App() {
   const [scheduledSlots, setScheduledSlots] = useState<TournamentSlot[]>([])
   const [currentSlot, setCurrentSlot] = useState<TournamentSlot | null>(null)
   const [tournamentInfo, setTournamentInfo] = useState<{ used: number; limit: number; remaining: number; can_play: boolean } | null>(null)
+  const [regions, setRegions] = useState<PublicRegion[]>([])
+  const [selectedIlce, setSelectedIlce] = useState<string | null>(null)
 
   const abortRef = useRef<AbortController | null>(null)
   const pickLockRef = useRef(false)
@@ -325,6 +327,7 @@ export default function App() {
 
     api.trackEvent('page_view')
     api.getAreas().then(setAreas).catch(e => { if (e.name !== 'AbortError') setApiError('Bağlantı hatası. Tekrar deneyin.') })
+    api.getRegions().then(setRegions).catch(() => {})
 
     // Load freemium info
     const userToken = safeGetItem('local', 'foodhunt_token')
@@ -378,7 +381,14 @@ export default function App() {
     api.getAreas().then(setAreas).catch(() => {})
     setArea(null)
     setCuisine(null)
+    setSelectedIlce(null)
     setNearbyMeta(null)
+  }, [])
+
+  const handleIlceChange = useCallback((ilce: string | null) => {
+    setSelectedIlce(ilce)
+    setArea(ilce)  // ilçe name = area name in DB
+    setCuisine(null)
   }, [])
 
   const handleStartTournament = useCallback(async (count: 8 | 16) => {
@@ -451,7 +461,7 @@ export default function App() {
   }, [restaurants])
 
   const handleRestart = useCallback(() => {
-    setPhase('landing'); setArea(null); setCuisine(null)
+    setPhase('landing'); setArea(null); setCuisine(null); setSelectedIlce(null)
     setRestaurants([]); setEliminated([]); setCuisines([])
     setNearbyMeta(null)
   }, [])
@@ -529,20 +539,15 @@ export default function App() {
               </p>
             </div>
 
-            {/* Tournament Slots */}
-            {scheduledSlots.length > 0 && (
-              <div className="grid grid-cols-2 gap-2 w-full">
-                {scheduledSlots.map(slot => (
-                  <div key={slot.slot} className={`p-2.5 rounded-xl border text-center transition-all ${slot.is_active ? 'bg-brand-coral/15 border-brand-coral/50' : 'bg-brand-surface/50 border-white/5'}`}>
-                    <div className="text-xl mb-0.5">{slot.icon}</div>
-                    <p className="text-xs font-semibold text-brand-cream">{slot.slot}</p>
-                    <p className="text-[10px] text-brand-muted">{slot.start} - {slot.end}</p>
-                    {slot.is_active && <span className="text-[10px] text-brand-coral font-bold">AKTIF</span>}
-                    {!slot.is_active && slot.starts_in_minutes > 0 && slot.starts_in_minutes < 120 && (
-                      <span className="text-[10px] text-brand-amber">{slot.starts_in_minutes} dk</span>
-                    )}
-                  </div>
-                ))}
+            {/* Active Tournament Slot - only show current */}
+            {currentSlot && (
+              <div className="w-full max-w-xs mx-auto p-3 rounded-2xl border bg-brand-coral/10 border-brand-coral/30 text-center">
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-lg">{currentSlot.icon}</span>
+                  <span className="text-sm font-bold text-brand-cream">{currentSlot.slot}</span>
+                  <span className="text-[10px] bg-brand-coral text-white px-2 py-0.5 rounded-full font-bold animate-pulse">CANLI</span>
+                </div>
+                <p className="text-[11px] text-brand-muted mt-1">{currentSlot.start} - {currentSlot.end}</p>
               </div>
             )}
 
@@ -600,14 +605,27 @@ export default function App() {
             {/* Filters */}
             <div className="space-y-3">
               {mode === 'browse' && (
-                <select
-                  value={area || ''}
-                  onChange={e => setArea(e.target.value || null)}
-                  className="select-field"
-                >
-                  <option value="">Tüm Bölgeler</option>
-                  {areas.map(a => <option key={a.area} value={a.area}>{a.area} ({a.count})</option>)}
-                </select>
+                <>
+                  {/* İlçe Seçimi */}
+                  <select
+                    value={selectedIlce || ''}
+                    onChange={e => handleIlceChange(e.target.value || null)}
+                    className="select-field"
+                  >
+                    <option value="">İlçe Seçin</option>
+                    {regions.length > 0
+                      ? regions.map(r => {
+                          const areaData = areas.find(a => a.area === r.ilce)
+                          return (
+                            <option key={r.ilce} value={r.ilce}>
+                              {r.ilce}{areaData ? ` (${areaData.count})` : ''}
+                            </option>
+                          )
+                        })
+                      : areas.map(a => <option key={a.area} value={a.area}>{a.area} ({a.count})</option>)
+                    }
+                  </select>
+                </>
               )}
 
               {(mode === 'browse' ? cuisines.length > 0 : true) && (
