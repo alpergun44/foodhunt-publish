@@ -197,13 +197,8 @@ async function seedCards() {
 // ─── Seed Restaurants on Startup ────────────────────────────────────────────
 async function seedRestaurants() {
   const { dbHelpers } = require('./models/db');
-  const existingCount = await dbHelpers.count('restaurants');
-  if (existingCount >= 50) {
-    logger.info('Restaurants already seeded', { count: existingCount });
-    return;
-  }
 
-  logger.info('Seeding restaurants...');
+  logger.info('Checking for new restaurants to seed...');
   try {
     const { TUZLA_RESTAURANTS } = require('./seed-tuzla');
     const seedData = require('./seed.v2.data.json');
@@ -224,7 +219,12 @@ async function seedRestaurants() {
       });
       imported++;
     }
-    logger.info('Restaurants seeded', { imported, total: await dbHelpers.count('restaurants') });
+    const total = await dbHelpers.count('restaurants');
+    if (imported > 0) {
+      logger.info('New restaurants seeded', { imported, total });
+    } else {
+      logger.info('All restaurants already in DB', { total });
+    }
   } catch (err) {
     // Fallback: run seed inline with data from seed.v2.js arrays
     logger.warn('JSON seed not found, using inline seed', { error: err.message });
@@ -251,19 +251,16 @@ async function seedRestaurants() {
 // ─── Seed Regions on Startup ────────────────────────────────────────────────
 async function seedRegions() {
   const { dbHelpers } = require('./models/db');
-  const existingCount = await dbHelpers.count('regions');
-  if (existingCount > 0) {
-    logger.info('Regions already seeded', { count: existingCount });
-    return;
-  }
 
-  logger.info('Seeding regions...');
+  logger.info('Checking for new regions to seed...');
   try {
     const { REGIONS } = require('./seed-regions');
     let id = Date.now();
     let seeded = 0;
     for (const r of REGIONS) {
       for (const ilce of r.ilceler) {
+        const existing = await dbHelpers.findOne('regions', { il: r.il, ilce: ilce.name });
+        if (existing) continue;
         const doc = {
           id: ++id,
           il: r.il,
@@ -278,7 +275,11 @@ async function seedRegions() {
         seeded++;
       }
     }
-    logger.info('Regions seeded', { seeded });
+    if (seeded > 0) {
+      logger.info('New regions seeded', { seeded });
+    } else {
+      logger.info('All regions already in DB');
+    }
   } catch (err) {
     logger.warn('Failed to seed regions', { error: err.message });
   }

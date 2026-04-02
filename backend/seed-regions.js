@@ -83,6 +83,13 @@ const REGIONS = [
         lng: 29.0500,
         is_active: false,
         mahalleler: ['Sarıyer Merkez', 'İstinye', 'Tarabya', 'Emirgan', 'Rumelihisarı', 'Maslak']
+      },
+      {
+        name: 'Ümraniye',
+        lat: 41.0166,
+        lng: 29.0917,
+        is_active: true,
+        mahalleler: ['Ümraniye Merkez', 'Çakmak', 'Saray', 'Şerifali', 'Atakent', 'Elmalıkent', 'Hekimbaşı', 'Ihlamurkuyu', 'Namık Kemal', 'Site', 'Tatlısu', 'Yukarı Dudullu', 'Aşağı Dudullu']
       }
     ]
   }
