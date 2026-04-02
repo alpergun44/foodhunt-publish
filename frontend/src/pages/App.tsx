@@ -7,6 +7,7 @@ import { CookieConsent } from '../components/ui/CookieConsent'
 import { Onboarding, shouldShowOnboarding } from '../components/ui/Onboarding'
 import { NoRestaurantsFound } from '../components/ui/EmptyState'
 import { SkeletonCard } from '../components/ui/LoadingSkeleton'
+import { IOSInstallBanner } from '../components/ui/IOSInstallBanner'
 
 const PLACEHOLDER_IMG = 'data:image/svg+xml,' + encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#1a1a1a"/><text x="200" y="160" text-anchor="middle" fill="#666" font-size="48">&#127869;</text></svg>'
@@ -793,6 +794,7 @@ export default function App() {
 
       <ShareModal isOpen={shareModalOpen} onClose={() => setShareModalOpen(false)} champion={champion} />
       <CookieConsent />
+      <IOSInstallBanner />
     </div>
   )
 }

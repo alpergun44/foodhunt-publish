@@ -3077,5 +3077,442 @@
         "emoji": "🍔"
       }
     ]
+  },
+  {
+    "name": "Kalbur Et Kebap",
+    "cuisine": "Kebap",
+    "area": "Ümraniye",
+    "rating": 4.6,
+    "price_level": 3,
+    "calories_min": 500,
+    "calories_max": 900,
+    "description": "Ocakbaşı konseptinde premium et ve kebap lezzetleri",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/kalbur-et-kebap",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["kebap", "ocakbaşı", "et"],
+    "top3_products": [
+      { "name": "Kuşbaşı Kebap", "emoji": "🔥" },
+      { "name": "Pirzola", "emoji": "🥩" },
+      { "name": "Karışık Izgara", "emoji": "🍖" }
+    ]
+  },
+  {
+    "name": "Ramazan Bingöl Et Lokantası",
+    "cuisine": "Türk Mutfağı",
+    "area": "Ümraniye",
+    "rating": 4.5,
+    "price_level": 3,
+    "calories_min": 500,
+    "calories_max": 1000,
+    "description": "1000 kişilik kapasitesiyle kebap ve sulu yemek çeşitleri",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/ramazan-bingol-et-lokantasi",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["kebap", "et", "lokanta"],
+    "top3_products": [
+      { "name": "Kuzu Tandır", "emoji": "🍖" },
+      { "name": "Adana Kebap", "emoji": "🔥" },
+      { "name": "Pide", "emoji": "🫓" }
+    ]
+  },
+  {
+    "name": "Fikret Adana Ocakbaşı",
+    "cuisine": "Kebap",
+    "area": "Ümraniye",
+    "rating": 4.4,
+    "price_level": 2,
+    "calories_min": 450,
+    "calories_max": 850,
+    "description": "Adana usulü ocakbaşı lezzetlerinin Ümraniye'deki adresi",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/fikret-adana-ocakbasi",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["adana", "kebap", "ocakbaşı"],
+    "top3_products": [
+      { "name": "Adana Kebap", "emoji": "🔥" },
+      { "name": "Urfa Kebap", "emoji": "🌶️" },
+      { "name": "Lahmacun", "emoji": "🫓" }
+    ]
+  },
+  {
+    "name": "Farika Döner",
+    "cuisine": "Döner",
+    "area": "Ümraniye",
+    "rating": 4.3,
+    "price_level": 1,
+    "calories_min": 400,
+    "calories_max": 700,
+    "description": "Zengin menüsüyle öne çıkan döner ustası",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/farika-doner",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["döner", "fast food", "uygun fiyat"],
+    "top3_products": [
+      { "name": "İskender", "emoji": "🍖" },
+      { "name": "Döner Dürüm", "emoji": "🌯" },
+      { "name": "Porsiyon Döner", "emoji": "🥙" }
+    ]
+  },
+  {
+    "name": "Dönerci Ali Usta",
+    "cuisine": "Döner",
+    "area": "Ümraniye",
+    "rating": 4.2,
+    "price_level": 1,
+    "calories_min": 350,
+    "calories_max": 650,
+    "description": "Geleneksel döner lezzetlerinin güvenilir adresi",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/donerci-ali-usta",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["döner", "dürüm", "ekonomik"],
+    "top3_products": [
+      { "name": "Tombik Döner", "emoji": "🍔" },
+      { "name": "Dürüm", "emoji": "🌯" },
+      { "name": "Pilav Üstü Döner", "emoji": "🍚" }
+    ]
+  },
+  {
+    "name": "Ağababa Döner",
+    "cuisine": "Döner",
+    "area": "Ümraniye",
+    "rating": 4.3,
+    "price_level": 1,
+    "calories_min": 400,
+    "calories_max": 700,
+    "description": "Ümraniye'nin sevilen döner durağı",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/agababa-doner",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["döner", "iskender", "ekonomik"],
+    "top3_products": [
+      { "name": "İskender", "emoji": "🍖" },
+      { "name": "Döner Ekmek", "emoji": "🥖" },
+      { "name": "Karışık Dürüm", "emoji": "🌯" }
+    ]
+  },
+  {
+    "name": "Metet Közde Döner",
+    "cuisine": "Döner",
+    "area": "Ümraniye",
+    "rating": 4.1,
+    "price_level": 1,
+    "calories_min": 400,
+    "calories_max": 700,
+    "description": "Közde pişirme yöntemiyle fark yaratan döner",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/metet-kozde-doner",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["döner", "köz", "közde döner"],
+    "top3_products": [
+      { "name": "Közde Döner", "emoji": "🔥" },
+      { "name": "Közde Tavuk", "emoji": "🍗" },
+      { "name": "Dürüm", "emoji": "🌯" }
+    ]
+  },
+  {
+    "name": "Afraze Cafe & Restaurant",
+    "cuisine": "Dünya Mutfağı",
+    "area": "Ümraniye",
+    "rating": 4.4,
+    "price_level": 3,
+    "calories_min": 350,
+    "calories_max": 800,
+    "description": "Şık atmosferde dünya mutfağından lezzetler",
+    "yemeksepeti_link": "",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["cafe", "restoran", "dünya mutfağı"],
+    "top3_products": [
+      { "name": "Steak", "emoji": "🥩" },
+      { "name": "Makarna", "emoji": "🍝" },
+      { "name": "Cheesecake", "emoji": "🍰" }
+    ]
+  },
+  {
+    "name": "Abooov Kebap",
+    "cuisine": "Kebap",
+    "area": "Ümraniye",
+    "rating": 4.2,
+    "price_level": 2,
+    "calories_min": 450,
+    "calories_max": 850,
+    "description": "Lezzet dolu kebap çeşitleriyle samimi bir mekan",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/abooov-kebap",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["kebap", "mangal", "et"],
+    "top3_products": [
+      { "name": "Karışık Kebap", "emoji": "🔥" },
+      { "name": "Beyti", "emoji": "🌯" },
+      { "name": "Patlıcan Kebabı", "emoji": "🍆" }
+    ]
+  },
+  {
+    "name": "Çakıl Restaurant",
+    "cuisine": "Türk Mutfağı",
+    "area": "Ümraniye",
+    "rating": 4.5,
+    "price_level": 3,
+    "calories_min": 400,
+    "calories_max": 900,
+    "description": "Şık ortamda geleneksel Türk lezzetleri",
+    "yemeksepeti_link": "",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["türk mutfağı", "meyhane", "balık"],
+    "top3_products": [
+      { "name": "Levrek", "emoji": "🐟" },
+      { "name": "Kuzu Tandır", "emoji": "🍖" },
+      { "name": "Meze Tabağı", "emoji": "🥗" }
+    ]
+  },
+  {
+    "name": "Eskici Gizli Bahçe",
+    "cuisine": "Kahvaltı",
+    "area": "Ümraniye",
+    "rating": 4.4,
+    "price_level": 2,
+    "calories_min": 400,
+    "calories_max": 800,
+    "description": "Gizli bahçe konseptinde huzurlu kahvaltı deneyimi",
+    "yemeksepeti_link": "",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["kahvaltı", "bahçe", "brunch"],
+    "top3_products": [
+      { "name": "Serpme Kahvaltı", "emoji": "🍳" },
+      { "name": "Menemen", "emoji": "🥘" },
+      { "name": "Gözleme", "emoji": "🫓" }
+    ]
+  },
+  {
+    "name": "Roof Mezze 360",
+    "cuisine": "Meyhane",
+    "area": "Ümraniye",
+    "rating": 4.3,
+    "price_level": 3,
+    "calories_min": 300,
+    "calories_max": 700,
+    "description": "360 derece manzarayla meze ve rakı keyfi",
+    "yemeksepeti_link": "",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["meyhane", "meze", "manzara"],
+    "top3_products": [
+      { "name": "Meze Tabağı", "emoji": "🥗" },
+      { "name": "Ahtapot Izgara", "emoji": "🐙" },
+      { "name": "Karides Güveç", "emoji": "🦐" }
+    ]
+  },
+  {
+    "name": "Et Mekan",
+    "cuisine": "Steakhouse",
+    "area": "Ümraniye",
+    "rating": 4.5,
+    "price_level": 3,
+    "calories_min": 500,
+    "calories_max": 1100,
+    "description": "Kaliteli et çeşitleriyle Ümraniye'nin steak adresi",
+    "yemeksepeti_link": "",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["steak", "et", "premium"],
+    "top3_products": [
+      { "name": "T-Bone Steak", "emoji": "🥩" },
+      { "name": "Bonfile", "emoji": "🥩" },
+      { "name": "Kaburga", "emoji": "🍖" }
+    ]
+  },
+  {
+    "name": "Antebim",
+    "cuisine": "Kebap",
+    "area": "Ümraniye",
+    "rating": 4.4,
+    "price_level": 2,
+    "calories_min": 450,
+    "calories_max": 850,
+    "description": "Antep mutfağının zengin lezzetlerini sunan şık mekan",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/antebim",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["antep", "kebap", "baklava"],
+    "top3_products": [
+      { "name": "Ali Nazik", "emoji": "🍖" },
+      { "name": "Beyran", "emoji": "🍲" },
+      { "name": "Fıstıklı Baklava", "emoji": "🍯" }
+    ]
+  },
+  {
+    "name": "Hacıoğlu Lahmacun",
+    "cuisine": "Sokak Lezzetleri",
+    "area": "Ümraniye",
+    "rating": 4.3,
+    "price_level": 1,
+    "calories_min": 250,
+    "calories_max": 500,
+    "description": "İnce hamurlu ve bol malzemeli lahmacunların adresi",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/hacioglu-lahmacun",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["lahmacun", "pide", "ekonomik"],
+    "top3_products": [
+      { "name": "Lahmacun", "emoji": "🫓" },
+      { "name": "Kaşarlı Pide", "emoji": "🧀" },
+      { "name": "Ayran", "emoji": "🥛" }
+    ]
+  },
+  {
+    "name": "Huzur Lokantası",
+    "cuisine": "Ev Yemekleri",
+    "area": "Ümraniye",
+    "rating": 4.2,
+    "price_level": 1,
+    "calories_min": 350,
+    "calories_max": 700,
+    "description": "Her gün taze çorbalar ve ev yapımı sulu yemekler",
+    "yemeksepeti_link": "",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["ev yemekleri", "lokanta", "esnaf"],
+    "top3_products": [
+      { "name": "Kuru Fasulye", "emoji": "🫘" },
+      { "name": "Mercimek Çorbası", "emoji": "🍲" },
+      { "name": "Tavuk Sote", "emoji": "🍗" }
+    ]
+  },
+  {
+    "name": "Özcanlar Köfte",
+    "cuisine": "Köfte",
+    "area": "Ümraniye",
+    "rating": 4.3,
+    "price_level": 1,
+    "calories_min": 400,
+    "calories_max": 700,
+    "description": "İstanbul'un bilinen köfte durakları zincirinin Ümraniye şubesi",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/ozcanlar-kofte",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["köfte", "ızgara", "geleneksel"],
+    "top3_products": [
+      { "name": "Izgara Köfte", "emoji": "🔥" },
+      { "name": "Piyaz", "emoji": "🥗" },
+      { "name": "Kasap Köfte", "emoji": "🍖" }
+    ]
+  },
+  {
+    "name": "Mis Konyalı",
+    "cuisine": "Türk Mutfağı",
+    "area": "Ümraniye",
+    "rating": 4.2,
+    "price_level": 2,
+    "calories_min": 400,
+    "calories_max": 800,
+    "description": "Konya mutfağının etli ekmeği ve tandır kebabı",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/mis-konyali",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["konya", "etli ekmek", "tandır"],
+    "top3_products": [
+      { "name": "Etli Ekmek", "emoji": "🫓" },
+      { "name": "Tandır Kebabı", "emoji": "🍖" },
+      { "name": "Fırın Kebabı", "emoji": "🔥" }
+    ]
+  },
+  {
+    "name": "Arden Cafe",
+    "cuisine": "Fast Food",
+    "area": "Ümraniye",
+    "rating": 4.1,
+    "price_level": 1,
+    "calories_min": 400,
+    "calories_max": 900,
+    "description": "Gençlerin buluşma noktası, burger ve pizza çeşitleri",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/arden-cafe",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["burger", "pizza", "fast food"],
+    "top3_products": [
+      { "name": "Smash Burger", "emoji": "🍔" },
+      { "name": "Karışık Pizza", "emoji": "🍕" },
+      { "name": "Crispy Chicken", "emoji": "🍗" }
+    ]
+  },
+  {
+    "name": "Karahan Kebap",
+    "cuisine": "Kebap",
+    "area": "Ümraniye",
+    "rating": 4.3,
+    "price_level": 2,
+    "calories_min": 450,
+    "calories_max": 850,
+    "description": "Modern atmosferde zengin kebap ve et sunumları",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/karahan-kebap",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["kebap", "et", "modern"],
+    "top3_products": [
+      { "name": "Kuşbaşı", "emoji": "🍖" },
+      { "name": "Adana", "emoji": "🔥" },
+      { "name": "Ciğer Şiş", "emoji": "🫀" }
+    ]
+  },
+  {
+    "name": "Güneş Kahvaltı Evi",
+    "cuisine": "Kahvaltı",
+    "area": "Ümraniye",
+    "rating": 4.2,
+    "price_level": 1,
+    "calories_min": 350,
+    "calories_max": 700,
+    "description": "Geleneksel Türk kahvaltısı ve taze börekler",
+    "yemeksepeti_link": "",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["kahvaltı", "börek", "ev yapımı"],
+    "top3_products": [
+      { "name": "Serpme Kahvaltı", "emoji": "🍳" },
+      { "name": "Su Böreği", "emoji": "🥧" },
+      { "name": "Sahanda Yumurta", "emoji": "🍳" }
+    ]
+  },
+  {
+    "name": "Ristorante La Chitarra",
+    "cuisine": "İtalyan",
+    "area": "Ümraniye",
+    "rating": 4.4,
+    "price_level": 3,
+    "calories_min": 400,
+    "calories_max": 800,
+    "description": "Otantik İtalyan lezzetleri ve el yapımı makarnalar",
+    "yemeksepeti_link": "",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["italyan", "makarna", "pizza"],
+    "top3_products": [
+      { "name": "Truffle Makarna", "emoji": "🍝" },
+      { "name": "Margherita Pizza", "emoji": "🍕" },
+      { "name": "Tiramisu", "emoji": "🍰" }
+    ]
+  },
+  {
+    "name": "Le Pain Quotidien",
+    "cuisine": "Cafe",
+    "area": "Ümraniye",
+    "rating": 4.3,
+    "price_level": 3,
+    "calories_min": 250,
+    "calories_max": 600,
+    "description": "Organik malzemelerle hazırlanan kahvaltı ve pastane ürünleri",
+    "yemeksepeti_link": "",
+    "getir_link": "",
+    "trendyol_link": "",
+    "tags": ["cafe", "brunch", "organik"],
+    "top3_products": [
+      { "name": "Avokadolu Tost", "emoji": "🥑" },
+      { "name": "Tartine", "emoji": "🥖" },
+      { "name": "Granola Bowl", "emoji": "🥣" }
+    ]
   }
 ]
