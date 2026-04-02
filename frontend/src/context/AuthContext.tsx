@@ -27,6 +27,8 @@ interface AuthState {
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
+  googleLogin: (credential: string) => Promise<void>;
+  appleLogin: (idToken: string, user?: any) => Promise<void>;
   logout: () => void;
   updatePreferences: (prefs: Partial<User['preferences']>) => Promise<void>;
 }
@@ -80,6 +82,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ user: data.user, token: data.token, isLoading: false, isAuthenticated: true });
   }, []);
 
+  const googleLogin = useCallback(async (credential: string) => {
+    const data = await authApi.googleLogin(credential);
+    safeSetItem('local', TOKEN_KEY, data.token);
+    safeSetItem('local', USER_KEY, JSON.stringify(data.user));
+    setState({ user: data.user, token: data.token, isLoading: false, isAuthenticated: true });
+  }, []);
+
+  const appleLogin = useCallback(async (idToken: string, user?: any) => {
+    const data = await authApi.appleLogin(idToken, user);
+    safeSetItem('local', TOKEN_KEY, data.token);
+    safeSetItem('local', USER_KEY, JSON.stringify(data.user));
+    setState({ user: data.user, token: data.token, isLoading: false, isAuthenticated: true });
+  }, []);
+
   const logout = useCallback(() => {
     safeRemoveItem('local', TOKEN_KEY);
     safeRemoveItem('local', USER_KEY);
@@ -97,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [state.token, state.user]);
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, updatePreferences }}>
+    <AuthContext.Provider value={{ ...state, login, register, googleLogin, appleLogin, logout, updatePreferences }}>
       {children}
     </AuthContext.Provider>
   );

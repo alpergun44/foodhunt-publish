@@ -35,8 +35,8 @@ export function NoRestaurantsFound({ onReset }: { onReset?: () => void }) {
   return (
     <EmptyState
       emoji="🔍"
-      title="Restoran bulunamadi"
-      description="Bu bolge veya mutfak icin henuz restoran eklenmemis. Farkli bir filtre deneyin."
+      title="Restoran bulunamadı"
+      description="Bu bölge veya mutfak için henüz restoran eklenmemiş. Farklı bir filtre deneyin."
       actionLabel={onReset ? "Filtreleri Temizle" : undefined}
       onAction={onReset}
     />
@@ -47,8 +47,8 @@ export function NoFavorites() {
   return (
     <EmptyState
       emoji="💛"
-      title="Henuz favorin yok"
-      description="Turnuva sonuclarinda begendiklerin restorani favorilere ekleyebilirsin."
+      title="Henüz favorin yok"
+      description="Turnuva sonuçlarında beğendiğin restoranı favorilere ekleyebilirsin."
     />
   );
 }
@@ -57,8 +57,8 @@ export function NoHistory() {
   return (
     <EmptyState
       emoji="🏆"
-      title="Henuz turnuva oynamadin"
-      description="Ilk turnuvani oyna ve sonuclarini burada gor!"
+      title="Henüz turnuva oynamadın"
+      description="İlk turnuvanı oyna ve sonuçlarını burada gör!"
     />
   );
 }

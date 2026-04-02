@@ -12,6 +12,8 @@ const R_FIELDS = [
   'competition_slots',  // [{ slot: "lunch", start: "11:00", end: "14:00" }, ...]
   'available_hours',    // { open: "09:00", close: "23:00", days: [1,2,3,4,5,6,7] }
   'district',           // Tuzla sub-areas
+  'top3_products',      // [{ name: "Adana Kebap", emoji: "🔥" }, ...]
+  'il', 'ilce', 'mahalle', // Hierarchical region fields
 ];
 
 function sanitizeRestaurant(body) {
@@ -34,6 +36,9 @@ function sanitizeRestaurant(body) {
   if (c.is_active !== undefined) c.is_active = c.is_active ? 1 : 0;
   if (c.tags && Array.isArray(c.tags)) c.tags = c.tags.slice(0, 10).map(t => String(t).trim().slice(0, 50));
   if (c.district && typeof c.district === 'string') c.district = c.district.trim().slice(0, 100);
+  if (c.il && typeof c.il === 'string') c.il = c.il.trim().slice(0, 100);
+  if (c.ilce && typeof c.ilce === 'string') c.ilce = c.ilce.trim().slice(0, 100);
+  if (c.mahalle && typeof c.mahalle === 'string') c.mahalle = c.mahalle.trim().slice(0, 100);
 
   // competition_slots validation
   if (c.competition_slots && Array.isArray(c.competition_slots)) {

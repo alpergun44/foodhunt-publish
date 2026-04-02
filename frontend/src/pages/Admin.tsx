@@ -1,30 +1,30 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { adminApi, Restaurant, AdminStats, District, Tournament, CompetitionSlot, AvailableHours, safeGetItem, safeSetItem, safeRemoveItem } from '../api'
+import { adminApi, Restaurant, AdminStats, District, Region, Tournament, CompetitionSlot, AvailableHours, safeGetItem, safeSetItem, safeRemoveItem } from '../api'
 
 // ─── Constants ──────────────────────────────────────────────────────────────
-const CUISINES = ['Turk Mutfagi','Italyan','Japon','Cin','Meksika','Hint','Fast Food','Deniz Urunleri','Vegan','Kahvalti','Tatlici','Cafe','Kokorec','Doner','Kebap','Pizza','Burger','Sushi','Thai','Kore','Balik','Ev Yemekleri','Meyhane','Sokak Lezzetleri','Diger']
-const AREAS = ['Tuzla','Kadikoy','Besiktas','Beyoglu','Sisli','Uskudar','Fatih','Bakirkoy','Atasehir','Maltepe','Sariyer','Diger']
+const CUISINES = ['Türk Mutfağı','İtalyan','Japon','Çin','Meksika','Hint','Fast Food','Deniz Ürünleri','Vegan','Kahvaltı','Tatlıcı','Cafe','Kokoreç','Döner','Kebap','Pizza','Burger','Sushi','Thai','Kore','Balık','Ev Yemekleri','Meyhane','Sokak Lezzetleri','Diğer']
+const AREAS = ['Tuzla','Kadıköy','Beşiktaş','Beyoğlu','Şişli','Üsküdar','Fatih','Bakırköy','Ataşehir','Maltepe','Sarıyer','Diğer']
 const AREA_DISTRICTS = [
   { name: 'Tuzla', lat: 40.8169, lng: 29.3003 },
-  { name: 'Kadikoy', lat: 40.9828, lng: 29.0290 },
-  { name: 'Besiktas', lat: 41.0420, lng: 29.0070 },
-  { name: 'Beyoglu', lat: 41.0370, lng: 28.9770 },
-  { name: 'Sisli', lat: 41.0600, lng: 28.9870 },
-  { name: 'Uskudar', lat: 41.0235, lng: 29.0153 },
+  { name: 'Kadıköy', lat: 40.9828, lng: 29.0290 },
+  { name: 'Beşiktaş', lat: 41.0420, lng: 29.0070 },
+  { name: 'Beyoğlu', lat: 41.0370, lng: 28.9770 },
+  { name: 'Şişli', lat: 41.0600, lng: 28.9870 },
+  { name: 'Üsküdar', lat: 41.0235, lng: 29.0153 },
   { name: 'Fatih', lat: 41.0186, lng: 28.9497 },
-  { name: 'Bakirkoy', lat: 40.9800, lng: 28.8720 },
-  { name: 'Atasehir', lat: 40.9830, lng: 29.1100 },
+  { name: 'Bakırköy', lat: 40.9800, lng: 28.8720 },
+  { name: 'Ataşehir', lat: 40.9830, lng: 29.1100 },
   { name: 'Maltepe', lat: 40.9340, lng: 29.1320 },
-  { name: 'Sariyer', lat: 41.1670, lng: 29.0500 },
+  { name: 'Sarıyer', lat: 41.1670, lng: 29.0500 },
 ]
 const SLOT_PRESETS = [
-  { slot: 'breakfast', label: 'Kahvalti', start: '07:00', end: '10:00' },
-  { slot: 'lunch', label: 'Ogle', start: '11:00', end: '14:00' },
-  { slot: 'afternoon', label: 'Ikindi', start: '14:00', end: '17:00' },
-  { slot: 'dinner', label: 'Aksam', start: '18:00', end: '22:00' },
+  { slot: 'breakfast', label: 'Kahvaltı', start: '07:00', end: '10:00' },
+  { slot: 'lunch', label: 'Öğle', start: '11:00', end: '14:00' },
+  { slot: 'afternoon', label: 'İkindi', start: '14:00', end: '17:00' },
+  { slot: 'dinner', label: 'Akşam', start: '18:00', end: '22:00' },
   { slot: 'late', label: 'Gece', start: '22:00', end: '02:00' },
 ]
-const DAY_LABELS = ['Pzt','Sal','Car','Per','Cum','Cmt','Paz']
+const DAY_LABELS = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz']
 const PRICE_LABELS = ['', '\u20BA', '\u20BA\u20BA', '\u20BA\u20BA\u20BA', '\u20BA\u20BA\u20BA\u20BA']
 const PER_PAGE = 20
 
@@ -99,12 +99,22 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
   const [form, setForm] = useState<Partial<Restaurant>>(initial || {
     name: '', cuisine: '', area: '', rating: 4.0, price_level: 2,
     calories_min: 300, calories_max: 800, is_active: 1, description: '', address: '', tags: [],
-    competition_slots: [], available_hours: { open: '09:00', close: '23:00', days: [1,2,3,4,5,6,7] }, district: '',
+    competition_slots: [], available_hours: { open: '09:00', close: '23:00', days: [1,2,3,4,5,6,7] }, district: '', il: 'İstanbul', mahalle: '',
+    top3_products: [],
   })
   const [tagInput, setTagInput] = useState((initial?.tags || []).join(', '))
+  const [top3Input, setTop3Input] = useState((initial?.top3_products || []).map(p => `${p.emoji} ${p.name}`).join(', '))
   const [loading, setLoading] = useState(false)
   const [imagePreview, setImagePreview] = useState(initial?.image_url || '')
   const fileRef = useRef<HTMLInputElement>(null)
+  const [formRegions, setFormRegions] = useState<Region[]>([])
+
+  useEffect(() => {
+    adminApi.getRegions(token).then(setFormRegions).catch(() => {})
+  }, [token])
+
+  const selectedRegion = formRegions.find(r => r.ilce === form.area)
+  const mahalleler = selectedRegion?.mahalleler || []
 
   const set = (k: string, v: unknown) => setForm(p => ({ ...p, [k]: v }))
 
@@ -115,43 +125,49 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
       const url = await adminApi.uploadImage(token, file)
       set('image_url', url)
       setImagePreview(url)
-      show('Gorsel yuklendi', 'ok')
-    } catch { show('Yukleme basarisiz', 'err') }
+      show('Görsel yüklendi', 'ok')
+    } catch { show('Yükleme başarısız', 'err') }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name?.trim()) { show('Restoran adi zorunlu', 'err'); return }
+    if (!form.name?.trim()) { show('Restoran adı zorunlu', 'err'); return }
     if (!form.cuisine?.trim()) { show('Mutfak tipi zorunlu', 'err'); return }
-    if (!form.area?.trim()) { show('Bolge zorunlu', 'err'); return }
+    if (!form.area?.trim()) { show('Bölge zorunlu', 'err'); return }
     if (form.rating !== undefined && (form.rating < 0 || form.rating > 5)) {
-      show('Puan 0-5 arasinda olmali', 'err'); return
+      show('Puan 0-5 arasında olmalı', 'err'); return
     }
     if (form.price_level !== undefined && (form.price_level < 1 || form.price_level > 4)) {
-      show('Fiyat seviyesi 1-4 arasinda olmali', 'err'); return
+      show('Fiyat seviyesi 1-4 arasında olmalı', 'err'); return
     }
     if (form.calories_min && form.calories_max && form.calories_min > form.calories_max) {
-      show('Min kalori max kaloriden buyuk olamaz', 'err'); return
+      show('Min kalori max kaloriden büyük olamaz', 'err'); return
     }
     if (form.lat && (form.lat < -90 || form.lat > 90)) {
-      show('Gecersiz enlem degeri', 'err'); return
+      show('Geçersiz enlem değeri', 'err'); return
     }
     if (form.lng && (form.lng < -180 || form.lng > 180)) {
-      show('Gecersiz boylam degeri', 'err'); return
+      show('Geçersiz boylam değeri', 'err'); return
     }
     setLoading(true)
     try {
-      const data = { ...form, tags: tagInput.split(',').map(t => t.trim()).filter(Boolean) }
+      const parsedTop3 = top3Input.split(',').map(t => t.trim()).filter(Boolean).slice(0, 3).map(item => {
+        // Parse "🔥 Adana Kebap" format — first char(s) as emoji, rest as name
+        const match = item.match(/^(\p{Emoji_Presentation}|\p{Extended_Pictographic})\s*(.+)$/u)
+        if (match) return { emoji: match[1], name: match[2].trim() }
+        return { emoji: '🍽️', name: item }
+      })
+      const data = { ...form, tags: tagInput.split(',').map(t => t.trim()).filter(Boolean), top3_products: parsedTop3 }
       if (isEdit) {
         await adminApi.updateRestaurant(token, initial!.id!, data)
-        show('Restoran guncellendi', 'ok')
+        show('Restoran güncellendi', 'ok')
       } else {
         await adminApi.createRestaurant(token, data)
         show('Restoran eklendi', 'ok')
       }
       onSave()
       onClose()
-    } catch { show('Kaydetme basarisiz', 'err') }
+    } catch { show('Kaydetme başarısız', 'err') }
     finally { setLoading(false) }
   }
 
@@ -167,23 +183,54 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto" onClick={onClose}>
       <div className="bg-brand-card border border-white/10 rounded-2xl p-6 w-full max-w-2xl my-8 shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-bold text-brand-cream">{isEdit ? 'Restoran Duzenle' : 'Yeni Restoran'}</h3>
+          <h3 className="text-lg font-bold text-brand-cream">{isEdit ? 'Restoran Düzenle' : 'Yeni Restoran'}</h3>
           <button onClick={onClose} className="text-brand-muted hover:text-white"><I.X /></button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {inp('Restoran Adi *', 'name')}
+            {inp('Restoran Adı *', 'name')}
             <div>
               <label className="block text-xs text-brand-muted mb-1">Mutfak Tipi *</label>
               <select value={form.cuisine || ''} onChange={e => set('cuisine', e.target.value)}
                 className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none">
-                <option value="">Sec...</option>
+                <option value="">Seç...</option>
                 {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
           </div>
-          <div>
-            <label className="block text-xs text-brand-muted mb-1">Bolge *</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs text-brand-muted mb-1">İlçe (Bölge) *</label>
+              <select value={form.area || ''} onChange={e => {
+                const ilce = e.target.value
+                const region = formRegions.find(r => r.ilce === ilce)
+                set('area', ilce)
+                set('il', region?.il || 'İstanbul')
+                set('mahalle', '')
+                if (region) { set('lat', region.lat); set('lng', region.lng) }
+              }}
+                className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none">
+                <option value="">İlçe seç...</option>
+                {formRegions.map(r => <option key={r.ilce} value={r.ilce}>{r.ilce} {r.is_active ? '(Aktif)' : ''}</option>)}
+                {AREAS.filter(a => !formRegions.some(r => r.ilce === a)).map(a => <option key={a} value={a}>{a}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs text-brand-muted mb-1">Mahalle</label>
+              {mahalleler.length > 0 ? (
+                <select value={form.mahalle || ''} onChange={e => set('mahalle', e.target.value)}
+                  className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none">
+                  <option value="">Mahalle seç...</option>
+                  {mahalleler.map(m => <option key={m} value={m}>{m}</option>)}
+                </select>
+              ) : (
+                <input type="text" value={form.mahalle || ''} onChange={e => set('mahalle', e.target.value)} placeholder="Mahalle adı girin"
+                  className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+              )}
+            </div>
+          </div>
+          {/* Legacy: hidden area buttons for backward compat - replaced by dropdowns above */}
+          <div className="hidden">
             <div className="flex gap-2 flex-wrap mt-1">
               {AREA_DISTRICTS.map(d => (
                 <button key={d.name} type="button" onClick={() => { set('area', d.name); set('lat', d.lat); set('lng', d.lng) }}
@@ -213,7 +260,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
             {inp('Kalori Max', 'calories_max', 'number')}
           </div>
           <div>
-            <label className="block text-xs text-brand-muted mb-1">Aciklama</label>
+            <label className="block text-xs text-brand-muted mb-1">Açıklama</label>
             <textarea value={form.description || ''} onChange={e => set('description', e.target.value)} rows={2}
               className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none resize-none" />
           </div>
@@ -233,21 +280,21 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
             {inp('Website', 'website')}
           </div>
           <div>
-            <label className="block text-xs text-brand-muted mb-1">Gorsel</label>
+            <label className="block text-xs text-brand-muted mb-1">Görsel</label>
             <div className="flex items-center gap-3">
               <button type="button" onClick={() => fileRef.current?.click()}
                 className="flex items-center gap-2 px-4 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-muted text-sm hover:bg-white/10">
-                <I.Upload /> Yukle
+                <I.Upload /> Yükle
               </button>
               <input type="text" value={form.image_url || ''} onChange={e => { set('image_url', e.target.value); setImagePreview(e.target.value) }}
-                placeholder="veya URL yapistir" className="flex-1 px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                placeholder="veya URL yapıştır" className="flex-1 px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
               <input ref={fileRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
             </div>
             {imagePreview && <img src={imagePreview} alt="preview" className="mt-2 h-24 rounded-lg object-cover" onError={() => setImagePreview('')} />}
           </div>
           <div>
-            <label className="block text-xs text-brand-muted mb-1">Etiketler (virgul ile ayir)</label>
-            <input type="text" value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="turk, kebap, kadikoy"
+            <label className="block text-xs text-brand-muted mb-1">Etiketler (virgül ile ayır)</label>
+            <input type="text" value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="türk, kebap, kadıköy"
               className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
             {tagInput && (
               <div className="flex flex-wrap gap-1 mt-2">
@@ -257,28 +304,36 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
               </div>
             )}
           </div>
-          {/* District */}
+          {/* Top 3 Products */}
           <div>
-            <label className="block text-xs text-brand-muted mb-1">Alt Bolge (District)</label>
-            <input type="text" value={form.district || ''} onChange={e => set('district', e.target.value)} placeholder="Tuzla Merkez, Kampus Cevresi vb."
+            <label className="block text-xs text-brand-muted mb-1">Top 3 Ürün (emoji + isim, virgül ile ayır)</label>
+            <input type="text" value={top3Input} onChange={e => setTop3Input(e.target.value)} placeholder="🔥 Adana Kebap, 🥙 Durum, 🍖 Kuzu Şiş"
               className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+            {top3Input && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {top3Input.split(',').map(t => t.trim()).filter(Boolean).slice(0, 3).map((t, i) => (
+                  <span key={i} className="px-2 py-0.5 bg-brand-amber/20 text-brand-amber rounded-full text-xs">{t}</span>
+                ))}
+              </div>
+            )}
           </div>
+          {/* District - hidden, replaced by il/ilce/mahalle above */}
           {/* Available Hours */}
           <div className="border-t border-white/10 pt-4">
-            <label className="block text-xs text-brand-muted mb-2 font-semibold">Acilis Saatleri</label>
+            <label className="block text-xs text-brand-muted mb-2 font-semibold">Açılış Saatleri</label>
             <div className="grid grid-cols-2 gap-4 mb-2">
               <div>
-                <label className="text-xs text-brand-muted">Acilis</label>
+                <label className="text-xs text-brand-muted">Açılış</label>
                 <input type="time" value={form.available_hours?.open || '09:00'} onChange={e => set('available_hours', { ...form.available_hours, open: e.target.value, close: form.available_hours?.close || '23:00', days: form.available_hours?.days || [1,2,3,4,5,6,7] })}
                   className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
               </div>
               <div>
-                <label className="text-xs text-brand-muted">Kapanis</label>
+                <label className="text-xs text-brand-muted">Kapanış</label>
                 <input type="time" value={form.available_hours?.close || '23:00'} onChange={e => set('available_hours', { ...form.available_hours, open: form.available_hours?.open || '09:00', close: e.target.value, days: form.available_hours?.days || [1,2,3,4,5,6,7] })}
                   className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
               </div>
             </div>
-            <label className="text-xs text-brand-muted">Acik Gunler</label>
+            <label className="text-xs text-brand-muted">Açık Günler</label>
             <div className="flex gap-1 mt-1">
               {DAY_LABELS.map((d, i) => {
                 const dayNum = i + 1
@@ -295,7 +350,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
           </div>
           {/* Competition Slots */}
           <div className="border-t border-white/10 pt-4">
-            <label className="block text-xs text-brand-muted mb-2 font-semibold">Turnuva Slotlari</label>
+            <label className="block text-xs text-brand-muted mb-2 font-semibold">Turnuva Slotları</label>
             <div className="flex gap-1 flex-wrap mb-2">
               {SLOT_PRESETS.map(sp => {
                 const exists = (form.competition_slots || []).some(s => s.slot === sp.slot)
@@ -315,7 +370,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
             {(form.competition_slots || []).map((slot, idx) => (
               <div key={idx} className="flex gap-2 items-center mb-1">
                 <input type="text" value={slot.slot} onChange={e => { const u = [...(form.competition_slots || [])]; u[idx] = { ...u[idx], slot: e.target.value }; set('competition_slots', u) }}
-                  className="flex-1 px-2 py-1 bg-brand-surface border border-white/10 rounded text-brand-cream text-xs" placeholder="Slot adi" />
+                  className="flex-1 px-2 py-1 bg-brand-surface border border-white/10 rounded text-brand-cream text-xs" placeholder="Slot adı" />
                 <input type="time" value={slot.start} onChange={e => { const u = [...(form.competition_slots || [])]; u[idx] = { ...u[idx], start: e.target.value }; set('competition_slots', u) }}
                   className="w-24 px-2 py-1 bg-brand-surface border border-white/10 rounded text-brand-cream text-xs" />
                 <input type="time" value={slot.end} onChange={e => { const u = [...(form.competition_slots || [])]; u[idx] = { ...u[idx], end: e.target.value }; set('competition_slots', u) }}
@@ -332,10 +387,10 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
             <span className="text-sm text-brand-cream">{form.is_active ? 'Aktif' : 'Pasif'}</span>
           </label>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 bg-brand-surface text-brand-muted rounded-xl hover:bg-white/10 text-sm font-semibold">Iptal</button>
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 bg-brand-surface text-brand-muted rounded-xl hover:bg-white/10 text-sm font-semibold">İptal</button>
             <button type="submit" disabled={loading}
               className="flex-1 px-4 py-2.5 bg-brand-coral text-white rounded-xl hover:bg-brand-coral-light text-sm font-semibold disabled:opacity-50 transition">
-              {loading ? 'Kaydediliyor...' : isEdit ? 'Guncelle' : 'Ekle'}
+              {loading ? 'Kaydediliyor...' : isEdit ? 'Güncelle' : 'Ekle'}
             </button>
           </div>
         </form>
@@ -369,6 +424,9 @@ export default function Admin() {
   const [nearbyLoading, setNearbyLoading] = useState(false)
   const [districts, setDistricts] = useState<District[]>([])
   const [newDistrictName, setNewDistrictName] = useState('')
+  const [regions, setRegions] = useState<Region[]>([])
+  const [editMahalle, setEditMahalle] = useState<{ ilce: string; mahalleler: string[] } | null>(null)
+  const [newMahalle, setNewMahalle] = useState('')
   const [tournaments, setTournaments] = useState<Tournament[]>([])
   const [tournamentForm, setTournamentForm] = useState({ title: '', description: '', slot_start: '11:00', slot_end: '14:00', cuisine_filter: '', area_filter: '' })
   const [showTournamentForm, setShowTournamentForm] = useState(false)
@@ -388,24 +446,27 @@ export default function Admin() {
       setStats(s); setRestaurants(r)
     } catch (err: any) {
       if (err.message?.includes('Unauthorized') || err.status === 401) {
-        safeRemoveItem('local', 'fh_admin_token'); setToken(''); show('Oturum suresi doldu', 'err')
+        safeRemoveItem('local', 'fh_admin_token'); setToken(''); show('Oturum süresi doldu', 'err')
       }
     } finally { setLoading(false) }
   }
 
   const loadCards = async () => {
-    try { setCards(await adminApi.getCards(token)) } catch { show('Kartlar yuklenemedi', 'err') }
+    try { setCards(await adminApi.getCards(token)) } catch { show('Kartlar yüklenemedi', 'err') }
   }
 
   const loadDistricts = async () => {
-    try { setDistricts(await adminApi.getDistricts(token)) } catch { show('Bolgeler yuklenemedi', 'err') }
+    try { setDistricts(await adminApi.getDistricts(token)) } catch { show('Bölgeler yüklenemedi', 'err') }
+  }
+  const loadRegions = async () => {
+    try { setRegions(await adminApi.getRegions(token)) } catch { show('Bölgeler yüklenemedi', 'err') }
   }
   const loadTournaments = async () => {
-    try { setTournaments(await adminApi.getTournaments(token)) } catch { show('Turnuvalar yuklenemedi', 'err') }
+    try { setTournaments(await adminApi.getTournaments(token)) } catch { show('Turnuvalar yüklenemedi', 'err') }
   }
 
   useEffect(() => { if (token && view === 'cards') loadCards() }, [token, view])
-  useEffect(() => { if (token && view === 'districts') loadDistricts() }, [token, view])
+  useEffect(() => { if (token && view === 'districts') { loadRegions(); loadDistricts() } }, [token, view])
   useEffect(() => { if (token && view === 'tournaments') loadTournaments() }, [token, view])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -413,36 +474,36 @@ export default function Admin() {
     try {
       const { token: tk } = await adminApi.login(password)
       safeSetItem('local', 'fh_admin_token', tk); setToken(tk); setPassword('')
-    } catch { show('Hatali sifre', 'err') }
+    } catch { show('Hatalı şifre', 'err') }
   }
 
   const handleLogout = () => { safeRemoveItem('local', 'fh_admin_token'); setToken('') }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Bu restorani silmek istediginize emin misiniz?')) return
+    if (!confirm('Bu restoranı silmek istediğinize emin misiniz?')) return
     setDeleteLoading(id)
     try { await adminApi.deleteRestaurant(token, id); show('Silindi', 'ok'); loadData() }
-    catch { show('Silme basarisiz', 'err') }
+    catch { show('Silme başarısız', 'err') }
     finally { setDeleteLoading(null) }
   }
 
   const handleToggle = async (r: Restaurant) => {
     try {
       await adminApi.updateRestaurant(token, r.id, { ...r, is_active: r.is_active === 1 ? 0 : 1 })
-      show('Guncellendi', 'ok'); loadData()
-    } catch { show('Guncelleme basarisiz', 'err') }
+      show('Güncellendi', 'ok'); loadData()
+    } catch { show('Güncelleme basarisiz', 'err') }
   }
 
   const handleBulkAction = async (action: 'activate' | 'deactivate' | 'delete') => {
     if (selected.size === 0) return
-    if (!confirm(`${selected.size} restoran uzerinde islem yapilacak. Emin misiniz?`)) return
+    if (!confirm(`${selected.size} restoran üzerinde işlem yapılacak. Emin misiniz?`)) return
     setBulkLoading(true)
     try {
       for (const id of selected) {
         if (action === 'delete') await adminApi.deleteRestaurant(token, id).catch(() => {})
         else await adminApi.updateRestaurant(token, id, { is_active: action === 'activate' ? 1 : 0 } as any).catch(() => {})
       }
-      show(`${selected.size} restoran guncellendi`, 'ok')
+      show(`${selected.size} restoran güncellendi`, 'ok')
       setSelected(new Set()); loadData()
     } finally { setBulkLoading(false) }
   }
@@ -468,7 +529,7 @@ export default function Admin() {
         }
         const result = await adminApi.bulkImport(token, list)
         show(`${result.imported} restoran eklendi`, 'ok'); loadData()
-      } catch { show('Import basarisiz', 'err') }
+      } catch { show('Import başarısız', 'err') }
       finally { setImportLoading(false) }
     }
     reader.readAsText(file)
@@ -477,13 +538,13 @@ export default function Admin() {
 
   const handleNearbySearch = async () => {
     const d = AREA_DISTRICTS.find(x => x.name === nearbyDistrict)
-    if (!d) { show('Ilce secin', 'err'); return }
+    if (!d) { show('İlçe seçin', 'err'); return }
     setNearbyLoading(true)
     try {
       const { results } = await adminApi.searchByLocation(token, d.lat, d.lng, 3000)
       setNearbyResults(results)
-      if (results.length === 0) show('Restoran bulunamadi', 'err')
-    } catch { show('Arama basarisiz', 'err') }
+      if (results.length === 0) show('Restoran bulunamadı', 'err')
+    } catch { show('Arama başarısız', 'err') }
     finally { setNearbyLoading(false) }
   }
 
@@ -491,7 +552,7 @@ export default function Admin() {
     try {
       await adminApi.createRestaurant(token, { ...r, id: undefined as any, is_active: 1 })
       show(`${r.name} eklendi`, 'ok'); loadData()
-    } catch { show('Ekleme basarisiz', 'err') }
+    } catch { show('Ekleme başarısız', 'err') }
   }
 
   const filtered = useMemo(() => {
@@ -516,11 +577,11 @@ export default function Admin() {
         <div className="text-center mb-6">
           <div className="text-4xl mb-2">🍽️</div>
           <h1 className="text-2xl font-bold text-brand-cream">FoodHunt Admin</h1>
-          <p className="text-brand-muted text-sm mt-1">Yonetim paneline giris</p>
+          <p className="text-brand-muted text-sm mt-1">Yönetim paneline giriş</p>
         </div>
-        <input type="password" placeholder="Admin sifresi" value={password} onChange={e => setPassword(e.target.value)}
+        <input type="password" placeholder="Admin şifresi" value={password} onChange={e => setPassword(e.target.value)}
           className="w-full px-4 py-3 bg-brand-surface border border-white/10 rounded-xl text-brand-cream mb-4 focus:border-brand-coral focus:outline-none" />
-        <button type="submit" className="w-full py-3 bg-brand-coral text-white rounded-xl font-semibold hover:bg-brand-coral-light transition active:scale-95">Giris Yap</button>
+        <button type="submit" className="w-full py-3 bg-brand-coral text-white rounded-xl font-semibold hover:bg-brand-coral-light transition active:scale-95">Giriş Yap</button>
       </form>
     </div>
   )
@@ -528,7 +589,7 @@ export default function Admin() {
   const navItems: { key: typeof view; label: string; icon: JSX.Element }[] = [
     { key: 'dashboard', label: 'Dashboard', icon: <I.Grid /> },
     { key: 'restaurants', label: 'Restoranlar', icon: <I.Menu /> },
-    { key: 'districts', label: 'Bolgeler', icon: <I.MapPin /> },
+    { key: 'districts', label: 'Bölgeler', icon: <I.MapPin /> },
     { key: 'tournaments', label: 'Turnuvalar', icon: <I.BarChart /> },
     { key: 'cards', label: 'Kartlar', icon: <I.Sparkles /> },
     { key: 'export', label: 'Export', icon: <I.Download /> },
@@ -543,7 +604,7 @@ export default function Admin() {
         </div>
         <div className="flex items-center gap-2">
           <button onClick={loadData} className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-surface rounded-lg text-xs text-brand-muted hover:text-white hover:bg-white/10 transition"><I.RefreshCw /> Yenile</button>
-          <button onClick={handleLogout} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg text-xs hover:bg-red-500/20 transition"><I.LogOut /> Cikis</button>
+          <button onClick={handleLogout} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg text-xs hover:bg-red-500/20 transition"><I.LogOut /> Çıkış</button>
         </div>
       </header>
       <div className="flex flex-1">
@@ -556,20 +617,20 @@ export default function Admin() {
           ))}
         </nav>
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-          {loading && <div className="text-brand-muted text-sm animate-pulse mb-4">Yukleniyor...</div>}
+          {loading && <div className="text-brand-muted text-sm animate-pulse mb-4">Yükleniyor...</div>}
 
           {/* DASHBOARD */}
           {view === 'dashboard' && stats && (
             <div className="space-y-6">
               <h2 className="text-xl font-bold">Dashboard</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[{l:'Toplam Restoran',v:stats.total,c:'text-brand-coral'},{l:'Aktif Restoran',v:stats.active,c:'text-brand-fresh'},{l:'Toplam Kullanici',v:stats.users,c:'text-brand-amber'},{l:'Bugun Event',v:stats.todayEvents,c:'text-purple-400'}].map(s=>(
+                {[{l:'Toplam Restoran',v:stats.total,c:'text-brand-coral'},{l:'Aktif Restoran',v:stats.active,c:'text-brand-fresh'},{l:'Toplam Kullanıcı',v:stats.users,c:'text-brand-amber'},{l:'Bugün Event',v:stats.todayEvents,c:'text-purple-400'}].map(s=>(
                   <div key={s.l} className="bg-brand-card border border-white/5 rounded-xl p-4"><p className="text-brand-muted text-xs">{s.l}</p><p className={`text-2xl font-bold ${s.c}`}>{s.v}</p></div>
                 ))}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-brand-card border border-white/5 rounded-xl p-4">
-                  <h3 className="font-bold text-sm mb-3">Bolge Dagilimi</h3>
+                  <h3 className="font-bold text-sm mb-3">Bölge Dağılımı</h3>
                   {stats.topAreas?.slice(0,10).map(a=>(
                     <div key={a.area} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
                       <span className="text-sm">{a.area}</span>
@@ -578,7 +639,7 @@ export default function Admin() {
                   ))}
                 </div>
                 <div className="bg-brand-card border border-white/5 rounded-xl p-4">
-                  <h3 className="font-bold text-sm mb-3">Mutfak Dagilimi</h3>
+                  <h3 className="font-bold text-sm mb-3">Mutfak Dağılımı</h3>
                   {stats.topCuisines?.slice(0,8).map(c=>(
                     <div key={c.cuisine} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
                       <span className="text-sm">{c.cuisine}</span>
@@ -587,10 +648,10 @@ export default function Admin() {
                   ))}
                 </div>
               </div>
-              {/* 30 Gun Event Trendi */}
+              {/* 30 Gün Event Trendi */}
               {stats.dailyTrend && stats.dailyTrend.length > 0 && (
                 <div className="bg-brand-card border border-white/5 rounded-xl p-4">
-                  <h3 className="font-bold text-sm mb-3">Son 30 Gun Event Trendi</h3>
+                  <h3 className="font-bold text-sm mb-3">Son 30 Gün Event Trendi</h3>
                   <div className="flex items-end gap-[2px] h-28">
                     {stats.dailyTrend.map((d,i)=>{const maxC=Math.max(...stats.dailyTrend.map(x=>x.count),1);return(
                       <div key={i} className="flex-1 flex flex-col items-center justify-end group relative">
@@ -615,7 +676,7 @@ export default function Admin() {
                 </div>
                 {stats.topWinners && stats.topWinners.length > 0 && (
                   <div className="bg-brand-card border border-white/5 rounded-xl p-4">
-                    <h3 className="font-bold text-sm mb-3">En Cok Kazanan</h3>
+                    <h3 className="font-bold text-sm mb-3">En Çok Kazanan</h3>
                     {stats.topWinners.slice(0,5).map((w,i)=>(
                       <div key={w.restaurant_id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
                         <span className="text-sm"><span className="text-brand-amber font-bold mr-2">{i+1}.</span>{w.name}</span>
@@ -651,21 +712,21 @@ export default function Admin() {
                   <input type="text" placeholder="Ara..." value={search} onChange={e=>{setSearch(e.target.value);setPage(0)}} className="w-full pl-9 pr-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none"/>
                 </div>
                 <select value={filterArea} onChange={e=>{setFilterArea(e.target.value);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
-                  <option value="">Tum Bolgeler</option>{AREAS.map(a=><option key={a} value={a}>{a}</option>)}
+                  <option value="">Tüm Bölgeler</option>{AREAS.map(a=><option key={a} value={a}>{a}</option>)}
                 </select>
                 <select value={filterCuisine} onChange={e=>{setFilterCuisine(e.target.value);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
-                  <option value="">Tum Mutfaklar</option>{CUISINES.map(c=><option key={c} value={c}>{c}</option>)}
+                  <option value="">Tüm Mutfaklar</option>{CUISINES.map(c=><option key={c} value={c}>{c}</option>)}
                 </select>
                 <select value={filterActive} onChange={e=>{setFilterActive(e.target.value as any);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
-                  <option value="">Tum Durum</option><option value="1">Aktif</option><option value="0">Pasif</option>
+                  <option value="">Tüm Durum</option><option value="1">Aktif</option><option value="0">Pasif</option>
                 </select>
                 <select value={sortBy} onChange={e=>setSortBy(e.target.value as any)} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
-                  <option value="id">Yeni eklenen</option><option value="name">Ada gore</option><option value="rating">Puana gore</option>
+                  <option value="id">Yeni eklenen</option><option value="name">Ada göre</option><option value="rating">Puana göre</option>
                 </select>
               </div>
               {selected.size > 0 && (
                 <div className="flex items-center gap-3 bg-brand-coral/10 border border-brand-coral/30 rounded-lg px-4 py-2">
-                  <span className="text-sm font-semibold text-brand-coral">{selected.size} secili</span>
+                  <span className="text-sm font-semibold text-brand-coral">{selected.size} seçili</span>
                   <button onClick={()=>handleBulkAction('activate')} disabled={bulkLoading} className="text-xs px-2 py-1 bg-brand-fresh/20 text-brand-fresh rounded hover:bg-brand-fresh/30 disabled:opacity-50">{bulkLoading ? '...' : 'Aktif'}</button>
                   <button onClick={()=>handleBulkAction('deactivate')} disabled={bulkLoading} className="text-xs px-2 py-1 bg-brand-amber/20 text-brand-amber rounded hover:bg-brand-amber/30 disabled:opacity-50">{bulkLoading ? '...' : 'Pasif'}</button>
                   <button onClick={()=>handleBulkAction('delete')} disabled={bulkLoading} className="text-xs px-2 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 disabled:opacity-50">{bulkLoading ? '...' : 'Sil'}</button>
@@ -678,7 +739,7 @@ export default function Admin() {
                   <div className="flex flex-wrap gap-2">
                     {AREA_DISTRICTS.map(d=>(<button key={d.name} onClick={()=>setNearbyDistrict(d.name)} className={`px-3 py-1.5 rounded-lg text-xs transition ${nearbyDistrict===d.name?'bg-brand-coral text-white':'bg-brand-surface text-brand-muted hover:bg-white/10'}`}>{d.name}</button>))}
                   </div>
-                  <button onClick={handleNearbySearch} disabled={nearbyLoading||!nearbyDistrict} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light disabled:opacity-50 transition">{nearbyLoading?'Araniyor...':'Restoranlari Getir'}</button>
+                  <button onClick={handleNearbySearch} disabled={nearbyLoading||!nearbyDistrict} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light disabled:opacity-50 transition">{nearbyLoading?'Aranıyor...':'Restoranları Getir'}</button>
                   {nearbyResults.length>0&&(<div className="max-h-60 overflow-y-auto space-y-2">{nearbyResults.map((r,i)=>(<div key={i} className="flex items-center justify-between bg-brand-surface rounded-lg px-3 py-2"><div><span className="text-sm font-semibold">{r.name}</span><span className="text-xs text-brand-muted ml-2">{r.cuisine} - {r.area}</span></div><button onClick={()=>handleSaveNearby(r)} className="px-2 py-1 bg-brand-fresh/20 text-brand-fresh text-xs rounded hover:bg-brand-fresh/30">Kaydet</button></div>))}</div>)}
                 </div>
               </details>
@@ -689,11 +750,11 @@ export default function Admin() {
                       <th className="px-3 py-3 text-left w-8"><input type="checkbox" checked={paged.length>0&&paged.every(r=>selected.has(r.id))} onChange={e=>{const s=new Set(selected);paged.forEach(r=>e.target.checked?s.add(r.id):s.delete(r.id));setSelected(s)}} className="accent-brand-coral"/></th>
                       <th className="px-3 py-3 text-left text-brand-muted text-xs">Restoran</th>
                       <th className="px-3 py-3 text-left text-brand-muted text-xs hidden md:table-cell">Mutfak</th>
-                      <th className="px-3 py-3 text-left text-brand-muted text-xs hidden md:table-cell">Bolge</th>
+                      <th className="px-3 py-3 text-left text-brand-muted text-xs hidden md:table-cell">Bölge</th>
                       <th className="px-3 py-3 text-left text-brand-muted text-xs">Puan</th>
                       <th className="px-3 py-3 text-left text-brand-muted text-xs hidden sm:table-cell">Fiyat</th>
                       <th className="px-3 py-3 text-left text-brand-muted text-xs">Durum</th>
-                      <th className="px-3 py-3 text-right text-brand-muted text-xs">Islem</th>
+                      <th className="px-3 py-3 text-right text-brand-muted text-xs">İşlem</th>
                     </tr></thead>
                     <tbody>{paged.map(r=>(
                       <tr key={r.id} className="border-b border-white/5 hover:bg-white/[0.02] transition">
@@ -706,7 +767,7 @@ export default function Admin() {
                         <td className="px-3 py-2.5"><button onClick={()=>handleToggle(r)} className={`px-2 py-0.5 rounded text-xs font-semibold transition ${r.is_active===1?'bg-brand-fresh/20 text-brand-fresh':'bg-white/5 text-brand-muted'}`}>{r.is_active===1?'Aktif':'Pasif'}</button></td>
                         <td className="px-3 py-2.5 text-right"><div className="flex items-center justify-end gap-1"><button onClick={()=>{setEditRest(r);setShowForm(true)}} className="p-1.5 text-brand-muted hover:text-brand-coral transition"><I.Edit/></button><button onClick={()=>handleDelete(r.id)} className="p-1.5 text-brand-muted hover:text-red-400 transition"><I.Trash/></button></div></td>
                       </tr>
-                    ))}{paged.length===0&&<tr><td colSpan={8} className="px-4 py-8 text-center text-brand-muted">Restoran bulunamadi</td></tr>}</tbody>
+                    ))}{paged.length===0&&<tr><td colSpan={8} className="px-4 py-8 text-center text-brand-muted">Restoran bulunamadı</td></tr>}</tbody>
                   </table>
                 </div>
                 {totalPages>1&&(
@@ -722,33 +783,78 @@ export default function Admin() {
             </div>
           )}
 
-          {/* DISTRICTS */}
+          {/* DISTRICTS / REGIONS */}
           {view === 'districts' && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold">Bolge Yonetimi</h2>
-              <div className="bg-brand-card border border-white/5 rounded-xl p-4">
-                <h3 className="font-bold text-sm mb-3">Yeni Bolge Ekle</h3>
-                <div className="flex gap-2">
-                  <input type="text" placeholder="Bolge adi (orn. Tuzla Merkez, Icmeler, Aydınlı)" value={newDistrictName} onChange={e => setNewDistrictName(e.target.value)}
-                    className="flex-1 px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
-                  <button onClick={async () => { if (!newDistrictName.trim()) { show('Bolge adi gerekli', 'err'); return }; try { await adminApi.createDistrict(token, newDistrictName); show('Bolge eklendi', 'ok'); setNewDistrictName(''); loadDistricts() } catch { show('Ekleme basarisiz', 'err') } }}
-                    className="px-4 py-2 bg-brand-fresh text-white rounded-lg text-sm font-semibold hover:bg-brand-fresh/80 transition">Ekle</button>
-                </div>
-              </div>
+              <h2 className="text-xl font-bold">Bölge Yönetimi</h2>
+              <p className="text-brand-muted text-sm">Turnuvada hangi ilçelerin restoranlarının gösterileceğini buradan yönetebilirsin. Aktif ilçelerdeki restoranlar turnuvada yarışır.</p>
+
+              {/* Region Cards - İlçe Toggle List */}
               <div className="space-y-2">
-                {districts.map(d => (
-                  <div key={d.name} className="flex items-center justify-between bg-brand-card border border-white/5 rounded-xl px-4 py-3">
-                    <div>
-                      <p className="font-semibold text-sm">{d.name}</p>
-                      <p className="text-xs text-brand-muted">{d.count} restoran</p>
+                {regions.map(r => {
+                  const restCount = districts.find(d => d.name === r.ilce)?.count || 0
+                  return (
+                    <div key={r.ilce} className={`bg-brand-card border rounded-xl overflow-hidden transition ${r.is_active ? 'border-brand-fresh/30' : 'border-white/5'}`}>
+                      <div className="flex items-center justify-between px-4 py-3">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <button onClick={async () => {
+                            try { await adminApi.toggleRegion(token, r.ilce, !r.is_active); loadRegions() }
+                            catch { show('Güncelleme basarisiz', 'err') }
+                          }}
+                            className={`w-11 h-6 rounded-full transition relative shrink-0 ${r.is_active ? 'bg-brand-fresh' : 'bg-brand-elevated'}`}>
+                            <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all shadow ${r.is_active ? 'left-[22px]' : 'left-0.5'}`} />
+                          </button>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-sm">{r.ilce}</p>
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${r.is_active ? 'bg-brand-fresh/20 text-brand-fresh' : 'bg-white/5 text-brand-muted'}`}>
+                                {r.is_active ? 'AKTIF' : 'PASIF'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-brand-muted">{r.il} &middot; {restCount} restoran &middot; {(r.mahalleler || []).length} mahalle</p>
+                          </div>
+                        </div>
+                        <button onClick={() => setEditMahalle(editMahalle?.ilce === r.ilce ? null : { ilce: r.ilce, mahalleler: [...(r.mahalleler || [])] })}
+                          className="text-xs text-brand-muted hover:text-brand-coral transition px-2 py-1">
+                          {editMahalle?.ilce === r.ilce ? 'Kapat' : 'Mahalleler'}
+                        </button>
+                      </div>
+                      {/* Mahalle Editor */}
+                      {editMahalle?.ilce === r.ilce && (
+                        <div className="px-4 pb-4 border-t border-white/5 pt-3 space-y-2">
+                          <div className="flex flex-wrap gap-1.5">
+                            {(editMahalle.mahalleler || []).map((m, i) => (
+                              <span key={i} className="inline-flex items-center gap-1 bg-brand-surface px-2 py-1 rounded-full text-xs text-brand-cream">
+                                {m}
+                                <button onClick={() => {
+                                  const updated = editMahalle.mahalleler.filter((_, j) => j !== i)
+                                  setEditMahalle({ ...editMahalle, mahalleler: updated })
+                                }} className="text-brand-muted hover:text-red-400 ml-0.5">&times;</button>
+                              </span>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <input type="text" placeholder="Yeni mahalle ekle..." value={newMahalle} onChange={e => setNewMahalle(e.target.value)}
+                              onKeyDown={e => { if (e.key === 'Enter' && newMahalle.trim()) { setEditMahalle({ ...editMahalle, mahalleler: [...editMahalle.mahalleler, newMahalle.trim()] }); setNewMahalle('') } }}
+                              className="flex-1 px-3 py-1.5 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-xs focus:border-brand-coral focus:outline-none" />
+                            <button onClick={() => { if (newMahalle.trim()) { setEditMahalle({ ...editMahalle, mahalleler: [...editMahalle.mahalleler, newMahalle.trim()] }); setNewMahalle('') } }}
+                              className="px-3 py-1.5 bg-brand-surface text-brand-muted rounded-lg text-xs hover:bg-white/10">Ekle</button>
+                          </div>
+                          <button onClick={async () => {
+                            try {
+                              await adminApi.updateMahalleler(token, editMahalle.ilce, editMahalle.mahalleler)
+                              show('Mahalleler güncellendi', 'ok')
+                              setEditMahalle(null)
+                              loadRegions()
+                            } catch { show('Güncelleme basarisiz', 'err') }
+                          }}
+                            className="px-4 py-1.5 bg-brand-coral text-white rounded-lg text-xs font-semibold hover:bg-brand-coral-light transition">Kaydet</button>
+                        </div>
+                      )}
                     </div>
-                    <button onClick={async () => { try { await adminApi.toggleDistrict(token, d.name, !d.is_active); loadDistricts() } catch { show('Guncelleme basarisiz', 'err') } }}
-                      className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${d.is_active ? 'bg-brand-fresh/20 text-brand-fresh' : 'bg-white/5 text-brand-muted'}`}>
-                      {d.is_active ? 'Aktif' : 'Inaktif'}
-                    </button>
-                  </div>
-                ))}
-                {districts.length === 0 && <p className="text-brand-muted text-sm text-center py-4">Henuz bolge yok</p>}
+                  )
+                })}
+                {regions.length === 0 && <p className="text-brand-muted text-sm text-center py-4">Bölgeler yükleniyor...</p>}
               </div>
             </div>
           )}
@@ -757,46 +863,46 @@ export default function Admin() {
           {view === 'tournaments' && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold">Turnuva Yonetimi</h2>
+                <h2 className="text-xl font-bold">Turnuva Yönetimi</h2>
                 <button onClick={() => setShowTournamentForm(!showTournamentForm)}
                   className="flex items-center gap-1.5 px-3 py-2 bg-brand-coral text-white rounded-lg text-xs font-semibold hover:bg-brand-coral-light transition">
-                  <I.Plus /> Ozel Turnuva
+                  <I.Plus /> Özel Turnuva
                 </button>
               </div>
               {showTournamentForm && (
                 <div className="bg-brand-card border border-white/5 rounded-xl p-4 space-y-3">
-                  <input type="text" placeholder="Turnuva Basligi" value={tournamentForm.title} onChange={e => setTournamentForm(p => ({ ...p, title: e.target.value }))}
+                  <input type="text" placeholder="Turnuva Başlığı" value={tournamentForm.title} onChange={e => setTournamentForm(p => ({ ...p, title: e.target.value }))}
                     className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
-                  <textarea placeholder="Aciklama" value={tournamentForm.description} onChange={e => setTournamentForm(p => ({ ...p, description: e.target.value }))} rows={2}
+                  <textarea placeholder="Açıklama" value={tournamentForm.description} onChange={e => setTournamentForm(p => ({ ...p, description: e.target.value }))} rows={2}
                     className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none resize-none" />
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-brand-muted">Baslangic</label>
+                      <label className="text-xs text-brand-muted">Başlangıç</label>
                       <input type="time" value={tournamentForm.slot_start} onChange={e => setTournamentForm(p => ({ ...p, slot_start: e.target.value }))}
                         className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
                     </div>
                     <div>
-                      <label className="text-xs text-brand-muted">Bitis</label>
+                      <label className="text-xs text-brand-muted">Bitiş</label>
                       <input type="time" value={tournamentForm.slot_end} onChange={e => setTournamentForm(p => ({ ...p, slot_end: e.target.value }))}
                         className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <input type="text" placeholder="Mutfak Filtresi (istege bagli)" value={tournamentForm.cuisine_filter} onChange={e => setTournamentForm(p => ({ ...p, cuisine_filter: e.target.value }))}
+                    <input type="text" placeholder="Mutfak Filtresi (isteğe bağlı)" value={tournamentForm.cuisine_filter} onChange={e => setTournamentForm(p => ({ ...p, cuisine_filter: e.target.value }))}
                       className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
-                    <input type="text" placeholder="Bolge Filtresi (istege bagli)" value={tournamentForm.area_filter} onChange={e => setTournamentForm(p => ({ ...p, area_filter: e.target.value }))}
+                    <input type="text" placeholder="Bölge Filtresi (isteğe bağlı)" value={tournamentForm.area_filter} onChange={e => setTournamentForm(p => ({ ...p, area_filter: e.target.value }))}
                       className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={async () => { if (!tournamentForm.title.trim()) { show('Baslik gerekli', 'err'); return }; try { await adminApi.createTournament(token, tournamentForm); show('Turnuva olusturuldu', 'ok'); setTournamentForm({ title: '', description: '', slot_start: '11:00', slot_end: '14:00', cuisine_filter: '', area_filter: '' }); setShowTournamentForm(false); loadTournaments() } catch { show('Olusturma basarisiz', 'err') } }}
-                      className="px-4 py-2 bg-brand-fresh text-white rounded-lg text-sm font-semibold hover:bg-brand-fresh/80 transition">Olustur</button>
+                    <button onClick={async () => { if (!tournamentForm.title.trim()) { show('Başlık gerekli', 'err'); return }; try { await adminApi.createTournament(token, tournamentForm); show('Turnuva oluşturuldu', 'ok'); setTournamentForm({ title: '', description: '', slot_start: '11:00', slot_end: '14:00', cuisine_filter: '', area_filter: '' }); setShowTournamentForm(false); loadTournaments() } catch { show('Oluşturma başarısız', 'err') } }}
+                      className="px-4 py-2 bg-brand-fresh text-white rounded-lg text-sm font-semibold hover:bg-brand-fresh/80 transition">Oluştur</button>
                     <button onClick={() => setShowTournamentForm(false)}
-                      className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">Iptal</button>
+                      className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">İptal</button>
                   </div>
                 </div>
               )}
               <div className="bg-brand-card border border-white/5 rounded-xl p-4">
-                <h3 className="font-bold text-sm mb-3">Sabit Turnuva Slotlari</h3>
+                <h3 className="font-bold text-sm mb-3">Sabit Turnuva Slotları</h3>
                 <div className="space-y-2">
                   {SLOT_PRESETS.map(s => (
                     <div key={s.slot} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
@@ -808,7 +914,7 @@ export default function Admin() {
               </div>
               {tournaments.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="font-bold text-sm">Ozel Turnuvalar</h3>
+                  <h3 className="font-bold text-sm">Özel Turnuvalar</h3>
                   {tournaments.map(t => (
                     <div key={t.id} className="bg-brand-card border border-white/5 rounded-xl px-4 py-3">
                       <p className="font-semibold text-sm">{t.title}</p>
@@ -816,27 +922,27 @@ export default function Admin() {
                       {t.description && <p className="text-xs text-brand-muted mt-1">{t.description}</p>}
                       <div className="flex gap-2 mt-1">
                         {t.cuisine_filter && <span className="text-xs px-2 py-0.5 bg-brand-coral/20 text-brand-coral-light rounded-full">Mutfak: {t.cuisine_filter}</span>}
-                        {t.area_filter && <span className="text-xs px-2 py-0.5 bg-brand-amber/20 text-brand-amber rounded-full">Bolge: {t.area_filter}</span>}
+                        {t.area_filter && <span className="text-xs px-2 py-0.5 bg-brand-amber/20 text-brand-amber rounded-full">Bölge: {t.area_filter}</span>}
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-              {tournaments.length === 0 && !showTournamentForm && <p className="text-brand-muted text-sm text-center py-4">Henuz ozel turnuva yok</p>}
+              {tournaments.length === 0 && !showTournamentForm && <p className="text-brand-muted text-sm text-center py-4">Henüz özel turnuva yok</p>}
             </div>
           )}
 
           {/* CARDS */}
           {view === 'cards' && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold">Ilham Kartlari</h2>
+              <h2 className="text-xl font-bold">İlham Kartları</h2>
               <div className="bg-brand-card border border-white/5 rounded-xl p-4 flex flex-col sm:flex-row gap-3">
                 <input type="text" placeholder="Emoji" value={newCard.emoji} onChange={e=>setNewCard(p=>({...p,emoji:e.target.value}))} className="w-16 px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-center text-lg focus:border-brand-coral focus:outline-none"/>
                 <input type="text" placeholder="Kart metni" value={newCard.text} onChange={e=>setNewCard(p=>({...p,text:e.target.value}))} className="flex-1 px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none"/>
                 <select value={newCard.category} onChange={e=>setNewCard(p=>({...p,category:e.target.value}))} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
-                  <option value="">Kategori</option><option value="mood">Mood</option><option value="speed">Hiz</option><option value="nutrition">Beslenme</option><option value="adventure">Macera</option><option value="social">Sosyal</option><option value="budget">Butce</option>
+                  <option value="">Kategori</option><option value="mood">Mood</option><option value="speed">Hız</option><option value="nutrition">Beslenme</option><option value="adventure">Macera</option><option value="social">Sosyal</option><option value="budget">Bütçe</option>
                 </select>
-                <button onClick={async()=>{if(!newCard.text){show('Metin gerekli','err');return};try{await adminApi.createCard(token,newCard);show('Kart eklendi','ok');setNewCard({text:'',emoji:'',category:''});loadCards()}catch{show('Ekleme basarisiz','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition"><I.Plus/></button>
+                <button onClick={async()=>{if(!newCard.text){show('Metin gerekli','err');return};try{await adminApi.createCard(token,newCard);show('Kart eklendi','ok');setNewCard({text:'',emoji:'',category:''});loadCards()}catch{show('Ekleme başarısız','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition"><I.Plus/></button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {cards.map(c=>(
@@ -858,15 +964,15 @@ export default function Admin() {
                 <div className="bg-brand-card border border-white/5 rounded-xl p-6 text-center space-y-3">
                   <h3 className="font-bold">Restoran Verisi</h3>
                   <div className="flex gap-2 justify-center">
-                    <button onClick={async()=>{try{const d=await adminApi.exportRestaurants(token,'json');const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='restaurants.json';a.click();URL.revokeObjectURL(u);show('JSON indirildi','ok')}catch{show('Export basarisiz','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition">JSON</button>
-                    <button onClick={async()=>{try{const res=await fetch(`/api/admin/restaurants/export?format=csv`,{headers:{Authorization:`Bearer ${token}`}});const text=await res.text();const b=new Blob([text],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='restaurants.csv';a.click();URL.revokeObjectURL(u);show('CSV indirildi','ok')}catch{show('Export basarisiz','err')}}} className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">CSV</button>
+                    <button onClick={async()=>{try{const d=await adminApi.exportRestaurants(token,'json');const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='restaurants.json';a.click();URL.revokeObjectURL(u);show('JSON indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition">JSON</button>
+                    <button onClick={async()=>{try{const res=await fetch(`/api/admin/restaurants/export?format=csv`,{headers:{Authorization:`Bearer ${token}`}});const text=await res.text();const b=new Blob([text],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='restaurants.csv';a.click();URL.revokeObjectURL(u);show('CSV indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">CSV</button>
                   </div>
                 </div>
                 <div className="bg-brand-card border border-white/5 rounded-xl p-6 text-center space-y-3">
                   <h3 className="font-bold">Event Verisi</h3>
                   <div className="flex gap-2 justify-center">
-                    <button onClick={async()=>{try{const d=await adminApi.exportEvents(token,'json');const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='events.json';a.click();URL.revokeObjectURL(u);show('JSON indirildi','ok')}catch{show('Export basarisiz','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition">JSON</button>
-                    <button onClick={async()=>{try{const res=await fetch(`/api/admin/events/export?format=csv`,{headers:{Authorization:`Bearer ${token}`}});const text=await res.text();const b=new Blob([text],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='events.csv';a.click();URL.revokeObjectURL(u);show('CSV indirildi','ok')}catch{show('Export basarisiz','err')}}} className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">CSV</button>
+                    <button onClick={async()=>{try{const d=await adminApi.exportEvents(token,'json');const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='events.json';a.click();URL.revokeObjectURL(u);show('JSON indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition">JSON</button>
+                    <button onClick={async()=>{try{const res=await fetch(`/api/admin/events/export?format=csv`,{headers:{Authorization:`Bearer ${token}`}});const text=await res.text();const b=new Blob([text],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='events.csv';a.click();URL.revokeObjectURL(u);show('CSV indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">CSV</button>
                   </div>
                 </div>
               </div>

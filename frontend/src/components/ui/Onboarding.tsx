@@ -10,18 +10,18 @@ const ONBOARDING_KEY = 'foodhunt_onboarding_done';
 const steps = [
   {
     emoji: '🏟️',
-    title: 'Turnuva Baslat',
-    description: 'Bolge ve mutfak sec, restoranlar karsi karsiya gelsin. 8 veya 16 restoran arasinda sec!',
+    title: 'Turnuva Başlat',
+    description: 'Bölge ve mutfak seç, restoranlar karşı karşıya gelsin. 8 veya 16 restoran arasında seç!',
   },
   {
     emoji: '🆚',
-    title: 'Favori Restorani Sec',
-    description: 'Her turda iki restoran karsilasiyor. Hangisini tercih edersen onu sec, sampiyon belirlensin!',
+    title: 'Favori Restoranı Seç',
+    description: 'Her turda iki restoran karşılaşıyor. Hangisini tercih edersen onu seç, şampiyon belirlensin!',
   },
   {
     emoji: '🎉',
-    title: 'Siparis Ver & Paylas',
-    description: 'Sampiyon restoranin Yemeksepeti, Getir veya Trendyol linkiyle hemen siparis ver. Sonucu arkadaslarinla paylas!',
+    title: 'Sipariş Ver & Paylaş',
+    description: 'Şampiyon restoranın Yemeksepeti, Getir veya Trendyol linkiyle hemen sipariş ver. Sonucu arkadaşlarınla paylaş!',
   },
 ];
 
@@ -78,7 +78,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
             className="flex-1 py-3 bg-brand-coral text-white font-semibold rounded-xl
                        hover:bg-brand-coral-light transition-all active:scale-95"
           >
-            {step < steps.length - 1 ? 'Devam' : 'Basla!'}
+            {step < steps.length - 1 ? 'Devam' : 'Başla!'}
           </button>
         </div>
       </div>

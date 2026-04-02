@@ -141,7 +141,7 @@ router.post('/restaurants', asyncHandler(async (req, res) => {
 
 router.put('/restaurants/:id', asyncHandler(async (req, res) => {
   const id = parseInt(req.params.id);
-  if (isNaN(id)) throw new ValidationError('Gecersiz ID', 'id');
+  if (isNaN(id)) throw new ValidationError('Geçersiz ID', 'id');
   const d = sanitizeRestaurant(req.body);
   d.updated_at = new Date().toISOString();
   await dbHelpers.update('restaurants', { id }, { $set: d });
@@ -151,7 +151,7 @@ router.put('/restaurants/:id', asyncHandler(async (req, res) => {
 
 router.delete('/restaurants/:id', asyncHandler(async (req, res) => {
   const id = parseInt(req.params.id);
-  if (isNaN(id)) throw new ValidationError('Gecersiz ID', 'id');
+  if (isNaN(id)) throw new ValidationError('Geçersiz ID', 'id');
   await dbHelpers.update('restaurants', { id }, { $set: { is_active: 0, deleted_at: new Date().toISOString() } });
   logger.info('Restaurant soft-deleted', { id });
   res.json({ ok: true });
@@ -208,7 +208,7 @@ router.post('/cards', asyncHandler(async (req, res) => {
 
 router.delete('/cards/:id', asyncHandler(async (req, res) => {
   const id = parseInt(req.params.id);
-  if (isNaN(id)) throw new ValidationError('Gecersiz ID', 'id');
+  if (isNaN(id)) throw new ValidationError('Geçersiz ID', 'id');
   await dbHelpers.remove('cards', { id });
   res.json({ ok: true });
 }));
@@ -304,7 +304,52 @@ router.delete('/users/:id', asyncHandler(async (req, res) => {
   res.json({ ok: true });
 }));
 
-// ─── District Management ───────────────────────────────────────────────────
+// ─── Region Management (İl → İlçe → Mahalle) ──────────────────────────────────
+router.get('/regions', asyncHandler(async (_req, res) => {
+  const regions = await dbHelpers.find('regions', {}, { sort: { il: 1, ilce: 1 } });
+  if (regions.length === 0) {
+    // Fallback: seed regions if empty
+    const { REGIONS } = require('../seed-regions');
+    const seeded = [];
+    let id = Date.now();
+    for (const r of REGIONS) {
+      for (const ilce of r.ilceler) {
+        const doc = {
+          id: ++id, il: r.il, ilce: ilce.name, lat: ilce.lat, lng: ilce.lng,
+          is_active: ilce.is_active, mahalleler: ilce.mahalleler,
+          created_at: new Date().toISOString()
+        };
+        await dbHelpers.insert('regions', doc);
+        seeded.push(doc);
+      }
+    }
+    return res.json(seeded);
+  }
+  res.json(regions);
+}));
+
+router.put('/regions/:ilce/toggle', asyncHandler(async (req, res) => {
+  const ilce = safeStr(req.params.ilce, 100);
+  const { is_active } = req.body;
+  await dbHelpers.update('regions', { ilce }, {
+    $set: { is_active: !!is_active, updated_at: new Date().toISOString() }
+  });
+  logger.info('Region toggled', { ilce, is_active });
+  res.json({ ok: true });
+}));
+
+router.put('/regions/:ilce/mahalleler', asyncHandler(async (req, res) => {
+  const ilce = safeStr(req.params.ilce, 100);
+  const { mahalleler } = req.body;
+  if (!Array.isArray(mahalleler)) throw new ValidationError('mahalleler bir dizi olmali');
+  const clean = mahalleler.map(m => safeStr(m, 100)).filter(Boolean);
+  await dbHelpers.update('regions', { ilce }, {
+    $set: { mahalleler: clean, updated_at: new Date().toISOString() }
+  });
+  res.json({ ok: true });
+}));
+
+// ─── District Management (backward compatibility) ───────────────────────────────
 router.get('/districts', asyncHandler(async (_req, res) => {
   const all = await dbHelpers.find('restaurants', {});
   const districtMap = {};
@@ -318,7 +363,7 @@ router.get('/districts', asyncHandler(async (_req, res) => {
 
 router.post('/districts', asyncHandler(async (req, res) => {
   const { name, is_active = true } = req.body;
-  if (!name) throw new ValidationError('Bolge adi gerekli');
+  if (!name) throw new ValidationError('Bölge adı gerekli');
   const district = {
     id: nextId(),
     name: safeStr(name, 100),

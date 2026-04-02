@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { api, Restaurant, InspirationCard, TournamentSlot, safeGetItem, safeSetItem } from '../api'
+import { api, authApi, Restaurant, InspirationCard, TournamentSlot, safeGetItem, safeSetItem } from '../api'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { hapticImpact, hapticNotification, nativeShare, configureStatusBar, hideSplashScreen } from '../utils/native'
 import { SocialProof } from '../components/ui/SocialProof'
@@ -80,7 +80,7 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
 
         {isWinner && (
           <div className="absolute top-3 right-3 bg-gradient-to-r from-brand-coral to-brand-amber text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-            SAMPIYON
+            ŞAMPİYON
           </div>
         )}
       </div>
@@ -88,7 +88,7 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
       {/* Content */}
       <div className="p-4 bg-brand-card border-t border-white/5">
         <h3 className="text-lg font-bold text-brand-cream mb-1.5 truncate">{restaurant.name}</h3>
-        <div className="flex flex-wrap items-center gap-2 text-xs text-brand-muted">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-brand-muted mb-2">
           {restaurant.cuisine && (
             <span className="flex items-center gap-1 bg-brand-coral/10 text-brand-coral-light px-2 py-0.5 rounded-full">
               <Icon.Utensils /> {restaurant.cuisine}
@@ -100,6 +100,20 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
             </span>
           )}
         </div>
+
+        {/* Top 3 Products */}
+        {restaurant.top3_products && restaurant.top3_products.length > 0 && (
+          <div className="flex flex-col gap-1 pt-2 border-t border-white/5">
+            <span className="text-[10px] uppercase tracking-wider text-brand-muted font-semibold">Popüler</span>
+            <div className="flex flex-wrap gap-1.5">
+              {restaurant.top3_products.slice(0, 3).map((p, i) => (
+                <span key={i} className="inline-flex items-center gap-1 bg-brand-amber/10 text-brand-amber px-2 py-0.5 rounded-full text-xs font-medium">
+                  <span>{p.emoji}</span> {p.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </button>
   )
@@ -144,28 +158,47 @@ const ProgressBar = ({ current, total }: { current: number; total: number }) => 
 // ─── Deeplinks ──────────────────────────────────────────────────────────────
 const Deeplinks = ({ restaurant }: { restaurant: Restaurant }) => {
   const links = [
-    { key: 'yemeksepeti', url: restaurant.yemeksepeti_link, label: 'Yemeksepeti', color: 'bg-red-500 hover:bg-red-600' },
-    { key: 'getir', url: restaurant.getir_link, label: 'Getir', color: 'bg-purple-500 hover:bg-purple-600' },
-    { key: 'trendyol', url: restaurant.trendyol_link, label: 'Trendyol', color: 'bg-orange-500 hover:bg-orange-600' },
-    { key: 'gmaps', url: restaurant.google_maps_url, label: 'Google Maps', color: 'bg-blue-500 hover:bg-blue-600' },
-    { key: 'website', url: restaurant.website, label: 'Website', color: 'bg-brand-elevated hover:bg-white/10' },
+    { key: 'yemeksepeti', url: restaurant.yemeksepeti_link, label: 'Yemeksepeti', color: 'bg-red-500 hover:bg-red-600', emoji: '🔴' },
+    { key: 'getir', url: restaurant.getir_link, label: 'Getir', color: 'bg-purple-500 hover:bg-purple-600', emoji: '💜' },
+    { key: 'trendyol', url: restaurant.trendyol_link, label: 'Trendyol', color: 'bg-orange-500 hover:bg-orange-600', emoji: '🟠' },
+    { key: 'gmaps', url: restaurant.google_maps_url, label: 'Google Maps', color: 'bg-blue-500 hover:bg-blue-600', emoji: '📍' },
+    { key: 'website', url: restaurant.website, label: 'Website', color: 'bg-brand-elevated hover:bg-white/10', emoji: '🌐' },
   ].filter(l => l.url)
 
   if (!links.length) return null
+
+  const handleDeeplinkClick = (platform: string) => {
+    api.trackEvent('deeplink_click', { platform, restaurant_id: restaurant.id })
+    // Track for points if user is logged in
+    const token = safeGetItem('local', 'foodhunt_token')
+    if (token) {
+      authApi.trackDeeplinkOrder(token, {
+        restaurant_id: restaurant.id,
+        platform,
+      }).catch(() => {}) // non-blocking
+    }
+  }
+
   return (
-    <div className="flex flex-wrap gap-2 justify-center mt-6">
-      {links.map(l => (
-        <a
-          key={l.key}
-          href={l.url!}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() => api.trackEvent('deeplink_click', { platform: l.key, restaurant_id: restaurant.id })}
-          className={`flex items-center gap-2 px-4 py-2 ${l.color} text-white rounded-xl text-sm font-semibold transition-all active:scale-95`}
-        >
-          <Icon.External /> {l.label}
-        </a>
-      ))}
+    <div className="mt-6 space-y-3">
+      <p className="text-center text-brand-muted text-xs uppercase tracking-wider font-semibold">Sipariş Ver</p>
+      <div className="flex flex-wrap gap-2 justify-center">
+        {links.map(l => (
+          <a
+            key={l.key}
+            href={l.url!}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => handleDeeplinkClick(l.key)}
+            className={`flex items-center gap-2 px-4 py-2.5 ${l.color} text-white rounded-xl text-sm font-semibold transition-all active:scale-95 shadow-lg`}
+          >
+            <span>{l.emoji}</span> {l.label}
+          </a>
+        ))}
+      </div>
+      {safeGetItem('local', 'foodhunt_token') && (
+        <p className="text-center text-brand-amber text-xs">+50 puan kazanırsınız!</p>
+      )}
     </div>
   )
 }
@@ -175,13 +208,13 @@ const ShareModal = ({ isOpen, onClose, champion }: { isOpen: boolean; onClose: (
   const [copied, setCopied] = useState(false)
   if (!isOpen || !champion) return null
 
-  const shareText = `FoodHunt'ta sampiyonu sectim: ${champion.name}! Sen de oyna`
+  const shareText = `FoodHunt'ta şampiyonu seçtim: ${champion.name}! Sen de oyna`
   const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://foodhunt.app'
 
   // Try native share first (iOS share sheet), fallback to manual options
   const handleNativeShare = async () => {
     const used = await nativeShare({
-      title: 'FoodHunt Sampiyonu',
+      title: 'FoodHunt Şampiyonu',
       text: shareText,
       url: shareUrl,
     })
@@ -203,12 +236,12 @@ const ShareModal = ({ isOpen, onClose, champion }: { isOpen: boolean; onClose: (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4 safe-bottom" onClick={onClose}>
       <div className="bg-brand-card rounded-t-3xl sm:rounded-3xl w-full max-w-sm p-6 animate-slide-up" onClick={e => e.stopPropagation()}>
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4 sm:hidden" />
-        <h2 className="text-xl font-bold text-brand-cream mb-4">Paylas</h2>
+        <h2 className="text-xl font-bold text-brand-cream mb-4">Paylaş</h2>
         <div className="space-y-2">
           {/* Native share button (iOS share sheet) */}
           <button onClick={handleNativeShare}
             className="w-full flex items-center gap-3 bg-brand-coral hover:bg-brand-coral-light text-white px-4 py-3 rounded-xl transition font-semibold active:scale-95">
-            <Icon.Share /> Paylas
+            <Icon.Share /> Paylaş
           </button>
           <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`, '_blank')}
             className="w-full flex items-center gap-3 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl transition font-semibold active:scale-95">
@@ -220,7 +253,7 @@ const ShareModal = ({ isOpen, onClose, champion }: { isOpen: boolean; onClose: (
           </button>
           <button onClick={handleCopy}
             className="w-full flex items-center gap-3 bg-brand-surface hover:bg-brand-elevated text-white px-4 py-3 rounded-xl transition font-semibold active:scale-95 border border-white/10">
-            <Icon.Copy /> {copied ? 'Kopyalandi!' : 'Linki Kopyala'}
+            <Icon.Copy /> {copied ? 'Kopyalandı!' : 'Linki Kopyala'}
           </button>
         </div>
       </div>
@@ -233,8 +266,8 @@ const Footer = () => (
   <footer className="mt-16 py-6 text-center text-xs text-brand-muted space-y-3">
     <div className="flex flex-wrap justify-center gap-4">
       <a href="/kvkk" className="hover:text-brand-coral transition">KVKK</a>
-      <a href="/kullanim" className="hover:text-brand-coral transition">Kullanim Sartlari</a>
-      <a href="/cerez" className="hover:text-brand-coral transition">Cerez Politikasi</a>
+      <a href="/kullanim" className="hover:text-brand-coral transition">Kullanım Şartları</a>
+      <a href="/cerez" className="hover:text-brand-coral transition">Çerez Politikası</a>
     </div>
     <p className="text-brand-muted/50">&copy; 2026 FoodHunt</p>
   </footer>
@@ -290,7 +323,7 @@ export default function App() {
     }
 
     api.trackEvent('page_view')
-    api.getAreas().then(setAreas).catch(e => { if (e.name !== 'AbortError') setApiError('Baglanti hatasi. Tekrar deneyin.') })
+    api.getAreas().then(setAreas).catch(e => { if (e.name !== 'AbortError') setApiError('Bağlantı hatası. Tekrar deneyin.') })
 
     // Load freemium info
     const userToken = safeGetItem('local', 'foodhunt_token')
@@ -371,7 +404,7 @@ export default function App() {
       }
 
       if (data.length < 2) {
-        setApiError('Yeterli restoran yok. Filtreleri degistirin.')
+        setApiError('Yeterli restoran yok. Filtreleri değiştirin.')
         setLoading(false)
         return
       }
@@ -385,7 +418,7 @@ export default function App() {
       } catch { setPhase('game') }
       api.trackEvent('game_start', { area, cuisine, count, mode, ...(geo.position ? { lat: geo.position.lat, lng: geo.position.lng } : {}) })
     } catch (e) {
-      if ((e as Error).name !== 'AbortError') setApiError('Baglanti hatasi. Tekrar deneyin.')
+      if ((e as Error).name !== 'AbortError') setApiError('Bağlantı hatası. Tekrar deneyin.')
     } finally { setLoading(false) }
   }, [area, cuisine, mode, geo.position])
 
@@ -402,8 +435,13 @@ export default function App() {
       if (next.length === 1) {
         setRestaurants(next)
         setPhase('results')
-        hapticNotification('success') // Sampiyon belirlendi!
+        hapticNotification('success') // Şampiyon belirlendi!
         api.trackEvent('game_complete', { champion_id: winner.id })
+        // Award points if user is logged in
+        const token = safeGetItem('local', 'foodhunt_token')
+        if (token) {
+          authApi.trackTournamentComplete(token, { champion_id: winner.id, tournament_type: mode }).catch(() => {})
+        }
       } else {
         setRestaurants(next)
       }
@@ -430,7 +468,7 @@ export default function App() {
       {serverDown && (
         <div className="sticky top-0 z-50 bg-brand-amber/10 border-b border-brand-amber/30 text-brand-amber px-4 py-3 text-center text-sm backdrop-blur-md flex items-center justify-center gap-2">
           <Icon.AlertTriangle />
-          Sunucu bakimda. Lutfen daha sonra tekrar deneyin.
+          Sunucu bakımda. Lütfen daha sonra tekrar deneyin.
         </div>
       )}
 
@@ -446,7 +484,23 @@ export default function App() {
 
       {/* ═══ LANDING ═══ */}
       {phase === 'landing' && (
-        <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
+        <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 relative">
+          {/* Profile / Login button */}
+          <div className="absolute top-4 right-4 z-10">
+            {safeGetItem('local', 'foodhunt_token') ? (
+              <a href="/profil" className="flex items-center gap-2 bg-brand-card border border-white/10 px-4 py-2 rounded-full text-sm font-semibold text-brand-cream hover:border-brand-coral transition">
+                <span className="w-6 h-6 rounded-full bg-gradient-to-br from-brand-coral to-brand-amber flex items-center justify-center text-[10px] font-bold text-white">
+                  {(() => { try { const u = JSON.parse(safeGetItem('local', 'foodhunt_user') || '{}'); return u.name?.charAt(0)?.toUpperCase() || '?' } catch { return '?' } })()}
+                </span>
+                Profil
+              </a>
+            ) : (
+              <a href="/giris" className="flex items-center gap-2 bg-gradient-to-r from-brand-coral to-brand-amber px-4 py-2 rounded-full text-sm font-bold text-white hover:opacity-90 transition active:scale-95">
+                Giriş Yap
+              </a>
+            )}
+          </div>
+
           <div className="text-center max-w-md animate-fade-in space-y-6">
             {/* Hero */}
             <div className="space-y-3">
@@ -456,7 +510,7 @@ export default function App() {
                   <h1 className="font-display text-4xl sm:text-5xl font-extrabold">
                     <span className="text-gradient-warm">{currentSlot.slot}</span>
                   </h1>
-                  <p className="text-brand-muted text-sm">Simdi aktif! Turnuvaya katil.</p>
+                  <p className="text-brand-muted text-sm">Şimdi aktif! Turnuvaya katıl.</p>
                 </>
               ) : (
                 <>
@@ -468,9 +522,9 @@ export default function App() {
                 </>
               )}
               <p className="text-brand-muted text-base leading-relaxed">
-                Favorin restorani turnuva usulu sec.
+                Favorin restoranı turnuva usulü seç.
                 <br />
-                <span className="text-brand-coral">Tap. Sec. Kazan.</span>
+                <span className="text-brand-coral">Tap. Seç. Kazan.</span>
               </p>
             </div>
 
@@ -501,7 +555,7 @@ export default function App() {
                     : 'text-brand-muted hover:text-brand-cream'
                 }`}
               >
-                <Icon.MapPin /> Bolge Sec
+                <Icon.MapPin /> Bölge Seç
               </button>
               <button
                 onClick={handleNearbyMode}
@@ -511,7 +565,7 @@ export default function App() {
                     : 'text-brand-muted hover:text-brand-cream'
                 }`}
               >
-                <Icon.Crosshair /> Yakinimdakiler
+                <Icon.Crosshair /> Yakınımdakiler
               </button>
             </div>
 
@@ -519,24 +573,24 @@ export default function App() {
             {mode === 'nearby' && (
               <div className="text-center space-y-2">
                 {geo.loading && (
-                  <p className="text-brand-amber text-sm animate-pulse">Konumunuz aliniyor...</p>
+                  <p className="text-brand-amber text-sm animate-pulse">Konumunuz alınıyor...</p>
                 )}
                 {geo.position && !geo.loading && (
                   <div className="flex items-center justify-center gap-2 text-brand-fresh text-sm">
                     <Icon.Navigation />
                     <span>
                       {nearbyMeta?.area_detected
-                        ? `${nearbyMeta.area_detected} bolgesi algilandi`
-                        : 'Konum algilandi'}
+                        ? `${nearbyMeta.area_detected} bölgesi algılandı`
+                        : 'Konum algılandı'}
                     </span>
                   </div>
                 )}
                 {geo.error && !geo.position && (
-                  <p className="text-red-400 text-xs">{geo.error} — varsayilan konum kullanilacak</p>
+                  <p className="text-red-400 text-xs">{geo.error} — varsayılan konum kullanılacak</p>
                 )}
                 {geo.permissionDenied && (
                   <p className="text-brand-muted text-xs">
-                    Konum izni reddedildi. Istanbul merkez kullanilacak.
+                    Konum izni reddedildi. İstanbul merkez kullanılacak.
                   </p>
                 )}
               </div>
@@ -550,7 +604,7 @@ export default function App() {
                   onChange={e => setArea(e.target.value || null)}
                   className="select-field"
                 >
-                  <option value="">Tum Bolgeler</option>
+                  <option value="">Tüm Bölgeler</option>
                   {areas.map(a => <option key={a.area} value={a.area}>{a.area} ({a.count})</option>)}
                 </select>
               )}
@@ -561,10 +615,10 @@ export default function App() {
                   onChange={e => setCuisine(e.target.value || null)}
                   className="select-field"
                 >
-                  <option value="">Tum Mutfaklar</option>
+                  <option value="">Tüm Mutfaklar</option>
                   {mode === 'browse'
                     ? cuisines.map(c => <option key={c.cuisine} value={c.cuisine}>{c.cuisine} ({c.count})</option>)
-                    : ['Turk Mutfagi', 'Kebap', 'Pizza', 'Burger', 'Suşi', 'Deniz Urunleri', 'Kafe', 'Fast Food', 'Italyan', 'Vejetaryen'].map(c =>
+                    : ['Türk Mutfağı', 'Kebap', 'Pizza', 'Burger', 'Suşi', 'Deniz Ürünleri', 'Kafe', 'Fast Food', 'İtalyan', 'Vejetaryen'].map(c =>
                         <option key={c} value={c}>{c}</option>
                       )
                   }
@@ -580,8 +634,8 @@ export default function App() {
                 </p>
                 <p className="text-xs text-brand-muted">
                   {tournamentInfo.can_play
-                    ? `Bugun ${tournamentInfo.remaining} turnuva hakkiniz kaldi`
-                    : 'Gunluk limit tamamlandi'}
+                    ? `Bugün ${tournamentInfo.remaining} turnuva hakkınız kaldı`
+                    : 'Günlük limit tamamlandı'}
                 </p>
               </div>
             )}
@@ -593,14 +647,14 @@ export default function App() {
                 disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
                 className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm"
               >
-                <Icon.Zap /> {loading ? 'Yukleniyor...' : 'Hizli (8)'}
+                <Icon.Zap /> {loading ? 'Yükleniyor...' : 'Hızlı (8)'}
               </button>
               <button
                 onClick={() => handleStartTournament(16)}
                 disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
                 className="btn-secondary flex-1 flex items-center justify-center gap-2 text-sm"
               >
-                {loading ? 'Yukleniyor...' : 'Klasik (16)'}
+                {loading ? 'Yükleniyor...' : 'Klasik (16)'}
               </button>
             </div>
 
@@ -608,7 +662,7 @@ export default function App() {
             {tournamentInfo && !tournamentInfo.can_play && (
               <div className="p-4 bg-brand-amber/10 border border-brand-amber/30 rounded-xl text-center space-y-2">
                 <p className="text-brand-amber font-semibold text-sm">Unlimited turnuva oynamak ister misin?</p>
-                <p className="text-brand-muted text-xs">Premium ile sinir olmadan oyna!</p>
+                <p className="text-brand-muted text-xs">Premium ile sınır olmadan oyna!</p>
               </div>
             )}
 
@@ -625,11 +679,11 @@ export default function App() {
           <div className="max-w-sm text-center animate-bounce-in space-y-6">
             <div className="text-8xl">{inspiration.emoji}</div>
             <div>
-              <p className="text-brand-muted text-xs uppercase tracking-widest mb-2">Bugunun Ilham Kaynagi</p>
+              <p className="text-brand-muted text-xs uppercase tracking-widest mb-2">Bugünün İlham Kaynağı</p>
               <h2 className="font-display text-2xl font-bold text-brand-cream">{inspiration.text}</h2>
             </div>
             <button onClick={() => setPhase('game')} className="btn-primary w-full">
-              Turnuvaya Basla
+              Turnuvaya Başla
             </button>
           </div>
         </div>
@@ -683,7 +737,7 @@ export default function App() {
           <div className="text-center max-w-lg animate-bounce-in space-y-6">
             <Icon.Trophy />
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-gradient-warm">
-              Sampiyonun!
+              Şampiyonun!
             </h2>
 
             <VSCard restaurant={champion} onClick={() => {}} isWinner />
@@ -693,14 +747,14 @@ export default function App() {
               <div className="grid grid-cols-2 gap-3 mt-4">
                 {runnerUp && (
                   <div className="bg-brand-card border border-white/5 p-4 rounded-2xl text-left">
-                    <p className="text-brand-muted text-xs mb-1">2. Sirada</p>
+                    <p className="text-brand-muted text-xs mb-1">2. Sırada</p>
                     <h3 className="font-bold text-brand-cream text-sm">{runnerUp.name}</h3>
                     {runnerUp.cuisine && <p className="text-brand-muted text-xs mt-1">{runnerUp.cuisine}</p>}
                   </div>
                 )}
                 {thirdPlace && (
                   <div className="bg-brand-card border border-white/5 p-4 rounded-2xl text-left">
-                    <p className="text-brand-muted text-xs mb-1">3. Sirada</p>
+                    <p className="text-brand-muted text-xs mb-1">3. Sırada</p>
                     <h3 className="font-bold text-brand-cream text-sm">{thirdPlace.name}</h3>
                     {thirdPlace.cuisine && <p className="text-brand-muted text-xs mt-1">{thirdPlace.cuisine}</p>}
                   </div>
@@ -710,11 +764,22 @@ export default function App() {
 
             <Deeplinks restaurant={champion} />
 
+            {/* Points CTA for non-logged-in users */}
+            {!safeGetItem('local', 'foodhunt_token') && (
+              <div className="bg-brand-amber/10 border border-brand-amber/20 rounded-2xl p-4 mt-4">
+                <p className="text-brand-amber text-sm font-semibold">Puan Kazan!</p>
+                <p className="text-brand-muted text-xs mt-1">Giriş yaparak turnuva ve sipariş puanları kazanın.</p>
+                <a href="/giris" className="inline-block mt-3 bg-gradient-to-r from-brand-coral to-brand-amber text-white text-xs font-bold px-4 py-2 rounded-full hover:opacity-90 transition">
+                  Giriş Yap / Kayıt Ol
+                </a>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex gap-3 pt-2">
               <button onClick={() => { setShareModalOpen(true); api.trackEvent('share_click') }}
                 className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm">
-                <Icon.Share /> Paylas
+                <Icon.Share /> Paylaş
               </button>
               <button onClick={handleRestart}
                 className="btn-secondary flex-1 flex items-center justify-center gap-2 text-sm">

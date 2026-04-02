@@ -11,6 +11,15 @@ const { checkTournamentLimit, rateLimit } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Active regions for public use
+router.get('/regions', asyncHandler(async (_req, res) => {
+  const regions = await dbHelpers.find('regions', { is_active: true });
+  res.json(regions.map(r => ({
+    il: r.il, ilce: r.ilce, mahalleler: r.mahalleler || [],
+    lat: r.lat, lng: r.lng
+  })));
+}));
+
 // Health check
 router.get('/health', asyncHandler(async (_req, res) => {
   const [rCount, eCount, uCount] = await Promise.all([
@@ -32,8 +41,20 @@ router.get('/health', asyncHandler(async (_req, res) => {
 // List areas with restaurant counts
 router.get('/areas', asyncHandler(async (_req, res) => {
   const all = await dbHelpers.find('restaurants', { is_active: 1 });
+  const activeRegions = await dbHelpers.find('regions', { is_active: true });
+  // Build a set of allowed area names: ilce names + all their mahalleler
+  let allowedAreas = null;
+  if (activeRegions.length > 0) {
+    allowedAreas = new Set();
+    for (const reg of activeRegions) {
+      allowedAreas.add(reg.ilce);
+      if (reg.mahalleler && Array.isArray(reg.mahalleler)) {
+        for (const m of reg.mahalleler) allowedAreas.add(m);
+      }
+    }
+  }
   const m = {};
-  for (const r of all) if (r.area) m[r.area] = (m[r.area] || 0) + 1;
+  for (const r of all) if (r.area && (!allowedAreas || allowedAreas.has(r.area))) m[r.area] = (m[r.area] || 0) + 1;
   res.json(
     Object.entries(m)
       .map(([area, count]) => ({ area, count }))
@@ -70,6 +91,22 @@ router.get('/catalog', asyncHandler(async (req, res) => {
     q.price_level = { ...q.price_level, $lte: v };
   }
 
+  // If no area filter specified, only show restaurants from active regions
+  if (!area) {
+    const activeRegions = await dbHelpers.find('regions', { is_active: true });
+    if (activeRegions.length > 0) {
+      // Include both ilce names and their mahalleler so restaurants with mahalle-level area values match
+      const allowedAreas = [];
+      for (const reg of activeRegions) {
+        allowedAreas.push(reg.ilce);
+        if (reg.mahalleler && Array.isArray(reg.mahalleler)) {
+          allowedAreas.push(...reg.mahalleler);
+        }
+      }
+      q.area = { $in: allowedAreas };
+    }
+  }
+
   const all = await dbHelpers.find('restaurants', q);
   const l = Math.min(parseInt(limit) || 16, 32);
   res.json(shuffle(all).slice(0, l));
@@ -79,7 +116,7 @@ router.get('/catalog', asyncHandler(async (req, res) => {
 router.get('/restaurants/active', asyncHandler(async (req, res) => {
   const { time } = req.query;
   if (!time || !/^\d{2}:\d{2}$/.test(time)) {
-    throw new ValidationError('time HH:MM formatinda olmali', 'time');
+    throw new ValidationError('time HH:MM formatında olmalı', 'time');
   }
 
   const now = new Date();
@@ -111,11 +148,11 @@ router.get('/restaurants/active', asyncHandler(async (req, res) => {
 // Scheduled tournament slots for today
 router.get('/tournaments/scheduled', asyncHandler(async (_req, res) => {
   const slots = [
-    { slot: 'Kahvalti Turnuvasi', start: '07:00', end: '10:00', icon: '🥐' },
-    { slot: 'Ogle Turnuvasi', start: '11:00', end: '14:00', icon: '🍝' },
-    { slot: 'Ogleden Sonra', start: '14:00', end: '17:00', icon: '☕' },
-    { slot: 'Aksam Turnuvasi', start: '18:00', end: '22:00', icon: '🍽️' },
-    { slot: 'Gece Turnuvasi', start: '22:00', end: '02:00', icon: '🌙' },
+    { slot: 'Kahvaltı Turnuvası', start: '07:00', end: '10:00', icon: '🥐' },
+    { slot: 'Öğle Turnuvası', start: '11:00', end: '14:00', icon: '🍝' },
+    { slot: 'Öğleden Sonra', start: '14:00', end: '17:00', icon: '☕' },
+    { slot: 'Akşam Turnuvası', start: '18:00', end: '22:00', icon: '🍽️' },
+    { slot: 'Gece Turnuvası', start: '22:00', end: '02:00', icon: '🌙' },
   ];
 
   const now = new Date();
@@ -127,7 +164,7 @@ router.get('/tournaments/scheduled', asyncHandler(async (_req, res) => {
 
     let isActive;
     if (endHr < startHr) {
-      // Gece yarisi gecen slot (22:00-02:00)
+      // Gece yarısı geçen slot (22:00-02:00)
       isActive = currentTime >= s.start || currentTime < s.end;
     } else {
       isActive = currentTime >= s.start && currentTime < s.end;
@@ -152,7 +189,7 @@ router.get('/tournaments/scheduled', asyncHandler(async (_req, res) => {
 // Single restaurant detail
 router.get('/restaurants/:id', asyncHandler(async (req, res) => {
   const id = parseInt(req.params.id);
-  if (isNaN(id)) throw new ValidationError('Gecersiz restoran ID', 'id');
+  if (isNaN(id)) throw new ValidationError('Geçersiz restoran ID', 'id');
   const r = await dbHelpers.findOne('restaurants', { id });
   if (!r) throw new NotFoundError('Restoran');
   res.json(r);
@@ -195,8 +232,8 @@ router.get('/stats/social', asyncHandler(async (_req, res) => {
     today_tournaments: todayCount,
     total_tournaments: totalCount,
     message: todayCount > 0
-      ? `Bugun ${todayCount} kisi turnuva oynadi!`
-      : `Toplam ${totalCount} turnuva oynandi!`,
+      ? `Bugün ${todayCount} kişi turnuva oynadı!`
+      : `Toplam ${totalCount} turnuva oynandı!`,
   });
 }));
 

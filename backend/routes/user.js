@@ -44,7 +44,7 @@ router.post('/favorites', requireAuth, asyncHandler(async (req, res) => {
 // Remove favorite
 router.delete('/favorites/:restaurantId', requireAuth, asyncHandler(async (req, res) => {
   const restaurantId = parseInt(req.params.restaurantId);
-  if (isNaN(restaurantId)) throw new ValidationError('Gecersiz restoran ID');
+  if (isNaN(restaurantId)) throw new ValidationError('Geçersiz restoran ID');
   await dbHelpers.remove('favorites', { user_id: req.user.id, restaurant_id: restaurantId });
   res.json({ ok: true });
 }));
@@ -96,7 +96,7 @@ router.get('/recommend', requireAuth, asyncHandler(async (req, res) => {
   const all = await dbHelpers.find('restaurants', q);
   const topRated = all.filter(r => r.rating >= 4.0);
   const pool = topRated.length > 0 ? topRated : all;
-  if (pool.length === 0) return res.json({ source: 'none', restaurant: null, message: 'Restoran bulunamadi' });
+  if (pool.length === 0) return res.json({ source: 'none', restaurant: null, message: 'Restoran bulunamadı' });
   res.json({ source: 'top_rated', restaurant: pool[Math.floor(Math.random() * pool.length)] });
 }));
 

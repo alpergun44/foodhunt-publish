@@ -6,7 +6,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "build": "cd frontend && npm ci && npm run build && cd ../backend && npm ci",
+    "build": "rm -rf frontend/dist && cd frontend && npm install && npm run build && cd ../backend && npm install",
     "start": "cd backend && node server.js"
   }
 }

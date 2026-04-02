@@ -31,6 +31,7 @@ async function initNeDB() {
   db.districts = Datastore.create({ filename: path.join(DB_DIR, 'districts.db'), autoload: true });
   db.tournaments = Datastore.create({ filename: path.join(DB_DIR, 'tournaments.db'), autoload: true });
   db.regions = Datastore.create({ filename: path.join(DB_DIR, 'regions.db'), autoload: true });
+  db.points = Datastore.create({ filename: path.join(DB_DIR, 'points.db'), autoload: true });
 
   // Indexes
   await db.restaurants.ensureIndex({ fieldName: 'id', unique: true });
@@ -42,6 +43,8 @@ async function initNeDB() {
   await db.users.ensureIndex({ fieldName: 'email', unique: true });
   await db.favorites.ensureIndex({ fieldName: 'user_id' });
   await db.history.ensureIndex({ fieldName: 'user_id' });
+  await db.points.ensureIndex({ fieldName: 'user_id' });
+  await db.points.ensureIndex({ fieldName: 'created_at' });
 
   logger.info('NeDB initialized', { collections: Object.keys(db).length });
 }
@@ -61,6 +64,7 @@ async function initMongoDB() {
   db.districts = database.collection('districts');
   db.tournaments = database.collection('tournaments');
   db.regions = database.collection('regions');
+  db.points = database.collection('points');
 
   // MongoDB indexes
   await db.restaurants.createIndex({ id: 1 }, { unique: true });
@@ -72,6 +76,8 @@ async function initMongoDB() {
   await db.users.createIndex({ email: 1 }, { unique: true });
   await db.favorites.createIndex({ user_id: 1 });
   await db.history.createIndex({ user_id: 1, created_at: -1 });
+  await db.points.createIndex({ user_id: 1 });
+  await db.points.createIndex({ created_at: -1 });
 
   logger.info('MongoDB connected', { uri: MONGO_URI.replace(/\/\/.*@/, '//***@') });
 }

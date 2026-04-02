@@ -87,9 +87,9 @@ function requireAuth(req, _res, next) {
   try {
     const auth = req.headers.authorization || '';
     const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-    if (!token) throw new UnauthorizedError('Giris yapmaniz gerekiyor');
+    if (!token) throw new UnauthorizedError('Giriş yapmanız gerekiyor');
     const payload = verifyToken(token);
-    if (!payload) throw new UnauthorizedError('Oturum suresi dolmus. Tekrar giris yapin.');
+    if (!payload) throw new UnauthorizedError('Oturum süresi dolmuş. Tekrar giriş yapın.');
     req.user = payload;
     next();
   } catch (err) {
@@ -120,7 +120,7 @@ setInterval(() => {
     if (now - rateBuckets[ip].start > 120000) delete rateBuckets[ip];
   }
   for (const ip of Object.keys(loginAttempts)) {
-    if (now - loginAttempts[ip].last > 900000) delete loginAttempts[ip];
+    if (now - loginAttempts[ip].last > 300000) delete loginAttempts[ip];
   }
 }, 300000);
 
@@ -145,10 +145,10 @@ function loginRateLimit(req, _res, next) {
   const now = Date.now();
   if (!loginAttempts[ip]) loginAttempts[ip] = { count: 0, last: now };
   const la = loginAttempts[ip];
-  if (now - la.last > 900000) la.count = 0;
+  if (now - la.last > 300000) la.count = 0; // 5 min window (was 15 min)
   la.last = now;
   la.count++;
-  if (la.count > 5) throw new RateLimitError(900);
+  if (la.count > 10) throw new RateLimitError(300); // 5 min lockout after 10 attempts (was 5 attempts / 15 min)
   next();
 }
 

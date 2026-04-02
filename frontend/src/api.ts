@@ -97,6 +97,10 @@ export interface Restaurant {
   competition_slots?: CompetitionSlot[];
   available_hours?: AvailableHours;
   district?: string;
+  il?: string;
+  ilce?: string;
+  mahalle?: string;
+  top3_products?: { name: string; emoji: string }[];
 }
 
 export interface TournamentSlot {
@@ -113,6 +117,26 @@ export interface District {
   name: string;
   count: number;
   is_active: boolean;
+}
+
+export interface Region {
+  id: number;
+  il: string;
+  ilce: string;
+  lat: number;
+  lng: number;
+  is_active: boolean;
+  mahalleler: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface PublicRegion {
+  il: string;
+  ilce: string;
+  mahalleler: string[];
+  lat: number;
+  lng: number;
 }
 
 export interface Tournament {
@@ -260,6 +284,9 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
+  getRegions: (): Promise<PublicRegion[]> =>
+    safeFetch(`${BASE}/regions`),
+
   getScheduledTournaments: (): Promise<TournamentSlot[]> =>
     safeFetch(`${BASE}/tournaments/scheduled`),
 
@@ -326,6 +353,42 @@ export const authApi = {
       headers: authHeaders(token),
       body: JSON.stringify(prefs),
     }),
+
+  // Social login
+  googleLogin: (credential: string): Promise<{ token: string; user: any }> =>
+    safeFetch(`${BASE}/auth/google`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential }),
+    }),
+
+  appleLogin: (id_token: string, user?: any): Promise<{ token: string; user: any }> =>
+    safeFetch(`${BASE}/auth/apple`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id_token, user }),
+    }),
+
+  // Points
+  getPoints: (token: string): Promise<{ total_points: number; history: any[] }> =>
+    safeFetch(`${BASE}/auth/points`, { headers: authHeaders(token) }),
+
+  trackDeeplinkOrder: (token: string, data: { restaurant_id: number; platform: string; tracking_id?: string }): Promise<any> =>
+    safeFetch(`${BASE}/auth/points/deeplink`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    }),
+
+  trackTournamentComplete: (token: string, data: { champion_id: number; tournament_type?: string }): Promise<any> =>
+    safeFetch(`${BASE}/auth/points/tournament`, {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify(data),
+    }),
+
+  getLeaderboard: (): Promise<{ rank: number; name: string; points: number; avatar_url: string | null }[]> =>
+    safeFetch(`${BASE}/auth/leaderboard`),
 };
 
 // ─── Admin API (requires admin token from legacy login) ─────────────────────
@@ -436,7 +499,7 @@ export const adminApi = {
       headers: authHeaders(token),
     }),
 
-  // Districts
+  // Districts (legacy)
   getDistricts: (token: string): Promise<District[]> =>
     safeFetch(`${BASE}/admin/districts`, { headers: authHeaders(token) }),
 
@@ -452,6 +515,24 @@ export const adminApi = {
       method: 'PUT',
       headers: authHeaders(token),
       body: JSON.stringify({ is_active }),
+    }),
+
+  // Regions (İl → İlçe → Mahalle)
+  getRegions: (token: string): Promise<Region[]> =>
+    safeFetch(`${BASE}/admin/regions`, { headers: authHeaders(token) }),
+
+  toggleRegion: (token: string, ilce: string, is_active: boolean): Promise<{ ok: boolean }> =>
+    safeFetch(`${BASE}/admin/regions/${encodeURIComponent(ilce)}/toggle`, {
+      method: 'PUT',
+      headers: authHeaders(token),
+      body: JSON.stringify({ is_active }),
+    }),
+
+  updateMahalleler: (token: string, ilce: string, mahalleler: string[]): Promise<{ ok: boolean }> =>
+    safeFetch(`${BASE}/admin/regions/${encodeURIComponent(ilce)}/mahalleler`, {
+      method: 'PUT',
+      headers: authHeaders(token),
+      body: JSON.stringify({ mahalleler }),
     }),
 
   // Tournaments
