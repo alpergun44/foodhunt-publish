@@ -4,27 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
     <meta name="theme-color" content="#FF6B35" />
-    <meta name="description" content="FoodHunt — Ne yesem sorusuna turnuva sistemiyle cevap bul. Istanbul'un en iyi restoranlarini kesfet!" />
+    <meta name="description" content="FoodHunt — Ne yesem? sorusuna turnuva sistemiyle cevap bul. İstanbul'un en iyi restoranlarını keşfet!" />
     <meta property="og:title" content="FoodHunt — Ne Yesem?" />
-    <meta property="og:description" content="Turnuva sistemiyle restoran sec, Istanbul'un lezzetlerini kesfet!" />
+    <meta property="og:description" content="Turnuva sistemiyle restoran seç, İstanbul'un lezzetlerini keşfet!" />
     <meta property="og:image" content="/og-image.svg" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="FoodHunt — Ne Yesem?" />
-    <meta name="twitter:description" content="Turnuva sistemiyle restoran sec!" />
+    <meta name="twitter:description" content="Turnuva sistemiyle restoran seç!" />
+    <!-- iOS PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="FoodHunt" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+    <link rel="apple-touch-startup-image" href="/icons/icon-512.svg" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "FoodHunt",
-      "description": "Bracket turnuvasiyla restoran sec, yemek kararini eglenceye donustur!",
+      "description": "Turnuva sistemiyle restoran seç, yemek kararını eğlenceye dönüştür!",
       "url": "https://foodhunt.app",
       "applicationCategory": "LifestyleApplication",
       "operatingSystem": "Web",
@@ -34,22 +35,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <!-- Google Analytics 4 — uncomment and add your GA4 ID when ready
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){ dataLayer.push(arguments); }
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXX', { send_page_view: false });
-    </script>
-    -->
     <title>FoodHunt — Ne yesem?</title>
   </head>
   <body class="bg-brand-dark">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Register Service Worker for PWA
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js').catch(() => {});

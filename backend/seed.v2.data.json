@@ -1,14 +1,14 @@
 [
   {
-    "name": "Ciya Sofrasi",
-    "cuisine": "Turk Mutfagi",
-    "area": "Kadikoy",
+    "name": "Ciya Sofrasî",
+    "cuisine": "Türk Mutfağı",
+    "area": "Kadıköy",
     "rating": 4.7,
     "price_level": 3,
     "calories_min": 400,
     "calories_max": 800,
-    "description": "Guneydogu Anadolu lezzetlerinin efsanevi adresi",
-    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/ciya-sofrasi",
+    "description": "Güneydoğu Anadolu lezzetlerinin efsanevi adresi",
+    "yemeksepeti_link": "https://www.yemeksepeti.com/restaurant/ciya-sofrasî",
     "getir_link": "",
     "trendyol_link": "",
     "tags": [
@@ -34,12 +34,12 @@
   {
     "name": "Basta Kebap",
     "cuisine": "Kebap",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.5,
     "price_level": 2,
     "calories_min": 500,
     "calories_max": 900,
-    "description": "El yapimi kebaplarin en taze hali",
+    "description": "El yapımı kebapların en taze hali",
     "tags": [
       "kebap",
       "adana",
@@ -61,16 +61,16 @@
     ]
   },
   {
-    "name": "Kadikoy Tarihi Cig Koftecisi",
+    "name": "Kadıköy Tarihi Çiğ Köftecisi",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 200,
     "calories_max": 400,
-    "description": "Kadikoy'un meşhur cig koftecisi",
+    "description": "Kadıköy'un meşhur cig köftecisi",
     "tags": [
-      "cig kofte",
+      "cig köfte",
       "vegan"
     ],
     "top3_products": [
@@ -83,23 +83,23 @@
         "emoji": "🍔"
       },
       {
-        "name": "Porsiyon Cig Kofte",
+        "name": "Porsiyon Çiğ Kofte",
         "emoji": "🍽️"
       }
     ]
   },
   {
     "name": "Bayramoglu Dondurma",
-    "cuisine": "Tatli",
-    "area": "Kadikoy",
+    "cuisine": "Tatlı",
+    "area": "Kadıköy",
     "rating": 4.6,
     "price_level": 1,
     "calories_min": 150,
     "calories_max": 350,
-    "description": "Maras usulu dondurmanin Kadikoy'deki adresi",
+    "description": "Maraş usulü dondurmanın Kadıköy'deki adresi",
     "tags": [
       "dondurma",
-      "tatli"
+      "tatlı"
     ],
     "top3_products": [
       {
@@ -107,26 +107,26 @@
         "emoji": "🍯"
       },
       {
-        "name": "Cikolatali",
+        "name": "Çikolatali",
         "emoji": "🍫"
       },
       {
-        "name": "Kunefe",
+        "name": "Künefe",
         "emoji": "🧀"
       }
     ]
   },
   {
-    "name": "Moda Kayikhanesi",
-    "cuisine": "Deniz Urunleri",
-    "area": "Kadikoy",
+    "name": "Moda Kayıkhanesi",
+    "cuisine": "Deniz Ürünleri",
+    "area": "Kadıköy",
     "rating": 4.4,
     "price_level": 3,
     "calories_min": 350,
     "calories_max": 700,
-    "description": "Deniz manzarasinda taze balik keyfi",
+    "description": "Deniz manzarasında taze balık keyfi",
     "tags": [
-      "balik",
+      "balık",
       "meze",
       "deniz"
     ],
@@ -146,16 +146,16 @@
     ]
   },
   {
-    "name": "Borsam Tasfirin",
-    "cuisine": "Turk Mutfagi",
-    "area": "Kadikoy",
+    "name": "Borsam Taş Fırın",
+    "cuisine": "Türk Mutfağı",
+    "area": "Kadıköy",
     "rating": 4.5,
     "price_level": 2,
     "calories_min": 400,
     "calories_max": 750,
     "description": "Ev yemekleri ve geleneksel tatlar",
     "tags": [
-      "ev yemegi",
+      "ev yemeği",
       "geleneksel"
     ],
     "top3_products": [
@@ -174,17 +174,17 @@
     ]
   },
   {
-    "name": "Kadikoy Bici Bici",
+    "name": "Kadıköy Bici Bici",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.2,
     "price_level": 1,
     "calories_min": 100,
     "calories_max": 200,
-    "description": "Adana usulu bici bici",
+    "description": "Adana usulü bici bici",
     "tags": [
       "bici bici",
-      "tatli"
+      "tatlı"
     ],
     "top3_products": [
       {
@@ -192,11 +192,11 @@
         "emoji": "🍯"
       },
       {
-        "name": "Kunefe",
+        "name": "Künefe",
         "emoji": "🧀"
       },
       {
-        "name": "Sutlac",
+        "name": "Sütlaç",
         "emoji": "🍮"
       }
     ]
@@ -204,12 +204,12 @@
   {
     "name": "Smoke House BBQ",
     "cuisine": "Amerikan",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.3,
     "price_level": 3,
     "calories_min": 600,
     "calories_max": 1200,
-    "description": "Amerikan usulu is firin etler",
+    "description": "Amerikan usulü is firin etler",
     "tags": [
       "burger",
       "bbq",
@@ -231,37 +231,37 @@
     ]
   },
   {
-    "name": "Yelken Balik",
-    "cuisine": "Deniz Urunleri",
-    "area": "Kadikoy",
+    "name": "Yelken Balık",
+    "cuisine": "Deniz Ürünleri",
+    "area": "Kadıköy",
     "rating": 4.1,
     "price_level": 3,
     "calories_min": 300,
     "calories_max": 600,
-    "description": "Taze deniz urunleri ve mezeler",
+    "description": "Taze deniz ürünleri ve mezeler",
     "tags": [
-      "balik",
+      "balık",
       "meze"
     ],
     "top3_products": [
       {
-        "name": "Balik Ekmek",
+        "name": "Balık Ekmek",
         "emoji": "🥖"
       },
       {
-        "name": "Patlican Salatasi",
+        "name": "Patlıcan Salatası",
         "emoji": "🍆"
       },
       {
-        "name": "Balik Izgara",
+        "name": "Balık Izgara",
         "emoji": "🐟"
       }
     ]
   },
   {
     "name": "Pizza Il Forno",
-    "cuisine": "Italyan",
-    "area": "Kadikoy",
+    "cuisine": "İtalyan",
+    "area": "Kadıköy",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 400,
@@ -290,7 +290,7 @@
   {
     "name": "Ramen Lab",
     "cuisine": "Japon",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.4,
     "price_level": 2,
     "calories_min": 400,
@@ -319,12 +319,12 @@
   {
     "name": "Sushico",
     "cuisine": "Japon",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4,
     "price_level": 3,
     "calories_min": 300,
     "calories_max": 600,
-    "description": "Sushi ve Japon mutfagi",
+    "description": "Sushi ve Japon mutfağı",
     "tags": [
       "sushi",
       "japon"
@@ -345,46 +345,46 @@
     ]
   },
   {
-    "name": "Hala Manti Evi",
-    "cuisine": "Turk Mutfagi",
-    "area": "Kadikoy",
+    "name": "Hala Mantı Evi",
+    "cuisine": "Türk Mutfağı",
+    "area": "Kadıköy",
     "rating": 4.5,
     "price_level": 2,
     "calories_min": 350,
     "calories_max": 650,
-    "description": "El acmasi manti ve gozleme",
+    "description": "El acmasi mantı ve gözleme",
     "tags": [
-      "manti",
-      "gozleme"
+      "mantı",
+      "gözleme"
     ],
     "top3_products": [
       {
-        "name": "Kayseri Mantisi",
+        "name": "Kayseri Mantısi",
         "emoji": "🥟"
       },
       {
-        "name": "Yogurtlu Manti",
+        "name": "Yogurtlu Mantı",
         "emoji": "🥛"
       },
       {
-        "name": "Kiymali Gozleme",
+        "name": "Kıymalı Gözleme",
         "emoji": "🥩"
       }
     ]
   },
   {
     "name": "Fasuli",
-    "cuisine": "Turk Mutfagi",
-    "area": "Kadikoy",
+    "cuisine": "Türk Mutfağı",
+    "area": "Kadıköy",
     "rating": 4.1,
     "price_level": 2,
     "calories_min": 400,
     "calories_max": 700,
-    "description": "Ev yapimi kuru fasulye ve pilav",
+    "description": "Ev yapımı kuru fasulye ve pilav",
     "tags": [
       "kuru fasulye",
       "pilav",
-      "ev yemegi"
+      "ev yemeği"
     ],
     "top3_products": [
       {
@@ -392,7 +392,7 @@
         "emoji": "🫘"
       },
       {
-        "name": "Mercimek Corbasi",
+        "name": "Mercimek Çorbası",
         "emoji": "🍲"
       },
       {
@@ -402,21 +402,21 @@
     ]
   },
   {
-    "name": "Kadikoy Waffle House",
-    "cuisine": "Tatli",
-    "area": "Kadikoy",
+    "name": "Kadıköy Waffle House",
+    "cuisine": "Tatlı",
+    "area": "Kadıköy",
     "rating": 4,
     "price_level": 1,
     "calories_min": 300,
     "calories_max": 600,
-    "description": "Cikolatali waffle ve crepe cesitleri",
+    "description": "Çikolatali waffle ve crepe cesitleri",
     "tags": [
       "waffle",
-      "tatli"
+      "tatlı"
     ],
     "top3_products": [
       {
-        "name": "Cikolatali Waffle",
+        "name": "Çikolatali Waffle",
         "emoji": "🧇"
       },
       {
@@ -424,22 +424,22 @@
         "emoji": "🍦"
       },
       {
-        "name": "Kunefe",
+        "name": "Künefe",
         "emoji": "🧀"
       }
     ]
   },
   {
-    "name": "Bebek Doner",
+    "name": "Bebek Döner",
     "cuisine": "Kebap",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.2,
     "price_level": 1,
     "calories_min": 400,
     "calories_max": 700,
-    "description": "Yaprak doner ve iskender",
+    "description": "Yaprak döner ve iskender",
     "tags": [
-      "doner",
+      "döner",
       "iskender"
     ],
     "top3_products": [
@@ -448,7 +448,7 @@
         "emoji": "🫓"
       },
       {
-        "name": "Tombik Ekmek Doner",
+        "name": "Tombik Ekmek Döner",
         "emoji": "🥙"
       },
       {
@@ -459,8 +459,8 @@
   },
   {
     "name": "Green Salad Factory",
-    "cuisine": "Saglikli",
-    "area": "Kadikoy",
+    "cuisine": "Sağlıklı",
+    "area": "Kadıköy",
     "rating": 4.3,
     "price_level": 2,
     "calories_min": 200,
@@ -489,19 +489,19 @@
   {
     "name": "Moda Tost",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.1,
     "price_level": 1,
     "calories_min": 300,
     "calories_max": 500,
-    "description": "Karisik tost ve kumru",
+    "description": "Karışık tost ve kumru",
     "tags": [
       "tost",
       "kumru"
     ],
     "top3_products": [
       {
-        "name": "Karisik Tost",
+        "name": "Karışık Tost",
         "emoji": "🥪"
       },
       {
@@ -517,12 +517,12 @@
   {
     "name": "Pide Bank",
     "cuisine": "Pide",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.4,
     "price_level": 2,
     "calories_min": 450,
     "calories_max": 800,
-    "description": "Karadeniz usulu pide cesitleri",
+    "description": "Karadeniz usulü pide cesitleri",
     "tags": [
       "pide",
       "karadeniz"
@@ -545,12 +545,12 @@
   {
     "name": "Burger Lab",
     "cuisine": "Burger",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.3,
     "price_level": 2,
     "calories_min": 500,
     "calories_max": 1000,
-    "description": "El yapimi gurme burgerler",
+    "description": "El yapımı gurme burgerler",
     "tags": [
       "burger",
       "fast food"
@@ -573,7 +573,7 @@
   {
     "name": "Meksika Sokagi",
     "cuisine": "Meksika",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.1,
     "price_level": 2,
     "calories_min": 400,
@@ -599,20 +599,20 @@
     ]
   },
   {
-    "name": "Kadikoy Kokorec",
+    "name": "Kadıköy Kokoreç",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 350,
     "calories_max": 600,
-    "description": "Istanbul'un en iyi kokoreci",
+    "description": "Istanbul'un en iyi kokoreçi",
     "tags": [
-      "kokorec"
+      "kokoreç"
     ],
     "top3_products": [
       {
-        "name": "Yarim Ekmek Kokorec",
+        "name": "Yarım Ekmek Kokoreç",
         "emoji": "🥖"
       },
       {
@@ -628,7 +628,7 @@
   {
     "name": "Thai Express",
     "cuisine": "Tayland",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4,
     "price_level": 2,
     "calories_min": 350,
@@ -656,8 +656,8 @@
   },
   {
     "name": "Falafel House",
-    "cuisine": "Ortadogu",
-    "area": "Kadikoy",
+    "cuisine": "Ortadoğu",
+    "area": "Kadıköy",
     "rating": 4.2,
     "price_level": 1,
     "calories_min": 300,
@@ -684,14 +684,14 @@
     ]
   },
   {
-    "name": "Kadikoy Tantuni",
+    "name": "Kadıköy Tantuni",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.4,
     "price_level": 1,
     "calories_min": 350,
     "calories_max": 600,
-    "description": "Mersin usulu tantuni",
+    "description": "Mersin usulü tantuni",
     "tags": [
       "tantuni",
       "mersin"
@@ -706,27 +706,27 @@
         "emoji": "🐔"
       },
       {
-        "name": "Acili Tantuni",
+        "name": "Acıli Tantuni",
         "emoji": "🌶️"
       }
     ]
   },
   {
-    "name": "Moda Kahvalti",
-    "cuisine": "Kahvalti",
-    "area": "Kadikoy",
+    "name": "Moda Kahvaltı",
+    "cuisine": "Kahvaltı",
+    "area": "Kadıköy",
     "rating": 4.5,
     "price_level": 2,
     "calories_min": 400,
     "calories_max": 800,
-    "description": "Serpme kahvalti ve menemen",
+    "description": "Serpme kahvaltı ve menemen",
     "tags": [
-      "kahvalti",
+      "kahvaltı",
       "serpme"
     ],
     "top3_products": [
       {
-        "name": "Serpme Kahvalti",
+        "name": "Serpme Kahvaltı",
         "emoji": "🍳"
       },
       {
@@ -734,22 +734,22 @@
         "emoji": "🥚"
       },
       {
-        "name": "Gozleme",
+        "name": "Gözleme",
         "emoji": "🫓"
       }
     ]
   },
   {
-    "name": "Kadikoy Baliktepsi",
-    "cuisine": "Deniz Urunleri",
-    "area": "Kadikoy",
+    "name": "Kadıköy Balıktepsi",
+    "cuisine": "Deniz Ürünleri",
+    "area": "Kadıköy",
     "rating": 4,
     "price_level": 2,
     "calories_min": 350,
     "calories_max": 650,
-    "description": "Taze balik ve midye tava",
+    "description": "Taze balık ve midye tava",
     "tags": [
-      "balik",
+      "balık",
       "midye"
     ],
     "top3_products": [
@@ -770,7 +770,7 @@
   {
     "name": "Vegan Istanbul",
     "cuisine": "Vegan",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.3,
     "price_level": 2,
     "calories_min": 200,
@@ -796,9 +796,9 @@
     ]
   },
   {
-    "name": "Kadikoy Lahmacun Ustasi",
+    "name": "Kadıköy Lahmacun Ustası",
     "cuisine": "Kebap",
-    "area": "Kadikoy",
+    "area": "Kadıköy",
     "rating": 4.5,
     "price_level": 1,
     "calories_min": 250,
@@ -809,7 +809,7 @@
     ],
     "top3_products": [
       {
-        "name": "Cop Sis",
+        "name": "Çöp Şiş",
         "emoji": "🍢"
       },
       {
@@ -824,8 +824,8 @@
   },
   {
     "name": "Bowl & Co",
-    "cuisine": "Saglikli",
-    "area": "Kadikoy",
+    "cuisine": "Sağlıklı",
+    "area": "Kadıköy",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 300,
@@ -854,12 +854,12 @@
   {
     "name": "Karadeniz Pide Salonu",
     "cuisine": "Pide",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.6,
     "price_level": 2,
     "calories_min": 450,
     "calories_max": 850,
-    "description": "Trabzon usulu pide ve kuymak",
+    "description": "Trabzon usulü pide ve kuymak",
     "tags": [
       "pide",
       "karadeniz",
@@ -867,36 +867,36 @@
     ],
     "top3_products": [
       {
-        "name": "Kusbasili Pide",
+        "name": "Kuşbaşılı Pide",
         "emoji": "🫓"
       },
       {
-        "name": "Karisik Pide",
+        "name": "Karışık Pide",
         "emoji": "🧀"
       },
       {
-        "name": "Kiymali Pide",
+        "name": "Kıymalı Pide",
         "emoji": "🥩"
       }
     ]
   },
   {
-    "name": "Besiktas Balik Pazari",
-    "cuisine": "Deniz Urunleri",
-    "area": "Besiktas",
+    "name": "Beşiktaş Balık Pazarı",
+    "cuisine": "Deniz Ürünleri",
+    "area": "Beşiktaş",
     "rating": 4.5,
     "price_level": 3,
     "calories_min": 350,
     "calories_max": 700,
-    "description": "Taze balik ve deniz mahsulleri",
+    "description": "Taze balık ve deniz mahsulleri",
     "tags": [
-      "balik",
+      "balık",
       "meze",
       "raki"
     ],
     "top3_products": [
       {
-        "name": "Ciupra Tava",
+        "name": "Çiçupra Tava",
         "emoji": "🍳"
       },
       {
@@ -910,14 +910,14 @@
     ]
   },
   {
-    "name": "Ortakoy Kumpircisi",
+    "name": "Ortaköy Kumpircisi",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 400,
     "calories_max": 800,
-    "description": "Ortakoy'un meshur kumpiri",
+    "description": "Ortaköy'un meşhur kumpirî",
     "tags": [
       "kumpir",
       "sokak"
@@ -928,7 +928,7 @@
         "emoji": "🧀"
       },
       {
-        "name": "Karisik Kumpir",
+        "name": "Karışık Kumpir",
         "emoji": "🥔"
       },
       {
@@ -938,14 +938,14 @@
     ]
   },
   {
-    "name": "House Cafe Ortakoy",
+    "name": "House Cafe Ortaköy",
     "cuisine": "Fusion",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.2,
     "price_level": 3,
     "calories_min": 400,
     "calories_max": 750,
-    "description": "Bogaz manzarali brunch ve kahvalti",
+    "description": "Boğaz manzaralı brunch ve kahvaltı",
     "tags": [
       "brunch",
       "fusion",
@@ -967,14 +967,14 @@
     ]
   },
   {
-    "name": "Besiktas Cigerci",
+    "name": "Beşiktaş Çiğerci",
     "cuisine": "Kebap",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.4,
     "price_level": 1,
     "calories_min": 350,
     "calories_max": 600,
-    "description": "Arnavut cigeri ve sarma",
+    "description": "Arnavut ciğeri ve sarma",
     "tags": [
       "ciger",
       "kebap"
@@ -989,7 +989,7 @@
         "emoji": "🥩"
       },
       {
-        "name": "Arnavut Cigeri",
+        "name": "Arnavut Çiğeri",
         "emoji": "🍖"
       }
     ]
@@ -997,7 +997,7 @@
   {
     "name": "Nusr-Et Etiler",
     "cuisine": "Steak",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4,
     "price_level": 4,
     "calories_min": 500,
@@ -1026,15 +1026,15 @@
   {
     "name": "Mangerie Bebek",
     "cuisine": "Cafe",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.4,
     "price_level": 3,
     "calories_min": 300,
     "calories_max": 650,
-    "description": "Bebek'te kahvalti ve brunch",
+    "description": "Bebek'te kahvaltı ve brunch",
     "tags": [
       "brunch",
-      "kahvalti"
+      "kahvaltı"
     ],
     "top3_products": [
       {
@@ -1042,7 +1042,7 @@
         "emoji": "🍫"
       },
       {
-        "name": "Serpme Kahvalti",
+        "name": "Serpme Kahvaltı",
         "emoji": "🍳"
       },
       {
@@ -1052,20 +1052,20 @@
     ]
   },
   {
-    "name": "Besiktas Tantuni Evi",
+    "name": "Beşiktaş Tantuni Evi",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 350,
     "calories_max": 550,
-    "description": "Mersin usulu tantuni",
+    "description": "Mersin usulü tantuni",
     "tags": [
       "tantuni"
     ],
     "top3_products": [
       {
-        "name": "Acili Tantuni",
+        "name": "Acıli Tantuni",
         "emoji": "🌶️"
       },
       {
@@ -1081,7 +1081,7 @@
   {
     "name": "Anadolu Kebap",
     "cuisine": "Kebap",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 500,
@@ -1109,12 +1109,12 @@
   {
     "name": "Sushi Mori",
     "cuisine": "Japon",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.3,
     "price_level": 3,
     "calories_min": 300,
     "calories_max": 600,
-    "description": "Premium Japon mutfagi",
+    "description": "Premium Japon mutfağı",
     "tags": [
       "sushi",
       "japon"
@@ -1136,20 +1136,20 @@
   },
   {
     "name": "Gusto Pizza",
-    "cuisine": "Italyan",
-    "area": "Besiktas",
+    "cuisine": "İtalyan",
+    "area": "Beşiktaş",
     "rating": 4.1,
     "price_level": 2,
     "calories_min": 400,
     "calories_max": 800,
-    "description": "Napoli usulu pizza",
+    "description": "Napoli usulü pizza",
     "tags": [
       "pizza",
       "italyan"
     ],
     "top3_products": [
       {
-        "name": "Karisik Pizza",
+        "name": "Karışık Pizza",
         "emoji": "🍕"
       },
       {
@@ -1163,16 +1163,16 @@
     ]
   },
   {
-    "name": "Besiktas Koftecisi",
-    "cuisine": "Turk Mutfagi",
-    "area": "Besiktas",
+    "name": "Beşiktaş Köftecisi",
+    "cuisine": "Türk Mutfağı",
+    "area": "Beşiktaş",
     "rating": 4.4,
     "price_level": 1,
     "calories_min": 400,
     "calories_max": 650,
     "description": "Kofte ekmek ve pilav",
     "tags": [
-      "kofte",
+      "köfte",
       "geleneksel"
     ],
     "top3_products": [
@@ -1181,7 +1181,7 @@
         "emoji": "🥛"
       },
       {
-        "name": "Izgara Kofte",
+        "name": "Izgara Köfte",
         "emoji": "🍖"
       },
       {
@@ -1191,17 +1191,17 @@
     ]
   },
   {
-    "name": "Ortakoy Waffle",
-    "cuisine": "Tatli",
-    "area": "Besiktas",
+    "name": "Ortaköy Waffle",
+    "cuisine": "Tatlı",
+    "area": "Beşiktaş",
     "rating": 4,
     "price_level": 1,
     "calories_min": 300,
     "calories_max": 600,
-    "description": "Ortakoy'un meshur wafflei",
+    "description": "Ortaköy'un meşhur waffleî",
     "tags": [
       "waffle",
-      "tatli"
+      "tatlı"
     ],
     "top3_products": [
       {
@@ -1209,11 +1209,11 @@
         "emoji": "🍦"
       },
       {
-        "name": "Kunefe",
+        "name": "Künefe",
         "emoji": "🧀"
       },
       {
-        "name": "Sutlac",
+        "name": "Sütlaç",
         "emoji": "🍮"
       }
     ]
@@ -1221,7 +1221,7 @@
   {
     "name": "Burger Joint",
     "cuisine": "Burger",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 500,
@@ -1248,7 +1248,7 @@
   {
     "name": "Sabrtain",
     "cuisine": "Cafe",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.5,
     "price_level": 2,
     "calories_min": 250,
@@ -1276,7 +1276,7 @@
   {
     "name": "Korean Street",
     "cuisine": "Kore",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.1,
     "price_level": 2,
     "calories_min": 400,
@@ -1302,25 +1302,25 @@
     ]
   },
   {
-    "name": "Bebek Manti",
-    "cuisine": "Turk Mutfagi",
-    "area": "Besiktas",
+    "name": "Bebek Mantı",
+    "cuisine": "Türk Mutfağı",
+    "area": "Beşiktaş",
     "rating": 4.5,
     "price_level": 2,
     "calories_min": 350,
     "calories_max": 600,
-    "description": "El yapimi Kayseri mantisi",
+    "description": "El yapımı Kayseri mantısi",
     "tags": [
-      "manti",
+      "mantı",
       "geleneksel"
     ],
     "top3_products": [
       {
-        "name": "Kayseri Mantisi",
+        "name": "Kayseri Mantısi",
         "emoji": "🥟"
       },
       {
-        "name": "Yogurtlu Manti",
+        "name": "Yogurtlu Mantı",
         "emoji": "🥛"
       },
       {
@@ -1332,7 +1332,7 @@
   {
     "name": "Bosphorus Grill",
     "cuisine": "Steak",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.3,
     "price_level": 3,
     "calories_min": 500,
@@ -1360,8 +1360,8 @@
   },
   {
     "name": "Acai Republic",
-    "cuisine": "Saglikli",
-    "area": "Besiktas",
+    "cuisine": "Sağlıklı",
+    "area": "Beşiktaş",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 200,
@@ -1387,20 +1387,20 @@
     ]
   },
   {
-    "name": "Besiktas Doner",
+    "name": "Beşiktaş Döner",
     "cuisine": "Kebap",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 400,
     "calories_max": 700,
-    "description": "Yaprak et doner",
+    "description": "Yaprak et döner",
     "tags": [
-      "doner"
+      "döner"
     ],
     "top3_products": [
       {
-        "name": "Tombik Ekmek Doner",
+        "name": "Tombik Ekmek Döner",
         "emoji": "🥙"
       },
       {
@@ -1416,12 +1416,12 @@
   {
     "name": "Cafe Nero Bebek",
     "cuisine": "Cafe",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4,
     "price_level": 2,
     "calories_min": 200,
     "calories_max": 450,
-    "description": "Bogaz manzarali kahve keyfi",
+    "description": "Boğaz manzaralı kahve keyfi",
     "tags": [
       "kahve",
       "manzara"
@@ -1442,16 +1442,16 @@
     ]
   },
   {
-    "name": "Levent Kokorec",
+    "name": "Levent Kokoreç",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.4,
     "price_level": 1,
     "calories_min": 350,
     "calories_max": 600,
-    "description": "Gece gunduz kokorec",
+    "description": "Gece gündüz kokoreç",
     "tags": [
-      "kokorec"
+      "kokoreç"
     ],
     "top3_products": [
       {
@@ -1459,11 +1459,11 @@
         "emoji": "🌶️"
       },
       {
-        "name": "Porsiyon Kokorec",
+        "name": "Porsiyon Kokoreç",
         "emoji": "🍽️"
       },
       {
-        "name": "Baharatli Kokorec",
+        "name": "Baharatlı Kokoreç",
         "emoji": "🌶️"
       }
     ]
@@ -1471,7 +1471,7 @@
   {
     "name": "Indian Express",
     "cuisine": "Hint",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.1,
     "price_level": 2,
     "calories_min": 400,
@@ -1499,7 +1499,7 @@
   {
     "name": "Etiler Kebap",
     "cuisine": "Kebap",
-    "area": "Besiktas",
+    "area": "Beşiktaş",
     "rating": 4.3,
     "price_level": 2,
     "calories_min": 500,
@@ -1525,17 +1525,17 @@
     ]
   },
   {
-    "name": "Besiktas Baklava",
-    "cuisine": "Tatli",
-    "area": "Besiktas",
+    "name": "Beşiktaş Baklava",
+    "cuisine": "Tatlı",
+    "area": "Beşiktaş",
     "rating": 4.6,
     "price_level": 2,
     "calories_min": 200,
     "calories_max": 500,
-    "description": "Antep fistigli baklava",
+    "description": "Antep fıstıklı baklava",
     "tags": [
       "baklava",
-      "tatli"
+      "tatlı"
     ],
     "top3_products": [
       {
@@ -1547,23 +1547,23 @@
         "emoji": "🌰"
       },
       {
-        "name": "Kunefe",
+        "name": "Künefe",
         "emoji": "🧀"
       }
     ]
   },
   {
-    "name": "Karakoy Gulluoglu",
-    "cuisine": "Tatli",
-    "area": "Beyoglu",
+    "name": "Karakoy Güllüoğlu",
+    "cuisine": "Tatlı",
+    "area": "Beyoğlu",
     "rating": 4.7,
     "price_level": 2,
     "calories_min": 200,
     "calories_max": 500,
-    "description": "Istanbul'un en meshur baklavacisi",
+    "description": "Istanbul'un en meşhur baklavacısı",
     "tags": [
       "baklava",
-      "tatli",
+      "tatlı",
       "geleneksel"
     ],
     "top3_products": [
@@ -1582,14 +1582,14 @@
     ]
   },
   {
-    "name": "Cokertme Kebabi",
+    "name": "Çökertme Kebabi",
     "cuisine": "Kebap",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.3,
     "price_level": 2,
     "calories_min": 500,
     "calories_max": 900,
-    "description": "Bodrum usulu cokertme kebabi",
+    "description": "Bodrum usulü cokertme kebabı",
     "tags": [
       "kebap"
     ],
@@ -1603,20 +1603,20 @@
         "emoji": "🍖"
       },
       {
-        "name": "Patlican Kebap",
+        "name": "Patlıcan Kebap",
         "emoji": "🍆"
       }
     ]
   },
   {
-    "name": "Karakoy Lokantasi",
-    "cuisine": "Turk Mutfagi",
-    "area": "Beyoglu",
+    "name": "Karakoy Lokantası",
+    "cuisine": "Türk Mutfağı",
+    "area": "Beyoğlu",
     "rating": 4.6,
     "price_level": 3,
     "calories_min": 400,
     "calories_max": 800,
-    "description": "Modern Turk mutfagi",
+    "description": "Modern Turk mutfağı",
     "tags": [
       "modern turk",
       "meze"
@@ -1631,31 +1631,31 @@
         "emoji": "🍽️"
       },
       {
-        "name": "Acili Ezme",
+        "name": "Acıli Ezme",
         "emoji": "🌶️"
       }
     ]
   },
   {
-    "name": "Galata Manti",
-    "cuisine": "Turk Mutfagi",
-    "area": "Beyoglu",
+    "name": "Galata Mantı",
+    "cuisine": "Türk Mutfağı",
+    "area": "Beyoğlu",
     "rating": 4.4,
     "price_level": 2,
     "calories_min": 350,
     "calories_max": 600,
-    "description": "Cesit cesit manti ve su boregi",
+    "description": "Çeşit cesit mantı ve su boregi",
     "tags": [
-      "manti",
-      "borek"
+      "mantı",
+      "börek"
     ],
     "top3_products": [
       {
-        "name": "Kayseri Mantisi",
+        "name": "Kayseri Mantısi",
         "emoji": "🥟"
       },
       {
-        "name": "Yogurtlu Manti",
+        "name": "Yogurtlu Mantı",
         "emoji": "🥛"
       },
       {
@@ -1665,16 +1665,16 @@
     ]
   },
   {
-    "name": "Istiklal Balik Ekmek",
-    "cuisine": "Deniz Urunleri",
-    "area": "Beyoglu",
+    "name": "İstiklal Balık Ekmek",
+    "cuisine": "Deniz Ürünleri",
+    "area": "Beyoğlu",
     "rating": 4.2,
     "price_level": 1,
     "calories_min": 300,
     "calories_max": 500,
-    "description": "Klasik Istanbul balik ekmek",
+    "description": "Klasik Istanbul balık ekmek",
     "tags": [
-      "balik ekmek",
+      "balık ekmek",
       "sokak"
     ],
     "top3_products": [
@@ -1695,12 +1695,12 @@
   {
     "name": "Neolokal",
     "cuisine": "Fine Dining",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.8,
     "price_level": 4,
     "calories_min": 300,
     "calories_max": 600,
-    "description": "Yenilikci Anadolu mutfagi",
+    "description": "Yenilikci Anadolu mutfağı",
     "tags": [
       "fine dining",
       "anadolu"
@@ -1721,16 +1721,16 @@
     ]
   },
   {
-    "name": "Taksim Koftecisi",
-    "cuisine": "Turk Mutfagi",
-    "area": "Beyoglu",
+    "name": "Taksim Köftecisi",
+    "cuisine": "Türk Mutfağı",
+    "area": "Beyoğlu",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 400,
     "calories_max": 650,
-    "description": "Islak hamburger ve kofte",
+    "description": "Islak hamburger ve köfte",
     "tags": [
-      "kofte",
+      "köfte",
       "islak hamburger"
     ],
     "top3_products": [
@@ -1743,20 +1743,20 @@
         "emoji": "🍗"
       },
       {
-        "name": "Kasarli Kofte",
+        "name": "Kaşarlı Kofte",
         "emoji": "🧀"
       }
     ]
   },
   {
     "name": "Karakoy Pizza",
-    "cuisine": "Italyan",
-    "area": "Beyoglu",
+    "cuisine": "İtalyan",
+    "area": "Beyoğlu",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 400,
     "calories_max": 800,
-    "description": "Odun firininda pizza",
+    "description": "Odun fırınında pizza",
     "tags": [
       "pizza",
       "italyan"
@@ -1779,12 +1779,12 @@
   {
     "name": "Mikla Restaurant",
     "cuisine": "Fine Dining",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.7,
     "price_level": 4,
     "calories_min": 350,
     "calories_max": 600,
-    "description": "Turk-Iskandinav fusion mutfagi",
+    "description": "Turk-Iskandinav fusion mutfağı",
     "tags": [
       "fine dining",
       "fusion"
@@ -1807,7 +1807,7 @@
   {
     "name": "Galata Burger",
     "cuisine": "Burger",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.1,
     "price_level": 2,
     "calories_min": 500,
@@ -1832,17 +1832,17 @@
     ]
   },
   {
-    "name": "Beyoglu Simit Sarayi",
-    "cuisine": "Kahvalti",
-    "area": "Beyoglu",
+    "name": "Beyoğlu Simit Sarayı",
+    "cuisine": "Kahvaltı",
+    "area": "Beyoğlu",
     "rating": 4,
     "price_level": 1,
     "calories_min": 200,
     "calories_max": 450,
-    "description": "Simit, pogaca ve cay",
+    "description": "Simit, pogaca ve çay",
     "tags": [
       "simit",
-      "kahvalti"
+      "kahvaltı"
     ],
     "top3_products": [
       {
@@ -1850,7 +1850,7 @@
         "emoji": "🥯"
       },
       {
-        "name": "Serpme Kahvalti",
+        "name": "Serpme Kahvaltı",
         "emoji": "🍳"
       },
       {
@@ -1860,9 +1860,9 @@
     ]
   },
   {
-    "name": "Asmalimescit Meyhane",
+    "name": "Asmalımescit Meyhane",
     "cuisine": "Meze",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.5,
     "price_level": 3,
     "calories_min": 400,
@@ -1875,7 +1875,7 @@
     ],
     "top3_products": [
       {
-        "name": "Acili Ezme",
+        "name": "Acıli Ezme",
         "emoji": "🌶️"
       },
       {
@@ -1883,23 +1883,23 @@
         "emoji": "🫘"
       },
       {
-        "name": "Arnavut Cigeri",
+        "name": "Arnavut Çiğeri",
         "emoji": "🍖"
       }
     ]
   },
   {
     "name": "Cihangir Waffle",
-    "cuisine": "Tatli",
-    "area": "Beyoglu",
+    "cuisine": "Tatlı",
+    "area": "Beyoğlu",
     "rating": 4.1,
     "price_level": 1,
     "calories_min": 300,
     "calories_max": 600,
-    "description": "Belcika usulu waffle",
+    "description": "Belçika usulü waffle",
     "tags": [
       "waffle",
-      "tatli"
+      "tatlı"
     ],
     "top3_products": [
       {
@@ -1907,7 +1907,7 @@
         "emoji": "🍯"
       },
       {
-        "name": "Cikolatali Waffle",
+        "name": "Çikolatali Waffle",
         "emoji": "🧇"
       },
       {
@@ -1919,7 +1919,7 @@
   {
     "name": "Karakoy Ramen",
     "cuisine": "Japon",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.3,
     "price_level": 2,
     "calories_min": 400,
@@ -1945,21 +1945,21 @@
     ]
   },
   {
-    "name": "Cihangir Kahvalti",
-    "cuisine": "Kahvalti",
-    "area": "Beyoglu",
+    "name": "Cihangir Kahvaltı",
+    "cuisine": "Kahvaltı",
+    "area": "Beyoğlu",
     "rating": 4.4,
     "price_level": 2,
     "calories_min": 400,
     "calories_max": 800,
-    "description": "Serpme ve Van kahvaltisi",
+    "description": "Serpme ve Van kahvaltısi",
     "tags": [
-      "kahvalti",
+      "kahvaltı",
       "serpme"
     ],
     "top3_products": [
       {
-        "name": "Serpme Kahvalti",
+        "name": "Serpme Kahvaltı",
         "emoji": "🍳"
       },
       {
@@ -1967,47 +1967,47 @@
         "emoji": "🥚"
       },
       {
-        "name": "Gozleme",
+        "name": "Gözleme",
         "emoji": "🫓"
       }
     ]
   },
   {
-    "name": "Beyoglu Dondurma",
-    "cuisine": "Tatli",
-    "area": "Beyoglu",
+    "name": "Beyoğlu Dondurma",
+    "cuisine": "Tatlı",
+    "area": "Beyoğlu",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 150,
     "calories_max": 350,
-    "description": "Gercek Maras dondurmasi",
+    "description": "Gercek Maraş dondurmasi",
     "tags": [
       "dondurma"
     ],
     "top3_products": [
       {
-        "name": "Cikolatali",
+        "name": "Çikolatali",
         "emoji": "🍫"
       },
       {
-        "name": "Kunefe",
+        "name": "Künefe",
         "emoji": "🧀"
       },
       {
-        "name": "Sutlac",
+        "name": "Sütlaç",
         "emoji": "🍮"
       }
     ]
   },
   {
-    "name": "Cilingir Sofrasi",
+    "name": "Cilingir Sofrasî",
     "cuisine": "Meze",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.4,
     "price_level": 3,
     "calories_min": 350,
     "calories_max": 700,
-    "description": "Geleneksel meyhane sofrasi",
+    "description": "Geleneksel meyhane sofrasî",
     "tags": [
       "meze",
       "meyhane"
@@ -2028,16 +2028,16 @@
     ]
   },
   {
-    "name": "Galata Kokorecci",
+    "name": "Galata Kokoreçci",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.5,
     "price_level": 1,
     "calories_min": 350,
     "calories_max": 600,
-    "description": "Gevrek kokorec",
+    "description": "Gevrek kokoreç",
     "tags": [
-      "kokorec"
+      "kokoreç"
     ],
     "top3_products": [
       {
@@ -2045,11 +2045,11 @@
         "emoji": "🌶️"
       },
       {
-        "name": "Porsiyon Kokorec",
+        "name": "Porsiyon Kokoreç",
         "emoji": "🍽️"
       },
       {
-        "name": "Baharatli Kokorec",
+        "name": "Baharatlı Kokoreç",
         "emoji": "🌶️"
       }
     ]
@@ -2057,7 +2057,7 @@
   {
     "name": "Taco Macho",
     "cuisine": "Meksika",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 400,
@@ -2085,7 +2085,7 @@
   {
     "name": "Pera Thai",
     "cuisine": "Tayland",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.1,
     "price_level": 2,
     "calories_min": 350,
@@ -2111,9 +2111,9 @@
     ]
   },
   {
-    "name": "Istiklal Tantuni",
+    "name": "İstiklal Tantuni",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.2,
     "price_level": 1,
     "calories_min": 350,
@@ -2132,7 +2132,7 @@
         "emoji": "🐔"
       },
       {
-        "name": "Acili Tantuni",
+        "name": "Acıli Tantuni",
         "emoji": "🌶️"
       }
     ]
@@ -2140,12 +2140,12 @@
   {
     "name": "Galata Tower Cafe",
     "cuisine": "Cafe",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4,
     "price_level": 2,
     "calories_min": 200,
     "calories_max": 450,
-    "description": "Galata Kulesi manzarasinda kahve",
+    "description": "Galata Kulesi manzarasında kahve",
     "tags": [
       "kahve",
       "manzara"
@@ -2167,8 +2167,8 @@
   },
   {
     "name": "Pera Salata Bar",
-    "cuisine": "Saglikli",
-    "area": "Beyoglu",
+    "cuisine": "Sağlıklı",
+    "area": "Beyoğlu",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 200,
@@ -2184,7 +2184,7 @@
         "emoji": "🫐"
       },
       {
-        "name": "Ton Balikli Salata",
+        "name": "Ton Balıkli Salata",
         "emoji": "🐟"
       },
       {
@@ -2194,16 +2194,16 @@
     ]
   },
   {
-    "name": "Nevizade Balik",
-    "cuisine": "Deniz Urunleri",
-    "area": "Beyoglu",
+    "name": "Nevizade Balık",
+    "cuisine": "Deniz Ürünleri",
+    "area": "Beyoğlu",
     "rating": 4.4,
     "price_level": 3,
     "calories_min": 400,
     "calories_max": 750,
-    "description": "Taze balik ve raki sofrasi",
+    "description": "Taze balık ve raki sofrasî",
     "tags": [
-      "balik",
+      "balık",
       "meze",
       "raki"
     ],
@@ -2223,24 +2223,24 @@
     ]
   },
   {
-    "name": "Karakoy Cig Kofte",
+    "name": "Karakoy Çiğ Kofte",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.1,
     "price_level": 1,
     "calories_min": 200,
     "calories_max": 400,
-    "description": "Aci cig kofte ve salgam",
+    "description": "Acı cig köfte ve salgam",
     "tags": [
-      "cig kofte"
+      "cig köfte"
     ],
     "top3_products": [
       {
-        "name": "Porsiyon Cig Kofte",
+        "name": "Porsiyon Çiğ Kofte",
         "emoji": "🍽️"
       },
       {
-        "name": "Izgara Kofte",
+        "name": "Izgara Köfte",
         "emoji": "🍖"
       },
       {
@@ -2250,9 +2250,9 @@
     ]
   },
   {
-    "name": "Beyoglu Lahmacun",
+    "name": "Beyoğlu Lahmacun",
     "cuisine": "Kebap",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.4,
     "price_level": 1,
     "calories_min": 250,
@@ -2277,16 +2277,16 @@
     ]
   },
   {
-    "name": "Taksim Doner",
+    "name": "Taksim Döner",
     "cuisine": "Kebap",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.2,
     "price_level": 1,
     "calories_min": 400,
     "calories_max": 700,
-    "description": "Catir catir et doner",
+    "description": "Catir catir et döner",
     "tags": [
-      "doner"
+      "döner"
     ],
     "top3_products": [
       {
@@ -2304,9 +2304,9 @@
     ]
   },
   {
-    "name": "Greca Beyoglu",
+    "name": "Greca Beyoğlu",
     "cuisine": "Yunan",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.3,
     "price_level": 2,
     "calories_min": 350,
@@ -2318,7 +2318,7 @@
     ],
     "top3_products": [
       {
-        "name": "Yunan Salatasi",
+        "name": "Yunan Salatası",
         "emoji": "🥗"
       },
       {
@@ -2334,12 +2334,12 @@
   {
     "name": "Korean BBQ House",
     "cuisine": "Kore",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.1,
     "price_level": 3,
     "calories_min": 400,
     "calories_max": 800,
-    "description": "Kore usulu barbeku",
+    "description": "Kore usulü barbeku",
     "tags": [
       "kore",
       "bbq"
@@ -2360,16 +2360,16 @@
     ]
   },
   {
-    "name": "Beyoglu Gozlemeci",
+    "name": "Beyoğlu Gözlemeci",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Beyoglu",
+    "area": "Beyoğlu",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 300,
     "calories_max": 550,
-    "description": "Koyde pisirilen gozleme",
+    "description": "Köyde pişirilen gözleme",
     "tags": [
-      "gozleme",
+      "gözleme",
       "geleneksel"
     ],
     "top3_products": [
@@ -2378,26 +2378,26 @@
         "emoji": "🥛"
       },
       {
-        "name": "Peynirli Gozleme",
+        "name": "Peynirli Gözleme",
         "emoji": "🧀"
       },
       {
-        "name": "Patatesli Gozleme",
+        "name": "Patatesli Gözleme",
         "emoji": "🥔"
       }
     ]
   },
   {
-    "name": "Sisli Koftecisi",
-    "cuisine": "Turk Mutfagi",
-    "area": "Sisli",
+    "name": "Şişli Köftecisi",
+    "cuisine": "Türk Mutfağı",
+    "area": "Şişli",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 400,
     "calories_max": 650,
-    "description": "Klasik kofte pilav",
+    "description": "Klasik köfte pilav",
     "tags": [
-      "kofte",
+      "köfte",
       "geleneksel"
     ],
     "top3_products": [
@@ -2406,7 +2406,7 @@
         "emoji": "🥛"
       },
       {
-        "name": "Izgara Kofte",
+        "name": "Izgara Köfte",
         "emoji": "🍖"
       },
       {
@@ -2418,7 +2418,7 @@
   {
     "name": "Mecidiyekoy Pide",
     "cuisine": "Pide",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.4,
     "price_level": 2,
     "calories_min": 450,
@@ -2434,19 +2434,19 @@
         "emoji": "🧀"
       },
       {
-        "name": "Balik Izgara",
+        "name": "Balık Izgara",
         "emoji": "🐟"
       },
       {
-        "name": "Kusbasili Pide",
+        "name": "Kuşbaşılı Pide",
         "emoji": "🫓"
       }
     ]
   },
   {
-    "name": "Nisantasi Burger",
+    "name": "Nişantaşı Burger",
     "cuisine": "Burger",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.2,
     "price_level": 3,
     "calories_min": 500,
@@ -2472,9 +2472,9 @@
     ]
   },
   {
-    "name": "Bomonti Bira Fabrikasi",
+    "name": "Bomonti Bira Fabrikasî",
     "cuisine": "Fusion",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.3,
     "price_level": 3,
     "calories_min": 400,
@@ -2500,9 +2500,9 @@
     ]
   },
   {
-    "name": "Sisli Kebapci",
+    "name": "Şişli Kebapci",
     "cuisine": "Kebap",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.5,
     "price_level": 2,
     "calories_min": 500,
@@ -2514,7 +2514,7 @@
     ],
     "top3_products": [
       {
-        "name": "Cop Sis",
+        "name": "Çöp Şiş",
         "emoji": "🍢"
       },
       {
@@ -2528,24 +2528,24 @@
     ]
   },
   {
-    "name": "Mecidiyekoy Cig Kofte",
+    "name": "Mecidiyekoy Çiğ Kofte",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.1,
     "price_level": 1,
     "calories_min": 200,
     "calories_max": 400,
-    "description": "Acili cig kofte",
+    "description": "Acıli cig köfte",
     "tags": [
-      "cig kofte"
+      "cig köfte"
     ],
     "top3_products": [
       {
-        "name": "Porsiyon Cig Kofte",
+        "name": "Porsiyon Çiğ Kofte",
         "emoji": "🍽️"
       },
       {
-        "name": "Izgara Kofte",
+        "name": "Izgara Köfte",
         "emoji": "🍖"
       },
       {
@@ -2555,49 +2555,49 @@
     ]
   },
   {
-    "name": "Nisantasi Balik",
-    "cuisine": "Deniz Urunleri",
-    "area": "Sisli",
+    "name": "Nişantaşı Balık",
+    "cuisine": "Deniz Ürünleri",
+    "area": "Şişli",
     "rating": 4.6,
     "price_level": 4,
     "calories_min": 400,
     "calories_max": 750,
-    "description": "Premium deniz urunleri",
+    "description": "Premium deniz ürünleri",
     "tags": [
-      "balik",
+      "balık",
       "premium"
     ],
     "top3_products": [
       {
-        "name": "Balik Ekmek",
+        "name": "Balık Ekmek",
         "emoji": "🥖"
       },
       {
-        "name": "Balik Izgara",
+        "name": "Balık Izgara",
         "emoji": "🐟"
       },
       {
-        "name": "Ciupra Tava",
+        "name": "Çiçupra Tava",
         "emoji": "🍳"
       }
     ]
   },
   {
-    "name": "Tesvikiye Pizza",
-    "cuisine": "Italyan",
-    "area": "Sisli",
+    "name": "Teşvikiye Pizza",
+    "cuisine": "İtalyan",
+    "area": "Şişli",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 400,
     "calories_max": 800,
-    "description": "Italyan usulu pizza ve pasta",
+    "description": "Italyan usulü pizza ve pasta",
     "tags": [
       "pizza",
       "italyan"
     ],
     "top3_products": [
       {
-        "name": "Karisik Pizza",
+        "name": "Karışık Pizza",
         "emoji": "🍕"
       },
       {
@@ -2613,7 +2613,7 @@
   {
     "name": "Bomonti Ramen",
     "cuisine": "Japon",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.3,
     "price_level": 2,
     "calories_min": 400,
@@ -2639,20 +2639,20 @@
     ]
   },
   {
-    "name": "Sisli Doner Ustasi",
+    "name": "Şişli Döner Ustası",
     "cuisine": "Kebap",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 400,
     "calories_max": 700,
-    "description": "Yaprak et doner",
+    "description": "Yaprak et döner",
     "tags": [
-      "doner"
+      "döner"
     ],
     "top3_products": [
       {
-        "name": "Yaprak Doner",
+        "name": "Yaprak Döner",
         "emoji": "🥩"
       },
       {
@@ -2666,9 +2666,9 @@
     ]
   },
   {
-    "name": "Nisantasi Steakhouse",
+    "name": "Nişantaşı Steakhouse",
     "cuisine": "Steak",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.5,
     "price_level": 4,
     "calories_min": 500,
@@ -2696,12 +2696,12 @@
   {
     "name": "Mecidiyekoy Tantuni",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.2,
     "price_level": 1,
     "calories_min": 350,
     "calories_max": 550,
-    "description": "Hizli tantuni",
+    "description": "Hızlı tantuni",
     "tags": [
       "tantuni"
     ],
@@ -2715,30 +2715,30 @@
         "emoji": "🐔"
       },
       {
-        "name": "Acili Tantuni",
+        "name": "Acıli Tantuni",
         "emoji": "🌶️"
       }
     ]
   },
   {
-    "name": "Sisli Manti Evi",
-    "cuisine": "Turk Mutfagi",
-    "area": "Sisli",
+    "name": "Şişli Mantı Evi",
+    "cuisine": "Türk Mutfağı",
+    "area": "Şişli",
     "rating": 4.4,
     "price_level": 2,
     "calories_min": 350,
     "calories_max": 600,
-    "description": "Kayseri mantisi",
+    "description": "Kayseri mantısi",
     "tags": [
-      "manti"
+      "mantı"
     ],
     "top3_products": [
       {
-        "name": "Kayseri Mantisi",
+        "name": "Kayseri Mantısi",
         "emoji": "🥟"
       },
       {
-        "name": "Yogurtlu Manti",
+        "name": "Yogurtlu Mantı",
         "emoji": "🥛"
       },
       {
@@ -2748,9 +2748,9 @@
     ]
   },
   {
-    "name": "Tesvikiye Sushi",
+    "name": "Teşvikiye Sushi",
     "cuisine": "Japon",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.1,
     "price_level": 3,
     "calories_min": 300,
@@ -2776,21 +2776,21 @@
     ]
   },
   {
-    "name": "Bomonti Kahvalti",
-    "cuisine": "Kahvalti",
-    "area": "Sisli",
+    "name": "Bomonti Kahvaltı",
+    "cuisine": "Kahvaltı",
+    "area": "Şişli",
     "rating": 4.3,
     "price_level": 2,
     "calories_min": 400,
     "calories_max": 800,
-    "description": "Weekend brunch ve kahvalti",
+    "description": "Weekend brunch ve kahvaltı",
     "tags": [
-      "kahvalti",
+      "kahvaltı",
       "brunch"
     ],
     "top3_products": [
       {
-        "name": "Serpme Kahvalti",
+        "name": "Serpme Kahvaltı",
         "emoji": "🍳"
       },
       {
@@ -2798,30 +2798,30 @@
         "emoji": "🥚"
       },
       {
-        "name": "Gozleme",
+        "name": "Gözleme",
         "emoji": "🫓"
       }
     ]
   },
   {
-    "name": "Sisli Kokorec",
+    "name": "Şişli Kokoreç",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.3,
     "price_level": 1,
     "calories_min": 350,
     "calories_max": 600,
-    "description": "Gece kokorecci",
+    "description": "Gece kokoreçci",
     "tags": [
-      "kokorec"
+      "kokoreç"
     ],
     "top3_products": [
       {
-        "name": "Porsiyon Kokorec",
+        "name": "Porsiyon Kokoreç",
         "emoji": "🍽️"
       },
       {
-        "name": "Baharatli Kokorec",
+        "name": "Baharatlı Kokoreç",
         "emoji": "🌶️"
       },
       {
@@ -2831,14 +2831,14 @@
     ]
   },
   {
-    "name": "Nisantasi Cafe",
+    "name": "Nişantaşı Cafe",
     "cuisine": "Cafe",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.4,
     "price_level": 3,
     "calories_min": 200,
     "calories_max": 450,
-    "description": "Ozel kahve ve pasta",
+    "description": "Özel kahve ve pasta",
     "tags": [
       "kahve",
       "pasta"
@@ -2859,36 +2859,36 @@
     ]
   },
   {
-    "name": "Mecidiyekoy Balik Ekmek",
-    "cuisine": "Deniz Urunleri",
-    "area": "Sisli",
+    "name": "Mecidiyekoy Balık Ekmek",
+    "cuisine": "Deniz Ürünleri",
+    "area": "Şişli",
     "rating": 4,
     "price_level": 1,
     "calories_min": 300,
     "calories_max": 500,
-    "description": "Taze balik ekmek",
+    "description": "Taze balık ekmek",
     "tags": [
-      "balik ekmek"
+      "balık ekmek"
     ],
     "top3_products": [
       {
-        "name": "Balik Ekmek",
+        "name": "Balık Ekmek",
         "emoji": "🥖"
       },
       {
-        "name": "Balik Izgara",
+        "name": "Balık Izgara",
         "emoji": "🐟"
       },
       {
-        "name": "Ciupra Tava",
+        "name": "Çiçupra Tava",
         "emoji": "🍳"
       }
     ]
   },
   {
-    "name": "Sisli Lahmacun",
+    "name": "Şişli Lahmacun",
     "cuisine": "Kebap",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.2,
     "price_level": 1,
     "calories_min": 250,
@@ -2915,7 +2915,7 @@
   {
     "name": "Bomonti Thai",
     "cuisine": "Tayland",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4,
     "price_level": 2,
     "calories_min": 350,
@@ -2941,9 +2941,9 @@
     ]
   },
   {
-    "name": "Nisantasi Salata",
-    "cuisine": "Saglikli",
-    "area": "Sisli",
+    "name": "Nişantaşı Salata",
+    "cuisine": "Sağlıklı",
+    "area": "Şişli",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 200,
@@ -2955,7 +2955,7 @@
     ],
     "top3_products": [
       {
-        "name": "Ton Balikli Salata",
+        "name": "Ton Balıkli Salata",
         "emoji": "🐟"
       },
       {
@@ -2969,36 +2969,36 @@
     ]
   },
   {
-    "name": "Sisli Gozleme",
+    "name": "Şişli Gözleme",
     "cuisine": "Sokak Lezzetleri",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.1,
     "price_level": 1,
     "calories_min": 300,
     "calories_max": 550,
-    "description": "El acmasi gozleme",
+    "description": "El acmasi gözleme",
     "tags": [
-      "gozleme"
+      "gözleme"
     ],
     "top3_products": [
       {
-        "name": "Peynirli Gozleme",
+        "name": "Peynirli Gözleme",
         "emoji": "🧀"
       },
       {
-        "name": "Patatesli Gozleme",
+        "name": "Patatesli Gözleme",
         "emoji": "🥔"
       },
       {
-        "name": "Kiymali Gozleme",
+        "name": "Kıymalı Gözleme",
         "emoji": "🥩"
       }
     ]
   },
   {
-    "name": "Tesvikiye Meksika",
+    "name": "Teşvikiye Meksika",
     "cuisine": "Meksika",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.1,
     "price_level": 2,
     "calories_min": 400,
@@ -3023,17 +3023,17 @@
     ]
   },
   {
-    "name": "Sisli Baklava",
-    "cuisine": "Tatli",
-    "area": "Sisli",
+    "name": "Şişli Baklava",
+    "cuisine": "Tatlı",
+    "area": "Şişli",
     "rating": 4.5,
     "price_level": 2,
     "calories_min": 200,
     "calories_max": 500,
-    "description": "Gaziantep baklavasi",
+    "description": "Gaziantep baklavası",
     "tags": [
       "baklava",
-      "tatli"
+      "tatlı"
     ],
     "top3_products": [
       {
@@ -3045,7 +3045,7 @@
         "emoji": "🌰"
       },
       {
-        "name": "Kunefe",
+        "name": "Künefe",
         "emoji": "🧀"
       }
     ]
@@ -3053,7 +3053,7 @@
   {
     "name": "Bomonti Burger",
     "cuisine": "Burger",
-    "area": "Sisli",
+    "area": "Şişli",
     "rating": 4.2,
     "price_level": 2,
     "calories_min": 500,

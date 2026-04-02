@@ -60,13 +60,15 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://accounts.google.com", "https://appleid.cdn-apple.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://accounts.google.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "https://places.googleapis.com", "https://www.google-analytics.com"],
+      connectSrc: ["'self'", "https://places.googleapis.com", "https://www.google-analytics.com", "https://accounts.google.com", "https://appleid.apple.com"],
       fontSrc: ["'self'", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+      workerSrc: ["'self'"],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"],
+      frameSrc: ["'self'", "https://accounts.google.com", "https://appleid.apple.com"],
     },
   },
 }));
@@ -154,9 +156,17 @@ app.use('/api/*', (_req, res) => {
 // ─── Serve Frontend (built dist) ────────────────────────────────────────────
 const FRONTEND_DIR = path.join(__dirname, '..', 'frontend', 'dist');
 if (fs.existsSync(FRONTEND_DIR)) {
-  app.use(express.static(FRONTEND_DIR, { maxAge: '7d' }));
-  // SPA fallback: any non-API route serves index.html
+  // Hashed assets (JS/CSS) — long cache, immutable
+  app.use('/assets', express.static(path.join(FRONTEND_DIR, 'assets'), {
+    maxAge: '30d',
+    immutable: true,
+    fallthrough: false, // 404 if asset not found (don't fall to SPA)
+  }));
+  // Other static files (favicon, manifest, icons) — short cache
+  app.use(express.static(FRONTEND_DIR, { maxAge: '1h' }));
+  // SPA fallback: any non-API, non-asset route serves index.html (no cache)
   app.get('*', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
   });
   logger.info('Serving frontend from', { dir: FRONTEND_DIR });
