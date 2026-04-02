@@ -391,7 +391,7 @@ export default function App() {
     setCuisine(null)
   }, [])
 
-  const handleStartTournament = useCallback(async (count: 8 | 16) => {
+  const handleStartTournament = useCallback(async (count: 8 | 16 | 32) => {
     setLoading(true)
     setApiError(null)
     try {
@@ -660,20 +660,29 @@ export default function App() {
             )}
 
             {/* Start Buttons */}
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => handleStartTournament(8)}
+                  disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
+                  className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm"
+                >
+                  <Icon.Zap /> {loading ? 'Yükleniyor...' : 'Hızlı (8)'}
+                </button>
+                <button
+                  onClick={() => handleStartTournament(16)}
+                  disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
+                  className="btn-secondary flex-1 flex items-center justify-center gap-2 text-sm"
+                >
+                  {loading ? 'Yükleniyor...' : 'Klasik (16)'}
+                </button>
+              </div>
               <button
-                onClick={() => handleStartTournament(8)}
+                onClick={() => handleStartTournament(32)}
                 disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm"
+                className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-brand-amber to-brand-coral text-white shadow-lg hover:shadow-xl transition-all"
               >
-                <Icon.Zap /> {loading ? 'Yükleniyor...' : 'Hızlı (8)'}
-              </button>
-              <button
-                onClick={() => handleStartTournament(16)}
-                disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                className="btn-secondary flex-1 flex items-center justify-center gap-2 text-sm"
-              >
-                {loading ? 'Yükleniyor...' : 'Klasik (16)'}
+                🏆 {loading ? 'Yükleniyor...' : 'Büyük Turnuva (32)'}
               </button>
             </div>
 

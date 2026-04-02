@@ -95,7 +95,7 @@ app.get('/api/docs', (_req, res) => {
         'GET /api/health': 'Sunucu sağlık kontrolü',
         'GET /api/areas': 'Bölge listesi (restoran sayılarıyla)',
         'GET /api/cuisines?area=': 'Mutfak listesi (opsiyonel bölge filtresi)',
-        'GET /api/catalog?area=&cuisine=&limit=16': 'Turnuva için karıştırılmış restoran listesi',
+        'GET /api/catalog?area=&cuisine=&limit=32': 'Turnuva için karıştırılmış restoran listesi (max 64)',
         'GET /api/restaurants/:id': 'Restoran detayı',
         'GET /api/inspiration': 'Rastgele ilham kartı',
         'POST /api/events': 'Analitik olay kaydı',

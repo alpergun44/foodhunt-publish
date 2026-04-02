@@ -1,0 +1,818 @@
+[
+  {
+    "name": "Eyvan Döner & İskender",
+    "cuisine": "Döner",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.1,
+    "price_level": 3,
+    "description": "İskender ve döner çeşitleri ile tanınan Tuzla'nın popüler döner restoranı",
+    "tags": ["döner", "iskender", "kebap"],
+    "top3_products": [
+      { "name": "İskender", "emoji": "🥩" },
+      { "name": "Porsiyon Döner", "emoji": "🌯" },
+      { "name": "Karışık Izgara", "emoji": "🍖" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.1 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Ayumi Sushi Bar",
+    "cuisine": "Uzak Doğu",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.5,
+    "price_level": 3,
+    "description": "Sushi ve Japon mutfağı lezzetleri sunan restoran",
+    "tags": ["sushi", "japon", "uzakdoğu"],
+    "top3_products": [
+      { "name": "Sushi Set", "emoji": "🍣" },
+      { "name": "California Roll", "emoji": "🍱" },
+      { "name": "Ramen", "emoji": "🍜" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.5 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Waffle Şef",
+    "cuisine": "Waffle",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.6,
+    "price_level": 3,
+    "description": "Çeşitli waffle ve tatlı seçenekleri",
+    "tags": ["waffle", "tatlı", "dessert"],
+    "top3_products": [
+      { "name": "Meyveli Waffle", "emoji": "🧇" },
+      { "name": "Çikolatalı Waffle", "emoji": "🍫" },
+      { "name": "Dondurmalı Waffle", "emoji": "🍨" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.6 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Eyvan Kebap Pide Lahmacun",
+    "cuisine": "Kebap",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.1,
+    "price_level": 3,
+    "description": "Kebap, pide ve lahmacun çeşitleri",
+    "tags": ["kebap", "pide", "lahmacun"],
+    "top3_products": [
+      { "name": "Adana Kebap", "emoji": "🌶️" },
+      { "name": "Kuşbaşılı Pide", "emoji": "🫓" },
+      { "name": "Lahmacun", "emoji": "🥙" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.1 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Zirvem Izgara",
+    "cuisine": "Tavuk",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 0,
+    "price_level": 3,
+    "description": "Izgara tavuk ve et çeşitleri",
+    "tags": ["ızgara", "tavuk", "et"],
+    "top3_products": [
+      { "name": "Tavuk Izgara", "emoji": "🍗" },
+      { "name": "Kanat", "emoji": "🍗" },
+      { "name": "Karışık Izgara", "emoji": "🍖" }
+    ],
+    "platform_ratings": { "yemeksepeti": null },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Uzak Doğu Makarna & Erişte",
+    "cuisine": "Uzak Doğu",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.4,
+    "price_level": 3,
+    "description": "Asya mutfağı erişte ve makarna çeşitleri",
+    "tags": ["makarna", "erişte", "asya"],
+    "top3_products": [
+      { "name": "Wok Noodle", "emoji": "🍜" },
+      { "name": "Pad Thai", "emoji": "🥡" },
+      { "name": "Erişte", "emoji": "🍝" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.4 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Chef Meze",
+    "cuisine": "Meyhane",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.6,
+    "price_level": 3,
+    "description": "Meze çeşitleri ve Türk mutfağı",
+    "tags": ["meze", "türk", "meyhane"],
+    "top3_products": [
+      { "name": "Karışık Meze", "emoji": "🥗" },
+      { "name": "Acılı Ezme", "emoji": "🌶️" },
+      { "name": "Humus", "emoji": "🫘" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.6 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Cio Bento",
+    "cuisine": "Balık & Deniz Ürünleri",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 5.0,
+    "price_level": 3,
+    "description": "Balık ve deniz ürünleri odaklı restoran",
+    "tags": ["balık", "denizürünleri", "bento"],
+    "top3_products": [
+      { "name": "Balık Bento", "emoji": "🐟" },
+      { "name": "Karides", "emoji": "🦐" },
+      { "name": "Somon", "emoji": "🍣" }
+    ],
+    "platform_ratings": { "yemeksepeti": 5.0 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Efso Erzurum Yaprak Döneri",
+    "cuisine": "Döner",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.5,
+    "price_level": 3,
+    "description": "Erzurum usulü yaprak döner",
+    "tags": ["döner", "yaprakdöner", "erzurum"],
+    "top3_products": [
+      { "name": "Yaprak Döner", "emoji": "🌯" },
+      { "name": "İskender", "emoji": "🥩" },
+      { "name": "Döner Dürüm", "emoji": "🌯" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.5 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Aydınlı Meydan Izgara & Pide",
+    "cuisine": "Kebap",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.8,
+    "price_level": 2,
+    "description": "Izgara ve pide çeşitleri sunan Aydınlı mahallesi restoranı",
+    "tags": ["ızgara", "pide", "kebap"],
+    "top3_products": [
+      { "name": "Karışık Izgara", "emoji": "🍖" },
+      { "name": "Kuşbaşılı Pide", "emoji": "🫓" },
+      { "name": "Adana Kebap", "emoji": "🌶️" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.8 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Popeyes",
+    "cuisine": "Tavuk",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.3,
+    "price_level": 2,
+    "description": "Amerikan tarzı kızarmış tavuk zinciri",
+    "tags": ["tavuk", "fastfood", "kızarmıştavuk"],
+    "top3_products": [
+      { "name": "Chicken Burger", "emoji": "🍔" },
+      { "name": "Tavuk Kova", "emoji": "🍗" },
+      { "name": "Spicy Strips", "emoji": "🌶️" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.3 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Burger King",
+    "cuisine": "Burger",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.5,
+    "price_level": 2,
+    "description": "Dünyaca ünlü hamburger zinciri",
+    "tags": ["burger", "fastfood", "hamburger"],
+    "top3_products": [
+      { "name": "Whopper", "emoji": "🍔" },
+      { "name": "King Chicken", "emoji": "🍗" },
+      { "name": "Patates Kızartması", "emoji": "🍟" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.5 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Maydonoz Döner",
+    "cuisine": "Döner",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.1,
+    "price_level": 2,
+    "description": "Lezzetli döner çeşitleri",
+    "tags": ["döner", "dürüm", "iskender"],
+    "top3_products": [
+      { "name": "Döner Dürüm", "emoji": "🌯" },
+      { "name": "İskender", "emoji": "🥩" },
+      { "name": "Tavuk Döner", "emoji": "🍗" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.1 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "McDonald's Tuzla",
+    "cuisine": "Burger",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.5,
+    "price_level": 2,
+    "description": "Dünyaca ünlü fast food zinciri",
+    "tags": ["burger", "fastfood", "mcdonalds"],
+    "top3_products": [
+      { "name": "Big Mac", "emoji": "🍔" },
+      { "name": "McChicken", "emoji": "🍗" },
+      { "name": "McNuggets", "emoji": "🍟" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.5 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Köfteci Yusuf",
+    "cuisine": "Köfte",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.4,
+    "price_level": 2,
+    "description": "Türkiye'nin köfte zinciri",
+    "tags": ["köfte", "ızgara", "türk"],
+    "top3_products": [
+      { "name": "Köfte Ekmek", "emoji": "🥩" },
+      { "name": "Porsiyon Köfte", "emoji": "🍖" },
+      { "name": "İskender Köfte", "emoji": "🥘" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.4 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Pizza Bulls",
+    "cuisine": "Pizza",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.6,
+    "price_level": 2,
+    "description": "Pizza çeşitleri sunan Türk pizza zinciri",
+    "tags": ["pizza", "fastfood"],
+    "top3_products": [
+      { "name": "Karışık Pizza", "emoji": "🍕" },
+      { "name": "Sucuklu Pizza", "emoji": "🍕" },
+      { "name": "Margarita", "emoji": "🍕" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.6 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Subway",
+    "cuisine": "Tost & Sandviç",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.1,
+    "price_level": 1,
+    "description": "Dünyaca ünlü sandviç zinciri",
+    "tags": ["sandviç", "sub", "fastfood"],
+    "top3_products": [
+      { "name": "Tavuklu Sub", "emoji": "🥖" },
+      { "name": "Köfte Sub", "emoji": "🥪" },
+      { "name": "Veggie Sub", "emoji": "🥗" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.1 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Domino's Pizza Tuzla",
+    "cuisine": "Pizza",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.8,
+    "price_level": 2,
+    "description": "Dünyaca ünlü pizza zinciri",
+    "tags": ["pizza", "fastfood", "dominos"],
+    "top3_products": [
+      { "name": "Dominator", "emoji": "🍕" },
+      { "name": "Supreme", "emoji": "🍕" },
+      { "name": "Margarita", "emoji": "🍕" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.8 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Paşa Döner",
+    "cuisine": "Döner",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.3,
+    "price_level": 1,
+    "description": "Uygun fiyatlı döner çeşitleri",
+    "tags": ["döner", "dürüm", "ekonomik"],
+    "top3_products": [
+      { "name": "Döner Dürüm", "emoji": "🌯" },
+      { "name": "İskender", "emoji": "🥩" },
+      { "name": "Pilav Üstü Döner", "emoji": "🍚" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.3 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Chinese & Sushi Express",
+    "cuisine": "Uzak Doğu",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.6,
+    "price_level": 3,
+    "description": "Çin ve Japon mutfağı lezzetleri",
+    "tags": ["çin", "sushi", "uzakdoğu"],
+    "top3_products": [
+      { "name": "Sushi Mix", "emoji": "🍣" },
+      { "name": "Wok Noodle", "emoji": "🍜" },
+      { "name": "Spring Roll", "emoji": "🥟" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.6 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Burger Yiyelim",
+    "cuisine": "Burger",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.5,
+    "price_level": 3,
+    "description": "El yapımı burger çeşitleri",
+    "tags": ["burger", "hamburger", "elyapımı"],
+    "top3_products": [
+      { "name": "Klasik Burger", "emoji": "🍔" },
+      { "name": "Cheese Burger", "emoji": "🧀" },
+      { "name": "BBQ Burger", "emoji": "🍔" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.5 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Pilavcı İbo",
+    "cuisine": "Türk Mutfağı",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.8,
+    "price_level": 1,
+    "description": "Pilav ve Türk mutfağı lezzetleri",
+    "tags": ["pilav", "tavuk", "nohut"],
+    "top3_products": [
+      { "name": "Tavuklu Pilav", "emoji": "🍚" },
+      { "name": "Nohutlu Pilav", "emoji": "🍛" },
+      { "name": "Kuru Fasulye", "emoji": "🫘" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.8 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Tavuk Yiyelim",
+    "cuisine": "Tavuk",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.4,
+    "price_level": 2,
+    "description": "Tavuk ve burger çeşitleri",
+    "tags": ["tavuk", "burger", "fastfood"],
+    "top3_products": [
+      { "name": "Crispy Chicken", "emoji": "🍗" },
+      { "name": "Tavuk Burger", "emoji": "🍔" },
+      { "name": "Kanat", "emoji": "🍗" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.4 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Akhun Büfe & Fast Food",
+    "cuisine": "Fast Food",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.6,
+    "price_level": 1,
+    "description": "Ekonomik fast food ve büfe lezzetleri",
+    "tags": ["büfe", "fastfood", "ekonomik"],
+    "top3_products": [
+      { "name": "Hamburger", "emoji": "🍔" },
+      { "name": "Dürüm", "emoji": "🌯" },
+      { "name": "Tost", "emoji": "🥪" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.6 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Little Caesars Pizza",
+    "cuisine": "Pizza",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.2,
+    "price_level": 2,
+    "description": "Amerikan pizza zinciri",
+    "tags": ["pizza", "fastfood"],
+    "top3_products": [
+      { "name": "Pepperoni Pizza", "emoji": "🍕" },
+      { "name": "Cheese Pizza", "emoji": "🍕" },
+      { "name": "Crazy Bread", "emoji": "🧄" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.2 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Nakış Kebap & Restoran",
+    "cuisine": "Kebap",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.4,
+    "price_level": 2,
+    "description": "Kebap ve ızgara çeşitleri",
+    "tags": ["kebap", "ızgara", "restoran"],
+    "top3_products": [
+      { "name": "Adana Kebap", "emoji": "🌶️" },
+      { "name": "Urfa Kebap", "emoji": "🍖" },
+      { "name": "Karışık Izgara", "emoji": "🥩" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.4 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Starbucks Coffee Tuzla",
+    "cuisine": "Cafe",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.1,
+    "price_level": 2,
+    "description": "Dünyaca ünlü kahve zinciri",
+    "tags": ["kahve", "cafe", "starbucks"],
+    "top3_products": [
+      { "name": "Latte", "emoji": "☕" },
+      { "name": "Frappuccino", "emoji": "🥤" },
+      { "name": "Cheesecake", "emoji": "🍰" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.1 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Komagene Etsiz Çiğ Köfte",
+    "cuisine": "Çiğ Köfte",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.1,
+    "price_level": 1,
+    "description": "Türkiye'nin çiğ köfte zinciri",
+    "tags": ["çiğköfte", "dürüm", "vegan"],
+    "top3_products": [
+      { "name": "Çiğ Köfte Dürüm", "emoji": "🌯" },
+      { "name": "Çiğ Köfte Porsiyon", "emoji": "🥙" },
+      { "name": "Ayran", "emoji": "🥛" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.1 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Mevlana Etli Ekmek",
+    "cuisine": "Pide & Lahmacun",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.2,
+    "price_level": 2,
+    "description": "Etli ekmek ve pide ustası",
+    "tags": ["etliekmek", "pide", "lahmacun"],
+    "top3_products": [
+      { "name": "Etli Ekmek", "emoji": "🫓" },
+      { "name": "Karışık Pide", "emoji": "🫓" },
+      { "name": "Lahmacun", "emoji": "🥙" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.2 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Çiğ Köfteci Ömer Usta",
+    "cuisine": "Çiğ Köfte",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 5.0,
+    "price_level": 1,
+    "description": "El yapımı çiğ köfte",
+    "tags": ["çiğköfte", "dürüm", "elyapımı"],
+    "top3_products": [
+      { "name": "Çiğ Köfte Dürüm", "emoji": "🌯" },
+      { "name": "Çiğ Köfte Tabağı", "emoji": "🥙" },
+      { "name": "Şalgam", "emoji": "🥤" }
+    ],
+    "platform_ratings": { "yemeksepeti": 5.0 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Özseven Kebapçısı",
+    "cuisine": "Kebap",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.2,
+    "price_level": 2,
+    "description": "Geleneksel kebap çeşitleri",
+    "tags": ["kebap", "ızgara", "geleneksel"],
+    "top3_products": [
+      { "name": "Adana Kebap", "emoji": "🌶️" },
+      { "name": "Beyti", "emoji": "🥩" },
+      { "name": "Lahmacun", "emoji": "🥙" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.2 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Eyvan Kebap & Pide (Orta Mah.)",
+    "cuisine": "Kebap",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.2,
+    "price_level": 3,
+    "description": "Eyvan'ın Orta Mahalle şubesi — kebap ve pide",
+    "tags": ["kebap", "pide", "lahmacun"],
+    "top3_products": [
+      { "name": "Adana Kebap", "emoji": "🌶️" },
+      { "name": "Kuşbaşılı Pide", "emoji": "🫓" },
+      { "name": "Karışık Izgara", "emoji": "🍖" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.2 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Pizza Xlarge",
+    "cuisine": "Pizza",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.3,
+    "price_level": 2,
+    "description": "Büyük boy pizza çeşitleri",
+    "tags": ["pizza", "büyükboy"],
+    "top3_products": [
+      { "name": "Karışık Pizza", "emoji": "🍕" },
+      { "name": "Sucuklu Pizza", "emoji": "🍕" },
+      { "name": "4 Peynirli Pizza", "emoji": "🧀" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.3 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "McDonald's McCafé Tuzla",
+    "cuisine": "Cafe",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 1.8,
+    "price_level": 1,
+    "description": "McDonald's kahve ve tatlı markası",
+    "tags": ["kahve", "cafe", "mcdonalds"],
+    "top3_products": [
+      { "name": "Latte", "emoji": "☕" },
+      { "name": "Cappuccino", "emoji": "☕" },
+      { "name": "Muffin", "emoji": "🧁" }
+    ],
+    "platform_ratings": { "yemeksepeti": 1.8 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Pilavcı Fethi Bey",
+    "cuisine": "Türk Mutfağı",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 5.0,
+    "price_level": 3,
+    "description": "Pilav ve Türk mutfağı lezzetleri",
+    "tags": ["pilav", "tavuk", "türkmutfağı"],
+    "top3_products": [
+      { "name": "Tavuklu Pilav", "emoji": "🍚" },
+      { "name": "Nohutlu Pilav", "emoji": "🍛" },
+      { "name": "Kuru Fasulye", "emoji": "🫘" }
+    ],
+    "platform_ratings": { "yemeksepeti": 5.0 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Emirtimes Cafe & Restaurant",
+    "cuisine": "Dünya Mutfağı",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 2.5,
+    "price_level": 2,
+    "description": "Dünya mutfağından çeşitli lezzetler",
+    "tags": ["cafe", "dünyamutfağı", "restoran"],
+    "top3_products": [
+      { "name": "Kahvaltı Tabağı", "emoji": "🍳" },
+      { "name": "Makarna", "emoji": "🍝" },
+      { "name": "Tost", "emoji": "🥪" }
+    ],
+    "platform_ratings": { "yemeksepeti": 2.5 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Has Tantuni Dünyası",
+    "cuisine": "Tantuni",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.2,
+    "price_level": 3,
+    "description": "Mersin usulü tantuni",
+    "tags": ["tantuni", "dürüm", "mersin"],
+    "top3_products": [
+      { "name": "Et Tantuni", "emoji": "🌯" },
+      { "name": "Tavuk Tantuni", "emoji": "🌯" },
+      { "name": "Karışık Tantuni", "emoji": "🌯" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.2 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Şef İzgara & Kasap",
+    "cuisine": "Köfte",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.8,
+    "price_level": 3,
+    "description": "Kasap kalitesinde ızgara ve köfte",
+    "tags": ["köfte", "ızgara", "kasap", "et"],
+    "top3_products": [
+      { "name": "Kasap Köfte", "emoji": "🥩" },
+      { "name": "Bonfile", "emoji": "🥩" },
+      { "name": "Karışık Izgara", "emoji": "🍖" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.8 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Burger King Cafe Tuzla",
+    "cuisine": "Cafe",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.0,
+    "price_level": 1,
+    "description": "Burger King kahve ve tatlı köşesi",
+    "tags": ["kahve", "cafe", "burgerking"],
+    "top3_products": [
+      { "name": "Latte", "emoji": "☕" },
+      { "name": "Cheesecake", "emoji": "🍰" },
+      { "name": "Americano", "emoji": "☕" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.0 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Şark Kebap",
+    "cuisine": "Kebap",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.0,
+    "price_level": 3,
+    "description": "Güneydoğu usulü kebap çeşitleri",
+    "tags": ["kebap", "güneydoğu", "ızgara"],
+    "top3_products": [
+      { "name": "Adana Kebap", "emoji": "🌶️" },
+      { "name": "Ciğer Kebap", "emoji": "🍖" },
+      { "name": "Beyti", "emoji": "🥩" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.0 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Cadde Dürüm",
+    "cuisine": "Tavuk",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 3.6,
+    "price_level": 2,
+    "description": "Dürüm ve tavuk çeşitleri",
+    "tags": ["dürüm", "tavuk", "fastfood"],
+    "top3_products": [
+      { "name": "Tavuk Dürüm", "emoji": "🌯" },
+      { "name": "Et Dürüm", "emoji": "🌯" },
+      { "name": "Adana Dürüm", "emoji": "🌯" }
+    ],
+    "platform_ratings": { "yemeksepeti": 3.6 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Lahmacunnci",
+    "cuisine": "Pide & Lahmacun",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.4,
+    "price_level": 3,
+    "description": "Lahmacun ve cağ kebap",
+    "tags": ["lahmacun", "cağkebap", "pide"],
+    "top3_products": [
+      { "name": "Lahmacun", "emoji": "🥙" },
+      { "name": "Cağ Kebap", "emoji": "🥩" },
+      { "name": "Karışık Pide", "emoji": "🫓" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.4 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Gürpınar Döner",
+    "cuisine": "Döner",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.5,
+    "price_level": 2,
+    "description": "Gürpınar usulü döner",
+    "tags": ["döner", "dürüm", "iskender"],
+    "top3_products": [
+      { "name": "Et Döner", "emoji": "🌯" },
+      { "name": "İskender", "emoji": "🥩" },
+      { "name": "Döner Ekmek", "emoji": "🥖" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.5 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "This Chicken",
+    "cuisine": "Tavuk",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.1,
+    "price_level": 2,
+    "description": "Tavuk çeşitleri",
+    "tags": ["tavuk", "kızarmıştavuk", "burger"],
+    "top3_products": [
+      { "name": "Crispy Chicken", "emoji": "🍗" },
+      { "name": "Tavuk Burger", "emoji": "🍔" },
+      { "name": "Kanat", "emoji": "🍗" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.1 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Aydınlı Kebap Pide",
+    "cuisine": "Kebap",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 2.8,
+    "price_level": 2,
+    "description": "Kebap ve pide çeşitleri",
+    "tags": ["kebap", "pide", "aydınlı"],
+    "top3_products": [
+      { "name": "Adana Kebap", "emoji": "🌶️" },
+      { "name": "Kuşbaşılı Pide", "emoji": "🫓" },
+      { "name": "Lahmacun", "emoji": "🥙" }
+    ],
+    "platform_ratings": { "yemeksepeti": 2.8 },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Ciğerci Hacı'nın Yeri",
+    "cuisine": "Kebap",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 0,
+    "price_level": 2,
+    "description": "Ciğer kebap ustası",
+    "tags": ["ciğer", "kebap", "ızgara"],
+    "top3_products": [
+      { "name": "Ciğer Kebap", "emoji": "🍖" },
+      { "name": "Şiş Kebap", "emoji": "🥩" },
+      { "name": "Adana Kebap", "emoji": "🌶️" }
+    ],
+    "platform_ratings": { "yemeksepeti": null },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Mutlucan Kebap",
+    "cuisine": "Kebap",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 0,
+    "price_level": 2,
+    "description": "Cağ kebap ve geleneksel lezzetler",
+    "tags": ["cağkebap", "kebap", "geleneksel"],
+    "top3_products": [
+      { "name": "Cağ Kebap", "emoji": "🥩" },
+      { "name": "Adana Kebap", "emoji": "🌶️" },
+      { "name": "Beyti", "emoji": "🥩" }
+    ],
+    "platform_ratings": { "yemeksepeti": null },
+    "source": "yemeksepeti_screenshot"
+  },
+  {
+    "name": "Etiler Marmaris",
+    "cuisine": "Tost & Sandviç",
+    "area": "Tuzla",
+    "neighborhood": "Orta",
+    "rating": 4.1,
+    "price_level": 2,
+    "description": "Tost ve sandviç çeşitleri",
+    "tags": ["tost", "sandviç", "büfe"],
+    "top3_products": [
+      { "name": "Karışık Tost", "emoji": "🥪" },
+      { "name": "Kaşarlı Tost", "emoji": "🧀" },
+      { "name": "Hamburger", "emoji": "🍔" }
+    ],
+    "platform_ratings": { "yemeksepeti": 4.1 },
+    "source": "yemeksepeti_screenshot"
+  }
+]

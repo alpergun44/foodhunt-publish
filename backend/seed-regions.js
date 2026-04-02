@@ -12,7 +12,7 @@ const REGIONS = [
         lat: 40.8169,
         lng: 29.3003,
         is_active: true,
-        mahalleler: ['Tuzla Merkez', 'Kampüs Çevresi', 'Sahil', 'Aydınlı', 'Postane', 'İçmeler', 'Orhanlı', 'Mimar Sinan', 'Yayla', 'Evliya Çelebi', 'Cami', 'Aydıntepe']
+        mahalleler: ['Tuzla Merkez', 'Kampüs Çevresi', 'Sahil', 'Aydınlı', 'Postane', 'İçmeler', 'Orhanlı', 'Mimar Sinan', 'Yayla', 'Evliya Çelebi', 'Cami', 'Aydıntepe', 'Orta']
       },
       {
         name: 'Kadıköy',

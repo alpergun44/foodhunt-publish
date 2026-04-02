@@ -108,7 +108,7 @@ router.get('/catalog', asyncHandler(async (req, res) => {
   }
 
   const all = await dbHelpers.find('restaurants', q);
-  const l = Math.min(parseInt(limit) || 16, 32);
+  const l = Math.min(parseInt(limit) || 16, 64);
   res.json(shuffle(all).slice(0, l));
 }));
 
