@@ -371,6 +371,18 @@ export const authApi = {
       body: JSON.stringify({ id_token, user }),
     }),
 
+  // Firebase Auth — exchange Firebase ID token for FoodHunt JWT
+  firebaseLogin: (firebaseToken: string): Promise<{ token: string; user: any }> =>
+    safeFetch(`${BASE}/auth/firebase`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ firebaseToken }),
+    }),
+
+  // Firebase Auth status check
+  firebaseStatus: (): Promise<{ available: boolean; providers: string[] }> =>
+    safeFetch(`${BASE}/auth/firebase/status`),
+
   // Points
   getPoints: (token: string): Promise<{ total_points: number; history: any[] }> =>
     safeFetch(`${BASE}/auth/points`, { headers: authHeaders(token) }),

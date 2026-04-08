@@ -1,15 +1,19 @@
 /**
  * FoodHunt — Auth Context
  * Manages user authentication state across the app
+ * Supports: Email/Password, Firebase (Phone OTP, Google, Apple)
  */
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { authApi, safeGetItem, safeSetItem, safeRemoveItem } from '../api';
+import { firebaseSignOut } from '../utils/firebase';
 
 interface User {
   id: number;
   email: string;
   name: string;
+  phone?: string;
   role: string;
+  auth_provider?: string;
   preferences: {
     dark_mode: boolean;
     sound: boolean;
@@ -27,6 +31,7 @@ interface AuthState {
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
+  firebaseLogin: (firebaseToken: string) => Promise<void>;
   googleLogin: (credential: string) => Promise<void>;
   appleLogin: (idToken: string, user?: any) => Promise<void>;
   logout: () => void;
@@ -45,6 +50,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
     isAuthenticated: false,
   });
+
+  // Helper to save auth state
+  const setAuthenticated = useCallback((token: string, user: any) => {
+    safeSetItem('local', TOKEN_KEY, token);
+    safeSetItem('local', USER_KEY, JSON.stringify(user));
+    setState({ user, token, isLoading: false, isAuthenticated: true });
+  }, []);
 
   // Restore session on mount
   useEffect(() => {
@@ -70,36 +82,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, password: string) => {
     const data = await authApi.login(email, password);
-    safeSetItem('local', TOKEN_KEY, data.token);
-    safeSetItem('local', USER_KEY, JSON.stringify(data.user));
-    setState({ user: data.user, token: data.token, isLoading: false, isAuthenticated: true });
-  }, []);
+    setAuthenticated(data.token, data.user);
+  }, [setAuthenticated]);
 
   const register = useCallback(async (email: string, password: string, name: string) => {
     const data = await authApi.register(email, password, name);
-    safeSetItem('local', TOKEN_KEY, data.token);
-    safeSetItem('local', USER_KEY, JSON.stringify(data.user));
-    setState({ user: data.user, token: data.token, isLoading: false, isAuthenticated: true });
-  }, []);
+    setAuthenticated(data.token, data.user);
+  }, [setAuthenticated]);
 
+  /**
+   * Firebase Auth — exchange Firebase ID token for FoodHunt JWT
+   * Used for: Phone OTP, Google Sign-In, Apple Sign-In via Firebase
+   */
+  const firebaseLogin = useCallback(async (firebaseToken: string) => {
+    const data = await authApi.firebaseLogin(firebaseToken);
+    setAuthenticated(data.token, data.user);
+  }, [setAuthenticated]);
+
+  // Legacy Google login (direct credential, non-Firebase)
   const googleLogin = useCallback(async (credential: string) => {
     const data = await authApi.googleLogin(credential);
-    safeSetItem('local', TOKEN_KEY, data.token);
-    safeSetItem('local', USER_KEY, JSON.stringify(data.user));
-    setState({ user: data.user, token: data.token, isLoading: false, isAuthenticated: true });
-  }, []);
+    setAuthenticated(data.token, data.user);
+  }, [setAuthenticated]);
 
+  // Legacy Apple login (direct id_token, non-Firebase)
   const appleLogin = useCallback(async (idToken: string, user?: any) => {
     const data = await authApi.appleLogin(idToken, user);
-    safeSetItem('local', TOKEN_KEY, data.token);
-    safeSetItem('local', USER_KEY, JSON.stringify(data.user));
-    setState({ user: data.user, token: data.token, isLoading: false, isAuthenticated: true });
-  }, []);
+    setAuthenticated(data.token, data.user);
+  }, [setAuthenticated]);
 
   const logout = useCallback(() => {
     safeRemoveItem('local', TOKEN_KEY);
     safeRemoveItem('local', USER_KEY);
     setState({ user: null, token: null, isLoading: false, isAuthenticated: false });
+    // Also sign out from Firebase (silently)
+    firebaseSignOut().catch(() => {});
   }, []);
 
   const updatePreferences = useCallback(async (prefs: Partial<User['preferences']>) => {
@@ -113,7 +130,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [state.token, state.user]);
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, googleLogin, appleLogin, logout, updatePreferences }}>
+    <AuthContext.Provider value={{
+      ...state,
+      login, register, firebaseLogin,
+      googleLogin, appleLogin,
+      logout, updatePreferences,
+    }}>
       {children}
     </AuthContext.Provider>
   );

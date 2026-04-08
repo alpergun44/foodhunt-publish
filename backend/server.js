@@ -47,6 +47,7 @@ const logger = require('./utils/logger');
 // Routes
 const publicRoutes = require('./routes/public');
 const authRoutes = require('./routes/auth');
+const firebaseAuthRoutes = require('./routes/firebase-auth');
 const userRoutes = require('./routes/user');
 const adminRoutes = require('./routes/admin');
 const nearbyRoutes = require('./routes/nearby');
@@ -163,6 +164,7 @@ app.get('/api/docs', (_req, res) => {
 // ─── Routes ─────────────────────────────────────────────────────────────────
 app.use('/api', publicRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', firebaseAuthRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api', nearbyRoutes);       // /api/nearby/*
 app.use('/api/admin', adminRoutes);
