@@ -61,7 +61,7 @@
 
   /* ─── Cards — glass-like with navy depth ─────────────────── */
   .card {
-    @apply bg-brand-card rounded-3xl border border-white/8
+    @apply bg-brand-card rounded-3xl border border-white/10
            shadow-xl overflow-hidden;
   }
   .card-hover {
@@ -73,7 +73,7 @@
     background: rgba(26, 45, 71, 0.7);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    @apply rounded-3xl border border-white/8;
+    @apply rounded-3xl border border-white/10;
   }
 
   /* ─── Badges & Tags ───────────────────────────────────────── */
