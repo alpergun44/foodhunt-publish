@@ -10,7 +10,6 @@
     @apply bg-brand-dark text-brand-cream font-sans antialiased;
     min-height: 100dvh;
     -webkit-tap-highlight-color: transparent;
-    /* iOS Safe Area support */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
@@ -19,27 +18,25 @@
   * { box-sizing: border-box; }
   :focus-visible { @apply outline-2 outline-brand-coral outline-offset-2; }
 
-  /* Prevent iOS rubber-band overscroll background showing white */
-  html { background: #0D0D0D; }
+  /* Prevent iOS rubber-band overscroll background */
+  html { background: #0A1628; }
 
-  /* iOS standalone PWA / Capacitor - fix status bar area */
   @supports (padding-top: env(safe-area-inset-top)) {
     .safe-top { padding-top: env(safe-area-inset-top); }
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
   }
 
-  /* Prevent text selection on game cards (mobile UX) */
   .no-select {
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
   }
 
-  /* Custom scrollbar for dark theme */
+  /* Custom scrollbar — navy theme */
   ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #1A1A1A; }
-  ::-webkit-scrollbar-thumb { background: #3A3A3A; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #FF6B35; }
+  ::-webkit-scrollbar-track { background: #121F33; }
+  ::-webkit-scrollbar-thumb { background: #2A4060; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #E23744; }
 }
 
 @layer components {
@@ -48,7 +45,7 @@
     @apply bg-brand-coral hover:bg-brand-coral-light active:scale-95
            text-white font-bold rounded-2xl px-6 py-3
            transition-all duration-150 select-none cursor-pointer
-           shadow-lg shadow-brand-coral/20;
+           shadow-lg shadow-brand-coral/25;
   }
   .btn-secondary {
     @apply border-2 border-white/10 hover:border-brand-coral
@@ -62,9 +59,9 @@
            transition-all duration-150 select-none cursor-pointer;
   }
 
-  /* ─── Cards ───────────────────────────────────────────────── */
+  /* ─── Cards — glass-like with navy depth ─────────────────── */
   .card {
-    @apply bg-brand-card rounded-3xl border border-white/5
+    @apply bg-brand-card rounded-3xl border border-white/8
            shadow-xl overflow-hidden;
   }
   .card-hover {
@@ -73,10 +70,10 @@
            transition-all duration-300 cursor-pointer;
   }
   .card-glass {
-    background: rgba(255,255,255,0.03);
+    background: rgba(26, 45, 71, 0.7);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    @apply rounded-3xl border border-white/5;
+    @apply rounded-3xl border border-white/8;
   }
 
   /* ─── Badges & Tags ───────────────────────────────────────── */
@@ -94,7 +91,7 @@
     @apply badge bg-brand-fresh/15 text-brand-fresh;
   }
 
-  /* ─── Inputs ──────────────────────────────────────────────── */
+  /* ─── Inputs — navy themed ──────────────────────────────── */
   .input-field {
     @apply bg-brand-surface border border-white/10 rounded-xl px-4 py-3
            text-brand-cream placeholder:text-brand-muted w-full
@@ -104,7 +101,7 @@
   .select-field {
     @apply input-field appearance-none cursor-pointer
            bg-no-repeat;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23A8A29E' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238899AA' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
     background-position: right 12px center;
     padding-right: 36px;
   }
@@ -112,27 +109,26 @@
 
 @layer utilities {
   .text-gradient {
-    background: linear-gradient(135deg, #FF6B35, #FFB627);
+    background: linear-gradient(135deg, #E23744, #F5A623);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .text-gradient-warm {
-    background: linear-gradient(135deg, #FF6B35, #FF8A5C, #FFB627);
+    background: linear-gradient(135deg, #E23744, #FF4D5A, #F5A623);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .glass {
-    background: rgba(255,255,255,0.03);
+    background: rgba(26, 45, 71, 0.5);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
   }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-  /* Shimmer loading effect */
   .shimmer {
     background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.05) 50%, transparent 75%);
     background-size: 200% 100%;
@@ -149,38 +145,38 @@
   50%     { transform: scale(1.2); }
 }
 
-/* ─── Progress bar glow ──────────────────────────────────────── */
+/* ─── Progress bar glow — cherry red ──────────────────────────── */
 .progress-glow {
-  box-shadow: 0 0 16px rgba(255,107,53,0.5), 0 0 32px rgba(255,107,53,0.2);
+  box-shadow: 0 0 16px rgba(226,55,68,0.5), 0 0 32px rgba(226,55,68,0.2);
 }
 
-/* ─── Food image overlay gradient ────────────────────────────── */
+/* ─── Food image overlay — navy gradient ─────────────────────── */
 .food-overlay {
-  background: linear-gradient(to top, rgba(13,13,13,0.95) 0%, rgba(13,13,13,0.4) 40%, transparent 100%);
+  background: linear-gradient(to top, rgba(10,22,40,0.95) 0%, rgba(10,22,40,0.4) 40%, transparent 100%);
 }
 
 /* ─── Bracket connector lines ────────────────────────────────── */
 .bracket-line {
-  border-right: 2px solid rgba(255,107,53,0.2);
-  border-top: 2px solid rgba(255,107,53,0.2);
-  border-bottom: 2px solid rgba(255,107,53,0.2);
+  border-right: 2px solid rgba(226,55,68,0.2);
+  border-top: 2px solid rgba(226,55,68,0.2);
+  border-bottom: 2px solid rgba(226,55,68,0.2);
 }
 
-/* ─── Ambient glow behind hero ───────────────────────────────── */
+/* ─── Ambient glow — navy theme ─────────────────────────────── */
 .ambient-glow {
   position: absolute;
   width: 300px;
   height: 300px;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.15;
+  opacity: 0.12;
   pointer-events: none;
 }
 .ambient-coral {
-  background: #FF6B35;
+  background: #E23744;
 }
 .ambient-amber {
-  background: #FFB627;
+  background: #F5A623;
 }
 
 /* ─── Round Transition ─── */
@@ -197,7 +193,7 @@
 
 @keyframes victoryGlow {
   0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(255, 107, 53, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(226, 55, 68, 0.3); }
 }
 
 @keyframes cardSlideLeft {
@@ -239,7 +235,7 @@
   border-radius: 50%;
 }
 .price-dot.active {
-  background: #06C167;
+  background: #00C853;
 }
 .price-dot.inactive {
   background: rgba(255,255,255,0.15);
@@ -247,5 +243,5 @@
 
 /* ─── Winner Card Glow ─── */
 .winner-card-glow {
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(255, 107, 53, 0.2);
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(226, 55, 68, 0.2);
 }

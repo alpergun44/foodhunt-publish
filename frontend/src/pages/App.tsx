@@ -3,6 +3,7 @@ import { api, authApi, Restaurant, InspirationCard, TournamentSlot, PublicRegion
 import { useGeolocation } from '../hooks/useGeolocation'
 import { hapticImpact, hapticNotification, nativeShare, configureStatusBar, hideSplashScreen } from '../utils/native'
 import { SocialProof } from '../components/ui/SocialProof'
+import { Logo, LogoText } from '../components/ui/Logo'
 import { CookieConsent } from '../components/ui/CookieConsent'
 import { Onboarding, shouldShowOnboarding } from '../components/ui/Onboarding'
 import { NoRestaurantsFound } from '../components/ui/EmptyState'
@@ -10,7 +11,7 @@ import { SkeletonCard } from '../components/ui/LoadingSkeleton'
 import { IOSInstallBanner } from '../components/ui/IOSInstallBanner'
 
 const PLACEHOLDER_IMG = 'data:image/svg+xml,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#1a1a1a"/><text x="200" y="160" text-anchor="middle" fill="#666" font-size="48">&#127869;</text></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#1A2D47"/><text x="200" y="160" text-anchor="middle" fill="#8899AA" font-size="48">&#127869;</text></svg>'
 )
 
 // ─── Icons (Lucide-style inline SVGs) ───────────────────────────────────────
@@ -19,8 +20,8 @@ const Icon = {
   MapPin: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
   Utensils: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2M7 2v20M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>,
   Trophy: () => (
-    <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-brand-coral to-brand-amber mb-4">
-      <span className="text-4xl">🏆</span>
+    <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-brand-coral via-brand-amber to-brand-gold mb-4 shadow-2xl shadow-brand-coral/30">
+      <span className="text-5xl">🏆</span>
     </div>
   ),
   Share: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M12 16v-8M8 8l4-4 4 4"/></svg>,
@@ -638,7 +639,7 @@ export default function App() {
             <div className="space-y-3">
               {currentSlot ? (
                 <>
-                  <div className="text-6xl animate-float">{currentSlot.icon}</div>
+                  <Logo size={90} className="mx-auto animate-float" />
                   <h1 className="font-display text-4xl sm:text-5xl font-extrabold">
                     <span className="text-gradient-warm">{currentSlot.slot}</span>
                   </h1>
@@ -646,11 +647,8 @@ export default function App() {
                 </>
               ) : (
                 <>
-                  <div className="text-6xl animate-float">🍽️</div>
-                  <h1 className="font-display text-5xl sm:text-6xl font-extrabold">
-                    <span className="text-gradient-warm">Food</span>
-                    <span className="text-brand-cream">Hunt</span>
-                  </h1>
+                  <Logo size={100} className="mx-auto animate-float" />
+                  <LogoText className="text-5xl sm:text-6xl" />
                 </>
               )}
               <p className="text-brand-muted text-base leading-relaxed">

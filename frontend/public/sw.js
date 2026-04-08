@@ -2,7 +2,7 @@
  * FoodHunt — Service Worker v3
  * Network-first for HTML/JS/CSS, cache fallback for offline
  */
-const CACHE_NAME = 'foodhunt-v4';
+const CACHE_NAME = 'foodhunt-v5';
 
 // Install — skip waiting immediately
 self.addEventListener('install', () => {

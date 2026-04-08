@@ -9,7 +9,7 @@ const config: CapacitorConfig = {
   },
   ios: {
     contentInset: 'automatic',
-    backgroundColor: '#0D0D0D',
+    backgroundColor: '#0A1628',
     preferredContentMode: 'mobile',
     scheme: 'FoodHunt',
   },
@@ -17,11 +17,11 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchAutoHide: true,
       launchFadeOutDuration: 3000,
-      backgroundColor: '#0D0D0D',
+      backgroundColor: '#0A1628',
       androidScaleType: 'centerCrop',
       showSpinner: false,
       iosSpinnerStyle: 'white',
-      spinnerColor: '#FF6B35',
+      spinnerColor: '#E23744',
     },
     Keyboard: {
       resize: 'body',

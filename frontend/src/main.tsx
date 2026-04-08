@@ -11,18 +11,18 @@ const Legal = lazy(() => import('./pages/Legal'))
 const Auth = lazy(() => import('./pages/Auth'))
 
 const NotFound = () => (
-  <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center text-center px-6">
+  <div className="min-h-screen bg-[#0A1628] flex items-center justify-center text-center px-6">
     <div>
       <div className="text-8xl mb-6">🍔</div>
       <h1 className="text-3xl font-bold text-white mb-3">Sayfa Bulunamadı</h1>
       <p className="text-gray-400 mb-8 text-lg">Aradığınız sayfa mevcut değil veya taşınmış olabilir.</p>
-      <a href="/" className="inline-block px-8 py-3 bg-[#FF6B35] text-white rounded-xl font-semibold text-lg hover:bg-[#e55d2d] transition active:scale-95">Ana Sayfaya Dön</a>
+      <a href="/" className="inline-block px-8 py-3 bg-[#E23744] text-white rounded-xl font-semibold text-lg hover:bg-[#C62D39] transition active:scale-95">Ana Sayfaya Dön</a>
     </div>
   </div>
 )
 
 const LoadingFallback = () => (
-  <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center">
+  <div className="min-h-screen bg-[#0A1628] flex items-center justify-center">
     <div className="animate-spin text-4xl">🍔</div>
   </div>
 )
