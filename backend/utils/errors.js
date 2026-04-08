@@ -66,7 +66,14 @@ function errorHandler(err, req, res, _next) {
     });
   }
 
-  // Unexpected errors
+  // Unexpected errors — send to Sentry if available
+  try {
+    const Sentry = require('@sentry/node');
+    if (Sentry.isInitialized && Sentry.isInitialized()) {
+      Sentry.captureException(err, { extra: { path: req.originalUrl, method: req.method } });
+    }
+  } catch (_) { /* Sentry not installed or not initialized */ }
+
   logger.error('Unexpected error', {
     message: err.message,
     stack: err.stack,

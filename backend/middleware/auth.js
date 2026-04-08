@@ -9,9 +9,15 @@ const { safeCompare } = require('../utils/validation');
 // Simple JWT implementation (no external dependency)
 let JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
-  // Auto-generate a secret if not provided (tokens won't survive restarts)
-  JWT_SECRET = crypto.randomBytes(48).toString('hex');
-  console.warn('WARNING: JWT_SECRET not set — auto-generated. Tokens will reset on restart. Set JWT_SECRET env var for persistence.');
+  // Deterministic fallback based on MongoDB URI — stable across restarts
+  const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URL || '';
+  if (mongoUri) {
+    JWT_SECRET = crypto.createHash('sha256').update('foodhunt-jwt-' + mongoUri).digest('hex');
+    console.warn('WARNING: JWT_SECRET not set — using deterministic fallback. Set JWT_SECRET env var for best security.');
+  } else {
+    JWT_SECRET = crypto.randomBytes(48).toString('hex');
+    console.warn('WARNING: JWT_SECRET not set and no MONGODB_URI — auto-generated. Tokens will reset on restart.');
+  }
 }
 if (!JWT_SECRET) JWT_SECRET = 'dev-only-secret-do-not-use-in-production';
 const JWT_EXPIRY = parseInt(process.env.JWT_EXPIRY) || 7 * 24 * 60 * 60; // 7 days

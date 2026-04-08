@@ -20,6 +20,23 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
+// ─── Sentry Error Tracking ─────────────────────────────────────────────────
+let Sentry = null;
+if (process.env.SENTRY_DSN) {
+  try {
+    Sentry = require('@sentry/node');
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      environment: process.env.NODE_ENV || 'development',
+      tracesSampleRate: 0.2,
+      release: 'foodhunt-backend@2.3.0',
+    });
+    console.log('Sentry initialized successfully');
+  } catch (e) {
+    console.warn('Sentry init failed:', e.message);
+  }
+}
+
 const helmet = require('helmet');
 const { initDB } = require('./models/db');
 const { createCorsMiddleware } = require('./middleware/cors');
