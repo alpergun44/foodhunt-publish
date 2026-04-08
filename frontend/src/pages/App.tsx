@@ -80,7 +80,9 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
           src={imgSrc}
           alt={restaurant.name}
           loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          style={{ contentVisibility: 'auto' }}
           onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMG }}
         />
         <div className="food-overlay absolute inset-0" />
@@ -175,46 +177,53 @@ const ProgressBar = ({ current, total }: { current: number; total: number }) => 
 // ─── Deeplinks ──────────────────────────────────────────────────────────────
 const Deeplinks = ({ restaurant }: { restaurant: Restaurant }) => {
   const links = [
-    { key: 'yemeksepeti', url: restaurant.yemeksepeti_link, label: 'Yemeksepeti', color: 'bg-red-500 hover:bg-red-600', emoji: '🔴' },
-    { key: 'getir', url: restaurant.getir_link, label: 'Getir', color: 'bg-purple-500 hover:bg-purple-600', emoji: '💜' },
-    { key: 'trendyol', url: restaurant.trendyol_link, label: 'Trendyol', color: 'bg-orange-500 hover:bg-orange-600', emoji: '🟠' },
-    { key: 'gmaps', url: restaurant.google_maps_url, label: 'Google Maps', color: 'bg-blue-500 hover:bg-blue-600', emoji: '📍' },
-    { key: 'website', url: restaurant.website, label: 'Website', color: 'bg-brand-elevated hover:bg-white/10', emoji: '🌐' },
+    { key: 'yemeksepeti', url: restaurant.yemeksepeti_link, label: "Yemeksepeti'de Sipariş Ver", color: 'bg-[#D4202C] hover:bg-[#b81a24]', textColor: 'text-white' },
+    { key: 'getir', url: restaurant.getir_link, label: "Getir'de Sipariş Ver", color: 'bg-[#5D3EBC] hover:bg-[#4a2fa0]', textColor: 'text-white' },
+    { key: 'trendyol', url: restaurant.trendyol_link, label: "Trendyol Go'da Sipariş Ver", color: 'bg-[#F27A1A] hover:bg-[#d96a12]', textColor: 'text-white' },
+    { key: 'gmaps', url: restaurant.google_maps_url, label: 'Google Maps', color: 'bg-[#4285F4] hover:bg-[#3275e4]', textColor: 'text-white' },
+    { key: 'website', url: restaurant.website, label: 'Website', color: 'bg-brand-elevated hover:bg-white/10', textColor: 'text-brand-cream' },
   ].filter(l => l.url)
 
   if (!links.length) return null
 
-  const handleDeeplinkClick = (platform: string) => {
-    api.trackEvent('deeplink_click', { platform, restaurant_id: restaurant.id })
+  const handleDeeplinkClick = (platform: string, url: string) => {
+    // Track the click
+    api.trackEvent('deeplink_click', {
+      platform,
+      restaurant_id: restaurant.id,
+      restaurant_name: restaurant.name
+    })
     // Track for points if user is logged in
     const token = safeGetItem('local', 'foodhunt_token')
     if (token) {
       authApi.trackDeeplinkOrder(token, {
         restaurant_id: restaurant.id,
         platform,
-      }).catch(() => {}) // non-blocking
+      }).catch(() => {})
     }
   }
 
   return (
     <div className="mt-6 space-y-3">
-      <p className="text-center text-brand-muted text-xs uppercase tracking-wider font-semibold">Sipariş Ver</p>
-      <div className="flex flex-wrap gap-2 justify-center">
+      <p className="text-center text-brand-cream text-sm font-bold">Hemen Sipariş Ver!</p>
+      <p className="text-center text-brand-muted text-xs">Şampiyonunu seçtin, şimdi sipariş zamanı</p>
+      <div className="flex flex-col gap-2">
         {links.map(l => (
           <a
             key={l.key}
             href={l.url!}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => handleDeeplinkClick(l.key)}
-            className={`flex items-center gap-2 px-4 py-2.5 ${l.color} text-white rounded-xl text-sm font-semibold transition-all active:scale-95 shadow-lg`}
+            onClick={() => handleDeeplinkClick(l.key, l.url!)}
+            className={`flex items-center justify-center gap-2 px-5 py-3.5 ${l.color} ${l.textColor} rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg hover:shadow-xl`}
           >
-            <span>{l.emoji}</span> {l.label}
+            {l.label}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
           </a>
         ))}
       </div>
       {safeGetItem('local', 'foodhunt_token') && (
-        <p className="text-center text-brand-amber text-xs">+50 puan kazanırsınız!</p>
+        <p className="text-center text-brand-amber text-xs font-semibold">+50 puan kazanırsınız!</p>
       )}
     </div>
   )
@@ -330,12 +339,62 @@ const RoundStepper = ({ totalRounds, currentRound, totalSize, roundMatches, matc
   )
 }
 
+// ─── Meal Types ─────────────────────────────────────────────────────────────
+const MEAL_TYPES = [
+  { id: 'all', label: 'Hepsi', emoji: '🍽️' },
+  { id: 'protein', label: 'Protein', emoji: '🥩' },
+  { id: 'cheat', label: 'Cheat Meal', emoji: '🍔' },
+  { id: 'healthy', label: 'Sağlıklı', emoji: '🥗' },
+  { id: 'quick', label: 'Hızlı Atıştırma', emoji: '⚡' },
+  { id: 'dessert', label: 'Tatlı', emoji: '🍰' },
+  { id: 'breakfast', label: 'Kahvaltı', emoji: '🥐' },
+  { id: 'seafood', label: 'Deniz Ürünü', emoji: '🐟' },
+]
+
+// ─── Confetti Component ──────────────────────────────────────────────────────
+const Confetti = () => {
+  const [particles, setParticles] = useState<Array<{ id: number; x: number; color: string; delay: number; duration: number }>>([])
+
+  useEffect(() => {
+    const colors = ['#E23744', '#F5A623', '#FFD700', '#00C853', '#FF4D5A', '#fff']
+    const p = Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      delay: Math.random() * 0.5,
+      duration: 1.5 + Math.random() * 2,
+    }))
+    setParticles(p)
+  }, [])
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+      {particles.map(p => (
+        <div
+          key={p.id}
+          className="absolute top-0 animate-confetti-fall"
+          style={{
+            left: `${p.x}%`,
+            backgroundColor: p.color,
+            width: `${6 + Math.random() * 6}px`,
+            height: `${6 + Math.random() * 6}px`,
+            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 // ─── Main App ───────────────────────────────────────────────────────────────
 export default function App() {
   const [phase, setPhase] = useState<'landing' | 'inspiration' | 'game' | 'results'>('landing')
   const [mode, setMode] = useState<'browse' | 'nearby'>('browse')
   const [area, setArea] = useState<string | null>(null)
   const [cuisine, setCuisine] = useState<string | null>(null)
+  const [mealType, setMealType] = useState<string>('all')
   const [areas, setAreas] = useState<{ area: string; count: number }[]>([])
   const [cuisines, setCuisines] = useState<{ cuisine: string; count: number }[]>([])
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
@@ -359,6 +418,7 @@ export default function App() {
   const [roundWinners, setRoundWinners] = useState<Restaurant[]>([])
   const [totalRounds, setTotalRounds] = useState(0)
   const [roundTransition, setRoundTransition] = useState(false)
+  const [showConfetti, setShowConfetti] = useState(false)
 
   const abortRef = useRef<AbortController | null>(null)
   const pickLockRef = useRef(false)
@@ -484,13 +544,14 @@ export default function App() {
         const result = await api.getNearby(
           geo.position.lat, geo.position.lng,
           3000, count,
-          cuisine || undefined
+          cuisine || undefined,
+          mealType !== 'all' ? mealType : undefined
         )
         data = result.restaurants
         setNearbyMeta(result.meta)
       } else {
         // Classic catalog
-        data = await api.getCatalog(area || undefined, cuisine || undefined, count, abortRef.current.signal)
+        data = await api.getCatalog(area || undefined, cuisine || undefined, count, abortRef.current.signal, mealType !== 'all' ? mealType : undefined)
       }
 
       if (data.length < 2) {
@@ -517,11 +578,11 @@ export default function App() {
         if (card?.text) { setInspiration(card); setPhase('inspiration') }
         else setPhase('game')
       } catch { setPhase('game') }
-      api.trackEvent('game_start', { area, cuisine, count, mode, ...(geo.position ? { lat: geo.position.lat, lng: geo.position.lng } : {}) })
+      api.trackEvent('game_start', { area, cuisine, count, mode, mealType, ...(geo.position ? { lat: geo.position.lat, lng: geo.position.lng } : {}) })
     } catch (e) {
       if ((e as Error).name !== 'AbortError') setApiError('Bağlantı hatası. Tekrar deneyin.')
     } finally { setLoading(false) }
-  }, [area, cuisine, mode, geo.position])
+  }, [area, cuisine, mode, geo.position, mealType])
 
   const handlePick = useCallback((winner: Restaurant) => {
     if (pickLockRef.current) return
@@ -542,6 +603,8 @@ export default function App() {
         // Tournament over! We have a champion
         setRestaurants(newWinners)
         setPhase('results')
+        setShowConfetti(true)
+        setTimeout(() => setShowConfetti(false), 4000)
         hapticNotification('success')
         api.trackEvent('game_complete', { champion: winner.name, champion_id: winner.id, total: totalCount })
         const token = safeGetItem('local', 'foodhunt_token')
@@ -577,7 +640,7 @@ export default function App() {
   }, [roundMatches, matchIndex, roundWinners, eliminated, roundIndex, totalCount])
 
   const handleRestart = useCallback(() => {
-    setPhase('landing'); setArea(null); setCuisine(null); setSelectedIlce(null)
+    setPhase('landing'); setArea(null); setCuisine(null); setSelectedIlce(null); setMealType('all')
     setRestaurants([]); setEliminated([]); setCuisines([])
     setNearbyMeta(null)
     setRoundMatches([])
@@ -586,6 +649,7 @@ export default function App() {
     setRoundWinners([])
     setTotalRounds(0)
     setRoundTransition(false)
+    setShowConfetti(false)
   }, [])
 
   return (
@@ -764,6 +828,26 @@ export default function App() {
               )}
             </div>
 
+            {/* Öğün Tipi Seçimi */}
+            <div className="space-y-2">
+              <p className="text-xs text-brand-muted uppercase tracking-wider font-semibold text-center">Ne yemek istiyorsun?</p>
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide justify-center flex-wrap">
+                {MEAL_TYPES.map(m => (
+                  <button
+                    key={m.id}
+                    onClick={() => setMealType(m.id)}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95 ${
+                      mealType === m.id
+                        ? 'bg-brand-coral text-white shadow-lg shadow-brand-coral/20'
+                        : 'bg-brand-surface text-brand-muted hover:text-brand-cream border border-white/5'
+                    }`}
+                  >
+                    <span>{m.emoji}</span> {m.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Freemium Info */}
             {tournamentInfo && (
               <div className="text-center space-y-1">
@@ -892,6 +976,7 @@ export default function App() {
       {/* ═══ RESULTS ═══ */}
       {phase === 'results' && champion && (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+          {showConfetti && <Confetti />}
           <div className="text-center max-w-lg animate-bounce-in space-y-6">
             <Icon.Trophy />
             <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-gradient-warm">

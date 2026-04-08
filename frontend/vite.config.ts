@@ -17,7 +17,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          react: ['react', 'react-dom', 'react-router-dom'],
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'capacitor': ['@capacitor/core', '@capacitor/haptics', '@capacitor/share', '@capacitor/status-bar', '@capacitor/splash-screen', '@capacitor/keyboard', '@capacitor/geolocation'],
         }
       }
     }

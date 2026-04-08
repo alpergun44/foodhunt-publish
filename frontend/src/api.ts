@@ -224,10 +224,11 @@ function authHeaders(token: string): Record<string, string> {
 
 // ─── Public API ─────────────────────────────────────────────────────────────
 export const api = {
-  getCatalog: (area?: string, cuisine?: string, limit = 16, signal?: AbortSignal): Promise<Restaurant[]> => {
+  getCatalog: (area?: string, cuisine?: string, limit = 16, signal?: AbortSignal, mealType?: string): Promise<Restaurant[]> => {
     const p = new URLSearchParams();
     if (area) p.set('area', area);
     if (cuisine) p.set('cuisine', cuisine);
+    if (mealType && mealType !== 'all') p.set('meal_type', mealType);
     p.set('limit', String(limit));
     return safeFetch(`${BASE}/catalog?${p}`, { signal });
   },
@@ -257,7 +258,7 @@ export const api = {
   },
 
   // ─── Nearby / Location-based ──────────────────────────────────────────────
-  getNearby: (lat: number, lng: number, radius = 2000, limit = 16, cuisine?: string): Promise<NearbyResult> => {
+  getNearby: (lat: number, lng: number, radius = 2000, limit = 16, cuisine?: string, mealType?: string): Promise<NearbyResult> => {
     const p = new URLSearchParams({
       lat: String(lat),
       lng: String(lng),
@@ -265,6 +266,7 @@ export const api = {
       limit: String(limit),
     });
     if (cuisine) p.set('cuisine', cuisine);
+    if (mealType && mealType !== 'all') p.set('meal_type', mealType);
     return safeFetch(`${BASE}/nearby?${p}`);
   },
 

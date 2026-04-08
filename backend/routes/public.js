@@ -11,6 +11,17 @@ const { checkTournamentLimit, rateLimit } = require('../middleware/auth');
 
 const router = express.Router();
 
+// ─── Meal Type Filtering ──────────────────────────────────────────────────────
+const MEAL_TYPE_FILTERS = {
+  protein: { cuisines: ['Kebap', 'Izgara', 'Steak', 'Et'], tags: ['protein', 'et', 'kebap', 'izgara'] },
+  cheat: { cuisines: ['Burger', 'Pizza', 'Fast Food', 'Döner'], tags: ['burger', 'pizza', 'fast-food', 'cheat'] },
+  healthy: { cuisines: ['Salata', 'Vejetaryen', 'Vegan', 'Sağlıklı'], tags: ['salata', 'sağlıklı', 'vegan', 'vejetaryen', 'diyet'] },
+  quick: { cuisines: ['Fast Food', 'Tost', 'Döner', 'Lahmacun'], tags: ['hızlı', 'atıştırmalık', 'fast-food'] },
+  dessert: { cuisines: ['Pastane', 'Tatlıcı', 'Kafe', 'Dondurma'], tags: ['tatlı', 'dessert', 'pasta', 'dondurma'] },
+  breakfast: { cuisines: ['Kahvaltı', 'Kafe', 'Börek'], tags: ['kahvaltı', 'breakfast', 'börek'] },
+  seafood: { cuisines: ['Balık', 'Deniz Ürünleri'], tags: ['balık', 'deniz', 'seafood'] },
+};
+
 // Active regions for public use
 router.get('/regions', asyncHandler(async (_req, res) => {
   const regions = await dbHelpers.find('regions', { is_active: true });
@@ -78,7 +89,7 @@ router.get('/cuisines', asyncHandler(async (req, res) => {
 
 // Catalog — shuffled restaurants for tournament
 router.get('/catalog', asyncHandler(async (req, res) => {
-  const { area, cuisine, limit = 16, price_min, price_max } = req.query;
+  const { area, cuisine, limit = 16, price_min, price_max, meal_type } = req.query;
   const q = { is_active: 1 };
   if (area) q.area = safeStr(area, 100);
   if (cuisine) q.cuisine = safeStr(cuisine, 100);
@@ -105,6 +116,16 @@ router.get('/catalog', asyncHandler(async (req, res) => {
       }
       q.area = { $in: allowedAreas };
     }
+  }
+
+  // Add meal_type filter if provided
+  if (meal_type && meal_type !== 'all' && MEAL_TYPE_FILTERS[meal_type]) {
+    const mf = MEAL_TYPE_FILTERS[meal_type];
+    // Build $or condition for cuisine match or tag match
+    q.$or = [
+      { cuisine: { $regex: mf.cuisines.join('|'), $options: 'i' } },
+      { tags: { $in: mf.tags.map(t => new RegExp(t, 'i')) } }
+    ];
   }
 
   const all = await dbHelpers.find('restaurants', q);

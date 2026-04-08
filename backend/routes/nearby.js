@@ -12,6 +12,17 @@ const { searchNearby } = require('../services/places');
 
 const router = express.Router();
 
+// ─── Meal Type Filtering ──────────────────────────────────────────────────────
+const MEAL_TYPE_FILTERS = {
+  protein: { cuisines: ['Kebap', 'Izgara', 'Steak', 'Et'], tags: ['protein', 'et', 'kebap', 'izgara'] },
+  cheat: { cuisines: ['Burger', 'Pizza', 'Fast Food', 'Döner'], tags: ['burger', 'pizza', 'fast-food', 'cheat'] },
+  healthy: { cuisines: ['Salata', 'Vejetaryen', 'Vegan', 'Sağlıklı'], tags: ['salata', 'sağlıklı', 'vegan', 'vejetaryen', 'diyet'] },
+  quick: { cuisines: ['Fast Food', 'Tost', 'Döner', 'Lahmacun'], tags: ['hızlı', 'atıştırmalık', 'fast-food'] },
+  dessert: { cuisines: ['Pastane', 'Tatlıcı', 'Kafe', 'Dondurma'], tags: ['tatlı', 'dessert', 'pasta', 'dondurma'] },
+  breakfast: { cuisines: ['Kahvaltı', 'Kafe', 'Börek'], tags: ['kahvaltı', 'breakfast', 'börek'] },
+  seafood: { cuisines: ['Balık', 'Deniz Ürünleri'], tags: ['balık', 'deniz', 'seafood'] },
+};
+
 let _nextNearbyId = Date.now();
 function nextNearbyId() {
   const id = ++_nextNearbyId;
@@ -21,7 +32,7 @@ function nextNearbyId() {
 }
 
 /**
- * GET /api/nearby?lat=&lng=&radius=2000&limit=16&cuisine=&merge=true
+ * GET /api/nearby?lat=&lng=&radius=2000&limit=16&cuisine=&meal_type=&merge=true
  *
  * Returns restaurants near the user's location.
  * If Google Places API key is configured, fetches from Google.
@@ -29,7 +40,7 @@ function nextNearbyId() {
  * If no API key, falls back to seed data only.
  */
 router.get('/nearby', asyncHandler(async (req, res) => {
-  const { lat, lng, radius = 2000, limit = 16, cuisine, merge = 'true' } = req.query;
+  const { lat, lng, radius = 2000, limit = 16, cuisine, meal_type, merge = 'true' } = req.query;
 
   // Validate coordinates
   const latNum = parseFloat(lat);
@@ -59,6 +70,14 @@ router.get('/nearby', asyncHandler(async (req, res) => {
     const q = { is_active: 1 };
     if (area) q.area = area;
     if (cuisine) q.cuisine = safeStr(cuisine, 100);
+    // Add meal_type filter if provided
+    if (meal_type && meal_type !== 'all' && MEAL_TYPE_FILTERS[meal_type]) {
+      const mf = MEAL_TYPE_FILTERS[meal_type];
+      q.$or = [
+        { cuisine: { $regex: mf.cuisines.join('|'), $options: 'i' } },
+        { tags: { $in: mf.tags.map(t => new RegExp(t, 'i')) } }
+      ];
+    }
     seedResults = await dbHelpers.find('restaurants', q);
   }
 
@@ -74,7 +93,21 @@ router.get('/nearby', asyncHandler(async (req, res) => {
     );
   }
 
-  // 5. Shuffle and limit
+  // 5. Filter by meal_type if specified (for Google results as well)
+  if (meal_type && meal_type !== 'all' && MEAL_TYPE_FILTERS[meal_type]) {
+    const mf = MEAL_TYPE_FILTERS[meal_type];
+    combined = combined.filter(r => {
+      const matchesCuisine = mf.cuisines.some(c =>
+        (r.cuisine || '').toLowerCase().includes(c.toLowerCase())
+      );
+      const matchesTags = (r.tags || []).some(tag =>
+        mf.tags.some(t => tag.toLowerCase().includes(t.toLowerCase()))
+      );
+      return matchesCuisine || matchesTags;
+    });
+  }
+
+  // 6. Shuffle and limit
   const result = shuffle(combined).slice(0, limitNum);
 
   res.json({
