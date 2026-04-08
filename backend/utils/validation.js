@@ -28,7 +28,7 @@ function sanitizeRestaurant(body) {
   if (c.address && typeof c.address === 'string') c.address = c.address.trim().slice(0, 300);
   if (c.phone && typeof c.phone === 'string') c.phone = c.phone.trim().slice(0, 20);
   if (c.rating !== undefined) c.rating = Math.min(5, Math.max(0, parseFloat(c.rating) || 0));
-  if (c.price_level !== undefined) c.price_level = Math.min(4, Math.max(1, parseInt(c.price_level) || 2));
+  if (c.price_level !== undefined) { const pl = parseInt(c.price_level); c.price_level = Math.min(4, Math.max(1, isNaN(pl) ? 2 : pl)); }
   if (c.calories_min !== undefined) c.calories_min = Math.max(0, parseInt(c.calories_min) || 0);
   if (c.calories_max !== undefined) c.calories_max = Math.max(0, parseInt(c.calories_max) || 0);
   if (c.lat !== undefined) c.lat = parseFloat(c.lat) || null;
