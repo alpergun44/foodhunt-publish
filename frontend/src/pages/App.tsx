@@ -175,26 +175,20 @@ const ProgressBar = ({ current, total }: { current: number; total: number }) => 
   )
 }
 
-// ─── Deeplinks ──────────────────────────────────────────────────────────────
+// ─── Deeplinks (Her zaman ana platform linklerine yönlendir) ────────────────
+const PLATFORM_LINKS = [
+  { key: 'yemeksepeti', label: "Yemeksepeti'de Sipariş Ver", url: 'https://www.yemeksepeti.com', appUrl: 'yemeksepeti://', color: 'bg-[#D4202C] hover:bg-[#b81a24]' },
+  { key: 'getir', label: "Getir'de Sipariş Ver", url: 'https://getir.com', appUrl: 'getir://', color: 'bg-[#5D3EBC] hover:bg-[#4a2fa0]' },
+  { key: 'trendyol', label: "Trendyol Go'da Sipariş Ver", url: 'https://www.trendyol.com/trendyol-go', appUrl: 'trendyol://', color: 'bg-[#F27A1A] hover:bg-[#d96a12]' },
+]
+
 const Deeplinks = ({ restaurant }: { restaurant: Restaurant }) => {
-  const links = [
-    { key: 'yemeksepeti', url: restaurant.yemeksepeti_link, label: "Yemeksepeti'de Sipariş Ver", color: 'bg-[#D4202C] hover:bg-[#b81a24]', textColor: 'text-white' },
-    { key: 'getir', url: restaurant.getir_link, label: "Getir'de Sipariş Ver", color: 'bg-[#5D3EBC] hover:bg-[#4a2fa0]', textColor: 'text-white' },
-    { key: 'trendyol', url: restaurant.trendyol_link, label: "Trendyol Go'da Sipariş Ver", color: 'bg-[#F27A1A] hover:bg-[#d96a12]', textColor: 'text-white' },
-    { key: 'gmaps', url: restaurant.google_maps_url, label: 'Google Maps', color: 'bg-[#4285F4] hover:bg-[#3275e4]', textColor: 'text-white' },
-    { key: 'website', url: restaurant.website, label: 'Website', color: 'bg-brand-elevated hover:bg-white/10', textColor: 'text-brand-cream' },
-  ].filter(l => l.url)
-
-  if (!links.length) return null
-
-  const handleDeeplinkClick = (platform: string, url: string) => {
-    // Track the click
+  const handleDeeplinkClick = (platform: string) => {
     api.trackEvent('deeplink_click', {
       platform,
       restaurant_id: restaurant.id,
-      restaurant_name: restaurant.name
+      restaurant_name: restaurant.name,
     })
-    // Track for points if user is logged in
     const token = safeGetItem('local', 'foodhunt_token')
     if (token) {
       authApi.trackDeeplinkOrder(token, {
@@ -204,19 +198,37 @@ const Deeplinks = ({ restaurant }: { restaurant: Restaurant }) => {
     }
   }
 
+  // Google Maps linki varsa ekle
+  const extraLinks = [
+    restaurant.google_maps_url && { key: 'gmaps', label: 'Google Maps', url: restaurant.google_maps_url, color: 'bg-[#4285F4] hover:bg-[#3275e4]' },
+  ].filter(Boolean) as { key: string; label: string; url: string; color: string }[]
+
   return (
     <div className="mt-6 space-y-3">
       <p className="text-center text-brand-cream text-sm font-bold">Hemen Sipariş Ver!</p>
       <p className="text-center text-brand-muted text-xs">Şampiyonunu seçtin, şimdi sipariş zamanı</p>
       <div className="flex flex-col gap-2">
-        {links.map(l => (
+        {PLATFORM_LINKS.map(l => (
           <a
             key={l.key}
-            href={l.url!}
+            href={l.url}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => handleDeeplinkClick(l.key, l.url!)}
-            className={`flex items-center justify-center gap-2 px-5 py-3.5 ${l.color} ${l.textColor} rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg hover:shadow-xl`}
+            onClick={() => handleDeeplinkClick(l.key)}
+            className={`flex items-center justify-center gap-2 px-5 py-3.5 ${l.color} text-white rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg hover:shadow-xl`}
+          >
+            {l.label}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+          </a>
+        ))}
+        {extraLinks.map(l => (
+          <a
+            key={l.key}
+            href={l.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => handleDeeplinkClick(l.key)}
+            className={`flex items-center justify-center gap-2 px-5 py-3.5 ${l.color} text-white rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg hover:shadow-xl`}
           >
             {l.label}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
