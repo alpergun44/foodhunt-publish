@@ -46,6 +46,17 @@ interface VSCardProps {
   side?: 'left' | 'right'
 }
 
+const PriceLevel = ({ level }: { level?: number }) => {
+  const l = level || 1
+  return (
+    <span className="flex items-center gap-0.5 text-xs">
+      {[1, 2, 3].map(i => (
+        <span key={i} className={i <= l ? 'text-brand-trust font-bold' : 'text-white/20'}>₺</span>
+      ))}
+    </span>
+  )
+}
+
 const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps) => {
   const stars = (restaurant.rating ?? 0).toFixed(1)
   const imgSrc = restaurant.image_url || PLACEHOLDER_IMG
@@ -58,10 +69,9 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
         group relative w-full max-w-sm rounded-3xl overflow-hidden
         transition-all duration-300 text-left
         ${animating ? 'scale-95 opacity-40 pointer-events-none' : 'hover:scale-[1.03] active:scale-[0.97]'}
-        ${isWinner ? 'ring-2 ring-brand-coral shadow-lg shadow-brand-coral/30' : ''}
-        ${side === 'left' ? 'animate-slide-up' : side === 'right' ? 'animate-slide-up' : ''}
+        ${isWinner ? 'ring-2 ring-brand-gold winner-card-glow' : ''}
+        ${side === 'left' ? 'animate-card-slide-left' : side === 'right' ? 'animate-card-slide-right' : ''}
       `}
-      style={{ animationDelay: side === 'right' ? '0.1s' : '0s' }}
     >
       {/* Image with overlay */}
       <div className="relative w-full aspect-[4/3] bg-brand-card overflow-hidden">
@@ -79,9 +89,14 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
           <Icon.Star /> {stars}
         </div>
 
+        {/* Price level badge */}
+        <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full">
+          <PriceLevel level={restaurant.price_level} />
+        </div>
+
         {isWinner && (
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-brand-coral to-brand-amber text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-            ŞAMPİYON
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-gold to-brand-amber text-brand-dark px-4 py-1.5 rounded-full text-xs font-black shadow-lg animate-bounce-in">
+            🏆 ŞAMPİYON
           </div>
         )}
       </div>
@@ -274,6 +289,46 @@ const Footer = () => (
   </footer>
 )
 
+// ─── Round Stepper Component ────────────────────────────────────────────────
+const RoundStepper = ({ totalRounds, currentRound, totalSize, roundMatches, matchIndex }: {
+  totalRounds: number; currentRound: number; totalSize: number; roundMatches: Restaurant[][]; matchIndex: number
+}) => {
+  const steps: { label: string; size: number }[] = []
+  let size = totalSize
+  for (let i = 0; i <= totalRounds; i++) {
+    if (size === 2) steps.push({ label: 'Final', size: 2 })
+    else if (size === 4) steps.push({ label: 'Yarı Final', size: 4 })
+    else steps.push({ label: `${size}`, size })
+    size = Math.floor(size / 2)
+  }
+
+  return (
+    <div className="w-full max-w-lg mx-auto mb-6">
+      <div className="flex items-center justify-between gap-1">
+        {steps.map((step, i) => (
+          <div key={i} className="flex items-center gap-1 flex-1">
+            <div className={`
+              flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all duration-500
+              ${i < currentRound ? 'bg-brand-fresh text-white scale-90' : ''}
+              ${i === currentRound ? 'bg-gradient-to-r from-brand-coral to-brand-amber text-white scale-110 shadow-lg shadow-brand-coral/30' : ''}
+              ${i > currentRound ? 'bg-brand-surface text-brand-muted' : ''}
+            `}>
+              {i < currentRound ? '✓' : step.size}
+            </div>
+            {i < steps.length - 1 && (
+              <div className={`flex-1 h-0.5 rounded-full transition-all duration-500 ${i < currentRound ? 'bg-brand-fresh' : 'bg-brand-surface'}`} />
+            )}
+          </div>
+        ))}
+      </div>
+      {/* Match counter within round */}
+      <p className="text-center text-brand-muted text-xs mt-2">
+        Maç {matchIndex + 1} / {roundMatches.length}
+      </p>
+    </div>
+  )
+}
+
 // ─── Main App ───────────────────────────────────────────────────────────────
 export default function App() {
   const [phase, setPhase] = useState<'landing' | 'inspiration' | 'game' | 'results'>('landing')
@@ -297,6 +352,12 @@ export default function App() {
   const [tournamentInfo, setTournamentInfo] = useState<{ used: number; limit: number; remaining: number; can_play: boolean } | null>(null)
   const [regions, setRegions] = useState<PublicRegion[]>([])
   const [selectedIlce, setSelectedIlce] = useState<string | null>(null)
+  const [roundMatches, setRoundMatches] = useState<Restaurant[][]>([])
+  const [matchIndex, setMatchIndex] = useState(0)
+  const [roundIndex, setRoundIndex] = useState(0)
+  const [roundWinners, setRoundWinners] = useState<Restaurant[]>([])
+  const [totalRounds, setTotalRounds] = useState(0)
+  const [roundTransition, setRoundTransition] = useState(false)
 
   const abortRef = useRef<AbortController | null>(null)
   const pickLockRef = useRef(false)
@@ -307,6 +368,23 @@ export default function App() {
   const champion = useMemo(() => (restaurants.length === 1 ? restaurants[0] : null), [restaurants])
   const runnerUp = useMemo(() => (eliminated.length > 0 ? eliminated[eliminated.length - 1] : null), [eliminated])
   const thirdPlace = useMemo(() => (eliminated.length > 1 ? eliminated[eliminated.length - 2] : null), [eliminated])
+
+  // Helper function to create pairs from restaurant array
+  const createPairs = (arr: Restaurant[]): Restaurant[][] => {
+    const pairs: Restaurant[][] = []
+    for (let i = 0; i < arr.length; i += 2) {
+      if (i + 1 < arr.length) pairs.push([arr[i], arr[i + 1]])
+    }
+    return pairs
+  }
+
+  // Helper function to get round name
+  const getRoundName = (remaining: number, total: number): string => {
+    if (remaining === 2) return 'Final'
+    if (remaining === 4) return 'Yarı Final'
+    if (remaining === 8) return 'Çeyrek Final'
+    return `Son ${remaining}`
+  }
 
   useEffect(() => {
     const controller = new AbortController()
@@ -419,9 +497,20 @@ export default function App() {
         setLoading(false)
         return
       }
-      setRestaurants(data)
+      // Shuffle the data
+      const shuffled = [...data].sort(() => Math.random() - 0.5)
+      setRestaurants(shuffled)
       setEliminated([])
-      setTotalCount(data.length)
+      setTotalCount(shuffled.length)
+
+      // Initialize bracket
+      const pairs = createPairs(shuffled)
+      setRoundMatches(pairs)
+      setMatchIndex(0)
+      setRoundIndex(0)
+      setRoundWinners([])
+      setTotalRounds(Math.log2(shuffled.length))
+
       try {
         const card = await api.getInspiration()
         if (card?.text) { setInspiration(card); setPhase('inspiration') }
@@ -436,34 +525,66 @@ export default function App() {
   const handlePick = useCallback((winner: Restaurant) => {
     if (pickLockRef.current) return
     pickLockRef.current = true
-    hapticImpact('medium') // Dokunsal geri bildirim
-    const loser = restaurants[0].id === winner.id ? restaurants[1] : restaurants[0]
-    const remaining = restaurants.filter(r => r.id !== winner.id && r.id !== loser.id)
-    api.trackEvent('choice_made', { winner_id: winner.id, loser_id: loser.id })
-    setTimeout(() => {
-      setEliminated(prev => [...prev, loser])
-      const next = [winner, ...remaining]
-      if (next.length === 1) {
-        setRestaurants(next)
+    hapticImpact('medium')
+
+    const currentPair = roundMatches[matchIndex]
+    const loser = currentPair[0].id === winner.id ? currentPair[1] : currentPair[0]
+
+    const newWinners = [...roundWinners, winner]
+    const newEliminated = [...eliminated, loser]
+    setEliminated(newEliminated)
+
+    // Check if this was the last match of the round
+    if (matchIndex + 1 >= roundMatches.length) {
+      // Round complete
+      if (newWinners.length === 1) {
+        // Tournament over! We have a champion
+        setRestaurants(newWinners)
         setPhase('results')
-        hapticNotification('success') // Şampiyon belirlendi!
-        api.trackEvent('game_complete', { champion_id: winner.id })
-        // Award points if user is logged in
+        hapticNotification('success')
+        api.trackEvent('game_complete', { champion: winner.name, champion_id: winner.id, total: totalCount })
         const token = safeGetItem('local', 'foodhunt_token')
-        if (token) {
-          authApi.trackTournamentComplete(token, { champion_id: winner.id, tournament_type: mode }).catch(() => {})
-        }
-      } else {
-        setRestaurants(next)
+        if (token) authApi.trackTournamentComplete(token, { champion_id: winner.id }).catch(() => {})
+        pickLockRef.current = false
+        return
       }
-      pickLockRef.current = false
-    }, 500)
-  }, [restaurants])
+
+      // Advance to next round with transition animation
+      setRoundTransition(true)
+      setRoundWinners(newWinners)
+
+      setTimeout(() => {
+        const nextPairs = createPairs(newWinners)
+        setRoundMatches(nextPairs)
+        setMatchIndex(0)
+        setRoundIndex(prev => prev + 1)
+        setRoundWinners([])
+        setRestaurants(newWinners)
+        setRoundTransition(false)
+        pickLockRef.current = false
+      }, 1200) // 1.2s for round transition animation
+    } else {
+      // More matches in this round
+      setRoundWinners(newWinners)
+      setTimeout(() => {
+        setMatchIndex(prev => prev + 1)
+        pickLockRef.current = false
+      }, 500)
+    }
+
+    api.trackEvent('choice_made', { winner: winner.name, loser: loser.name, round: roundIndex })
+  }, [roundMatches, matchIndex, roundWinners, eliminated, roundIndex, totalCount])
 
   const handleRestart = useCallback(() => {
     setPhase('landing'); setArea(null); setCuisine(null); setSelectedIlce(null)
     setRestaurants([]); setEliminated([]); setCuisines([])
     setNearbyMeta(null)
+    setRoundMatches([])
+    setMatchIndex(0)
+    setRoundIndex(0)
+    setRoundWinners([])
+    setTotalRounds(0)
+    setRoundTransition(false)
   }, [])
 
   return (
@@ -728,19 +849,21 @@ export default function App() {
       )}
 
       {/* ═══ GAME ═══ */}
-      {phase === 'game' && !loading && restaurants.length >= 2 && (
+      {phase === 'game' && !loading && roundMatches.length > 0 && roundMatches[matchIndex] && !roundTransition && (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 gap-6 no-select safe-top">
+          {/* Round Stepper */}
+          <RoundStepper totalRounds={totalRounds} currentRound={roundIndex} totalSize={totalCount} roundMatches={roundMatches} matchIndex={matchIndex} />
+
           {/* Header */}
-          <div className="text-center space-y-3 w-full max-w-md">
-            <p className="text-brand-muted text-xs uppercase tracking-widest">Hangisini tercih edersin?</p>
-            <ProgressBar current={restaurants.length} total={totalCount} />
-          </div>
+          <p className="text-xs uppercase tracking-widest text-brand-muted font-bold mb-4">
+            {getRoundName(roundMatches.length * 2, totalCount)} — Hangisini Tercih Edersin?
+          </p>
 
           {/* Battle */}
           <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center justify-center w-full max-w-4xl">
             <VSCard
-              restaurant={restaurants[0]}
-              onClick={() => handlePick(restaurants[0])}
+              restaurant={roundMatches[matchIndex][0]}
+              onClick={() => handlePick(roundMatches[matchIndex][0])}
               animating={pickLockRef.current}
               side="left"
             />
@@ -750,12 +873,21 @@ export default function App() {
             </div>
 
             <VSCard
-              restaurant={restaurants[1]}
-              onClick={() => handlePick(restaurants[1])}
+              restaurant={roundMatches[matchIndex][1]}
+              onClick={() => handlePick(roundMatches[matchIndex][1])}
               animating={pickLockRef.current}
               side="right"
             />
           </div>
+        </div>
+      )}
+
+      {/* ═══ GAME (Round Transition) ═══ */}
+      {phase === 'game' && !loading && roundTransition && (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
+          <div className="text-6xl mb-4 animate-bounce-in">🎯</div>
+          <h2 className="text-2xl font-bold text-brand-cream mb-2">Tur Tamamlandı!</h2>
+          <p className="text-brand-muted">{getRoundName(roundWinners.length, totalCount)} turuna geçiliyor...</p>
         </div>
       )}
 
