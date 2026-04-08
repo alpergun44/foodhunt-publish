@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { api, authApi, Restaurant, InspirationCard, TournamentSlot, PublicRegion, safeGetItem, safeSetItem } from '../api'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { hapticImpact, hapticNotification, nativeShare, configureStatusBar, hideSplashScreen } from '../utils/native'
+import { playPickSound, playVictorySound, playRoundCompleteSound, isSoundEnabled, toggleSound } from '../utils/sound'
 import { SocialProof } from '../components/ui/SocialProof'
 import { Logo, LogoText } from '../components/ui/Logo'
 import { CookieConsent } from '../components/ui/CookieConsent'
@@ -68,7 +69,7 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
       disabled={animating}
       className={`
         group relative w-full max-w-sm rounded-3xl overflow-hidden
-        transition-all duration-300 text-left
+        transition-all duration-150 text-left
         ${animating ? 'scale-95 opacity-40 pointer-events-none' : 'hover:scale-[1.03] active:scale-[0.97]'}
         ${isWinner ? 'ring-2 ring-brand-gold winner-card-glow' : ''}
         ${side === 'left' ? 'animate-card-slide-left' : side === 'right' ? 'animate-card-slide-right' : ''}
@@ -419,6 +420,7 @@ export default function App() {
   const [totalRounds, setTotalRounds] = useState(0)
   const [roundTransition, setRoundTransition] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [soundOn, setSoundOn] = useState(isSoundEnabled())
 
   const abortRef = useRef<AbortController | null>(null)
   const pickLockRef = useRef(false)
@@ -588,6 +590,7 @@ export default function App() {
     if (pickLockRef.current) return
     pickLockRef.current = true
     hapticImpact('medium')
+    playPickSound()
 
     const currentPair = roundMatches[matchIndex]
     const loser = currentPair[0].id === winner.id ? currentPair[1] : currentPair[0]
@@ -606,6 +609,7 @@ export default function App() {
         setShowConfetti(true)
         setTimeout(() => setShowConfetti(false), 4000)
         hapticNotification('success')
+        playVictorySound()
         api.trackEvent('game_complete', { champion: winner.name, champion_id: winner.id, total: totalCount })
         const token = safeGetItem('local', 'foodhunt_token')
         if (token) authApi.trackTournamentComplete(token, { champion_id: winner.id }).catch(() => {})
@@ -616,6 +620,7 @@ export default function App() {
       // Advance to next round with transition animation
       setRoundTransition(true)
       setRoundWinners(newWinners)
+      playRoundCompleteSound()
 
       setTimeout(() => {
         const nextPairs = createPairs(newWinners)
@@ -626,14 +631,14 @@ export default function App() {
         setRestaurants(newWinners)
         setRoundTransition(false)
         pickLockRef.current = false
-      }, 1200) // 1.2s for round transition animation
+      }, 800) // 0.8s for round transition animation
     } else {
       // More matches in this round
       setRoundWinners(newWinners)
       setTimeout(() => {
         setMatchIndex(prev => prev + 1)
         pickLockRef.current = false
-      }, 500)
+      }, 300)
     }
 
     api.trackEvent('choice_made', { winner: winner.name, loser: loser.name, round: roundIndex })
@@ -733,6 +738,17 @@ export default function App() {
                 <p className="text-[11px] text-brand-muted mt-1">{currentSlot.start} - {currentSlot.end}</p>
               </div>
             )}
+
+            {/* Sound Toggle */}
+            <button
+              onClick={() => { const on = toggleSound(); setSoundOn(on); }}
+              className={`absolute top-4 left-4 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-all ${
+                soundOn ? 'bg-brand-coral/20 text-brand-coral' : 'bg-brand-surface text-brand-muted'
+              }`}
+              title={soundOn ? 'Sesi Kapat' : 'Sesi Aç'}
+            >
+              {soundOn ? '🔊' : '🔇'}
+            </button>
 
             {/* Mode Toggle */}
             <div className="flex bg-brand-surface rounded-2xl p-1 border border-white/5">
@@ -891,9 +907,9 @@ export default function App() {
 
             {/* Premium Upgrade Prompt */}
             {tournamentInfo && !tournamentInfo.can_play && (
-              <div className="p-4 bg-brand-amber/10 border border-brand-amber/30 rounded-xl text-center space-y-2">
-                <p className="text-brand-amber font-semibold text-sm">Unlimited turnuva oynamak ister misin?</p>
-                <p className="text-brand-muted text-xs">Premium ile sınır olmadan oyna!</p>
+              <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-center space-y-2">
+                <p className="text-brand-cream font-medium text-sm">Bugünkü turnuva hakkın doldu</p>
+                <p className="text-brand-muted text-xs">Yarın 3 yeni turnuva hakkın olacak!</p>
               </div>
             )}
 
@@ -1009,12 +1025,17 @@ export default function App() {
 
             {/* Points CTA for non-logged-in users */}
             {!safeGetItem('local', 'foodhunt_token') && (
-              <div className="bg-brand-amber/10 border border-brand-amber/20 rounded-2xl p-4 mt-4">
-                <p className="text-brand-amber text-sm font-semibold">Puan Kazan!</p>
-                <p className="text-brand-muted text-xs mt-1">Giriş yaparak turnuva ve sipariş puanları kazanın.</p>
-                <a href="/giris" className="inline-block mt-3 bg-gradient-to-r from-brand-coral to-brand-amber text-white text-xs font-bold px-4 py-2 rounded-full hover:opacity-90 transition">
-                  Giriş Yap / Kayıt Ol
-                </a>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mt-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">✨</span>
+                  <div className="flex-1">
+                    <p className="text-brand-cream text-sm font-medium">Turnuva geçmişini kaydet</p>
+                    <p className="text-brand-muted text-xs mt-0.5">Favorilerini ve puanlarını takip et</p>
+                  </div>
+                  <a href="/giris" className="bg-brand-coral/20 text-brand-coral text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-coral/30 transition">
+                    Giriş
+                  </a>
+                </div>
               </div>
             )}
 
