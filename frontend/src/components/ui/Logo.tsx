@@ -13,12 +13,12 @@ export const Logo = ({ size = 80, className = '' }: { size?: number; className?:
   >
     <defs>
       <linearGradient id="logo-gradient" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#E23744" />
-        <stop offset="100%" stopColor="#F5A623" />
+        <stop offset="0%" stopColor="#FF5A1F" />
+        <stop offset="100%" stopColor="#E63946" />
       </linearGradient>
       <linearGradient id="logo-bg" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#1A2D47" />
-        <stop offset="100%" stopColor="#0A1628" />
+        <stop offset="0%" stopColor="#1E1E24" />
+        <stop offset="100%" stopColor="#141417" />
       </linearGradient>
       <filter id="logo-glow">
         <feGaussianBlur stdDeviation="4" result="blur" />

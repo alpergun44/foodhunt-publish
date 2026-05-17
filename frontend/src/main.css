@@ -19,7 +19,7 @@
   :focus-visible { @apply outline-2 outline-brand-coral outline-offset-2; }
 
   /* Prevent iOS rubber-band overscroll background */
-  html { background: #0A1628; }
+  html { background: #141417; }
 
   @supports (padding-top: env(safe-area-inset-top)) {
     .safe-top { padding-top: env(safe-area-inset-top); }
@@ -32,11 +32,11 @@
     -webkit-touch-callout: none;
   }
 
-  /* Custom scrollbar — navy theme */
+  /* Custom scrollbar — charcoal theme */
   ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #121F33; }
-  ::-webkit-scrollbar-thumb { background: #2A4060; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #E23744; }
+  ::-webkit-scrollbar-track { background: #1E1E24; }
+  ::-webkit-scrollbar-thumb { background: #2A2A35; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #FF5A1F; }
 }
 
 @layer components {
@@ -70,7 +70,7 @@
            transition-all duration-300 cursor-pointer;
   }
   .card-glass {
-    background: rgba(26, 45, 71, 0.7);
+    background: rgba(30, 30, 36, 0.7);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     @apply rounded-3xl border border-white/10;
@@ -109,19 +109,19 @@
 
 @layer utilities {
   .text-gradient {
-    background: linear-gradient(135deg, #E23744, #F5A623);
+    background: linear-gradient(135deg, #FF5A1F, #E63946);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .text-gradient-warm {
-    background: linear-gradient(135deg, #E23744, #FF4D5A, #F5A623);
+    background: linear-gradient(135deg, #FF5A1F, #FF7A47, #FFB627);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   .glass {
-    background: rgba(26, 45, 71, 0.5);
+    background: rgba(30, 30, 36, 0.5);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.08);
@@ -156,24 +156,24 @@
   50%     { transform: scale(1.2); }
 }
 
-/* ─── Progress bar glow — cherry red ──────────────────────────── */
+/* ─── Progress bar glow — lava orange ──────────────────────────── */
 .progress-glow {
-  box-shadow: 0 0 16px rgba(226,55,68,0.5), 0 0 32px rgba(226,55,68,0.2);
+  box-shadow: 0 0 16px rgba(255,90,31,0.5), 0 0 32px rgba(255,90,31,0.2);
 }
 
-/* ─── Food image overlay — navy gradient ─────────────────────── */
+/* ─── Food image overlay — charcoal gradient ─────────────────── */
 .food-overlay {
-  background: linear-gradient(to top, rgba(10,22,40,0.95) 0%, rgba(10,22,40,0.4) 40%, transparent 100%);
+  background: linear-gradient(to top, rgba(20,20,23,0.95) 0%, rgba(20,20,23,0.4) 40%, transparent 100%);
 }
 
 /* ─── Bracket connector lines ────────────────────────────────── */
 .bracket-line {
-  border-right: 2px solid rgba(226,55,68,0.2);
-  border-top: 2px solid rgba(226,55,68,0.2);
-  border-bottom: 2px solid rgba(226,55,68,0.2);
+  border-right: 2px solid rgba(255,90,31,0.2);
+  border-top: 2px solid rgba(255,90,31,0.2);
+  border-bottom: 2px solid rgba(255,90,31,0.2);
 }
 
-/* ─── Ambient glow — navy theme ─────────────────────────────── */
+/* ─── Ambient glow — charcoal theme ────────────────────────────── */
 .ambient-glow {
   position: absolute;
   width: 300px;
@@ -184,10 +184,10 @@
   pointer-events: none;
 }
 .ambient-coral {
-  background: #E23744;
+  background: #FF5A1F;
 }
 .ambient-amber {
-  background: #F5A623;
+  background: #FFB627;
 }
 
 /* ─── Round Transition ─── */
@@ -208,8 +208,8 @@
 }
 
 @keyframes victoryGlow {
-  0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(226, 55, 68, 0.3); }
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 182, 39, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(255, 182, 39, 0.6), 0 0 80px rgba(255, 90, 31, 0.3); }
 }
 
 @keyframes cardSlideLeft {
@@ -252,7 +252,7 @@
   border-radius: 50%;
 }
 .price-dot.active {
-  background: #00C853;
+  background: #34D399;
 }
 .price-dot.inactive {
   background: rgba(255,255,255,0.15);
@@ -260,5 +260,5 @@
 
 /* ─── Winner Card Glow ─── */
 .winner-card-glow {
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(226, 55, 68, 0.2);
+  box-shadow: 0 0 30px rgba(255, 182, 39, 0.4), 0 0 60px rgba(255, 90, 31, 0.2);
 }

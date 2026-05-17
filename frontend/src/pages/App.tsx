@@ -12,7 +12,7 @@ import { SkeletonCard } from '../components/ui/LoadingSkeleton'
 import { IOSInstallBanner } from '../components/ui/IOSInstallBanner'
 
 const PLACEHOLDER_IMG = 'data:image/svg+xml,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#1A2D47"/><text x="200" y="160" text-anchor="middle" fill="#8899AA" font-size="48">&#127869;</text></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#1E1E24"/><text x="200" y="160" text-anchor="middle" fill="#8B8B9E" font-size="48">&#127869;</text></svg>'
 )
 
 // ─── Icons (Lucide-style inline SVGs) ───────────────────────────────────────
@@ -369,7 +369,7 @@ const Confetti = () => {
   const [particles, setParticles] = useState<Array<{ id: number; x: number; color: string; delay: number; duration: number }>>([])
 
   useEffect(() => {
-    const colors = ['#E23744', '#F5A623', '#FFD700', '#00C853', '#FF4D5A', '#fff']
+    const colors = ['#FF5A1F', '#E63946', '#FFB627', '#34D399', '#FF7A47', '#fff']
     const p = Array.from({ length: 50 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
@@ -698,126 +698,104 @@ export default function App() {
 
       {/* ═══ LANDING ═══ */}
       {phase === 'landing' && (
-        <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 relative">
-          {/* Profile / Login button */}
-          <div className="absolute top-4 right-4 z-10">
+        <div className="min-h-screen relative">
+          {/* ── Top Bar ── */}
+          <div className="flex items-center justify-between px-5 pt-5 pb-2 safe-top">
+            <button
+              onClick={() => { const on = toggleSound(); setSoundOn(on); }}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
+                soundOn ? 'border-brand-coral/30 bg-brand-coral/10 text-brand-coral' : 'border-white/10 bg-brand-surface text-brand-muted'
+              }`}
+            >
+              {soundOn ? '🔊' : '🔇'}
+            </button>
+
             {safeGetItem('local', 'foodhunt_token') ? (
-              <a href="/profil" className="flex items-center gap-2 bg-brand-card border border-white/10 px-4 py-2 rounded-full text-sm font-semibold text-brand-cream hover:border-brand-coral transition">
-                <span className="w-6 h-6 rounded-full bg-gradient-to-br from-brand-coral to-brand-amber flex items-center justify-center text-[10px] font-bold text-white">
+              <a href="/profil" className="flex items-center gap-2.5 bg-brand-surface border border-white/10 pl-2 pr-4 py-1.5 rounded-full text-sm font-semibold text-brand-cream hover:border-brand-coral/40 transition">
+                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-coral to-brand-gold flex items-center justify-center text-[11px] font-bold text-white">
                   {(() => { try { const u = JSON.parse(safeGetItem('local', 'foodhunt_user') || '{}'); return u.name?.charAt(0)?.toUpperCase() || '?' } catch { return '?' } })()}
                 </span>
                 Profil
               </a>
             ) : (
-              <a href="/giris" className="flex items-center gap-2 bg-gradient-to-r from-brand-coral to-brand-amber px-4 py-2 rounded-full text-sm font-bold text-white hover:opacity-90 transition active:scale-95">
+              <a href="/giris" className="px-5 py-2 rounded-full text-sm font-bold text-brand-cream border border-white/15 hover:border-brand-coral/40 hover:bg-brand-coral/10 transition active:scale-95">
                 Giriş Yap
               </a>
             )}
           </div>
 
-          <div className="text-center max-w-md animate-fade-in space-y-6">
-            {/* Hero */}
-            <div className="space-y-3">
-              {currentSlot ? (
-                <>
-                  <Logo size={90} className="mx-auto animate-float" />
-                  <h1 className="font-display text-4xl sm:text-5xl font-extrabold">
-                    <span className="text-gradient-warm">{currentSlot.slot}</span>
-                  </h1>
-                  <p className="text-brand-muted text-sm">Şimdi aktif! Turnuvaya katıl.</p>
-                </>
-              ) : (
-                <>
-                  <Logo size={100} className="mx-auto animate-float" />
-                  <LogoText className="text-5xl sm:text-6xl" />
-                </>
-              )}
-              <p className="text-brand-muted text-base leading-relaxed">
-                Favorin restoranı turnuva usulü seç.
-                <br />
-                <span className="text-brand-coral">Tap. Seç. Kazan.</span>
-              </p>
-            </div>
-
-            {/* Active Tournament Slot - only show current */}
-            {currentSlot && (
-              <div className="w-full max-w-xs mx-auto p-3 rounded-2xl border bg-brand-coral/10 border-brand-coral/30 text-center">
-                <div className="flex items-center justify-center gap-2">
+          {/* ── Hero Section ── */}
+          <div className="flex flex-col items-center px-6 pt-8 pb-6 text-center">
+            <Logo size={72} className="mb-4" />
+            {currentSlot ? (
+              <>
+                <h1 className="font-display text-3xl sm:text-4xl font-extrabold mb-1">
+                  <span className="text-gradient-warm">{currentSlot.slot}</span>
+                </h1>
+                <div className="flex items-center gap-2 mt-2 mb-3">
                   <span className="text-lg">{currentSlot.icon}</span>
-                  <span className="text-sm font-bold text-brand-cream">{currentSlot.slot}</span>
-                  <span className="text-[10px] bg-brand-coral text-white px-2 py-0.5 rounded-full font-bold animate-pulse">CANLI</span>
+                  <span className="text-[10px] bg-brand-coral text-white px-2.5 py-0.5 rounded-full font-bold animate-pulse uppercase tracking-wider">Canlı</span>
+                  <span className="text-xs text-brand-muted">{currentSlot.start} – {currentSlot.end}</span>
                 </div>
-                <p className="text-[11px] text-brand-muted mt-1">{currentSlot.start} - {currentSlot.end}</p>
-              </div>
+              </>
+            ) : (
+              <>
+                <LogoText className="text-4xl sm:text-5xl mb-1" />
+              </>
             )}
+            <p className="text-brand-muted text-sm max-w-[260px] leading-relaxed">
+              Favorin restoranı turnuva usulü seç
+            </p>
+          </div>
 
-            {/* Sound Toggle */}
-            <button
-              onClick={() => { const on = toggleSound(); setSoundOn(on); }}
-              className={`absolute top-4 left-4 z-10 w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-                soundOn ? 'bg-brand-coral/20 text-brand-coral' : 'bg-brand-surface text-brand-muted'
-              }`}
-              title={soundOn ? 'Sesi Kapat' : 'Sesi Aç'}
-            >
-              {soundOn ? '🔊' : '🔇'}
-            </button>
+          {/* ── Main Card ── */}
+          <div className="px-5 pb-8">
+            <div className="max-w-md mx-auto bg-brand-surface/60 backdrop-blur-sm border border-white/[0.06] rounded-3xl overflow-hidden">
 
-            {/* Mode Toggle */}
-            <div className="flex bg-brand-surface rounded-2xl p-1 border border-white/5">
-              <button
-                onClick={handleBrowseMode}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  mode === 'browse'
-                    ? 'bg-brand-coral text-white shadow-lg shadow-brand-coral/20'
-                    : 'text-brand-muted hover:text-brand-cream'
-                }`}
-              >
-                <Icon.MapPin /> Bölge Seç
-              </button>
-              <button
-                onClick={handleNearbyMode}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  mode === 'nearby'
-                    ? 'bg-brand-coral text-white shadow-lg shadow-brand-coral/20'
-                    : 'text-brand-muted hover:text-brand-cream'
-                }`}
-              >
-                <Icon.Crosshair /> Yakınımdakiler
-              </button>
-            </div>
-
-            {/* Nearby Status */}
-            {mode === 'nearby' && (
-              <div className="text-center space-y-2">
-                {geo.loading && (
-                  <p className="text-brand-amber text-sm animate-pulse">Konumunuz alınıyor...</p>
-                )}
-                {geo.position && !geo.loading && (
-                  <div className="flex items-center justify-center gap-2 text-brand-fresh text-sm">
-                    <Icon.Navigation />
-                    <span>
-                      {nearbyMeta?.area_detected
-                        ? `${nearbyMeta.area_detected} bölgesi algılandı`
-                        : 'Konum algılandı'}
-                    </span>
-                  </div>
-                )}
-                {geo.error && !geo.position && (
-                  <p className="text-red-400 text-xs">{geo.error} — varsayılan konum kullanılacak</p>
-                )}
-                {geo.permissionDenied && (
-                  <p className="text-brand-muted text-xs">
-                    Konum izni reddedildi. İstanbul merkez kullanılacak.
-                  </p>
-                )}
+              {/* Mode Toggle */}
+              <div className="p-4 pb-0">
+                <div className="flex bg-brand-dark/60 rounded-2xl p-1">
+                  <button
+                    onClick={handleBrowseMode}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                      mode === 'browse'
+                        ? 'bg-brand-coral text-white shadow-lg shadow-brand-coral/25'
+                        : 'text-brand-muted hover:text-brand-cream'
+                    }`}
+                  >
+                    <Icon.MapPin /> Bölge Seç
+                  </button>
+                  <button
+                    onClick={handleNearbyMode}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                      mode === 'nearby'
+                        ? 'bg-brand-coral text-white shadow-lg shadow-brand-coral/25'
+                        : 'text-brand-muted hover:text-brand-cream'
+                    }`}
+                  >
+                    <Icon.Crosshair /> Yakınımdakiler
+                  </button>
+                </div>
               </div>
-            )}
 
-            {/* Filters */}
-            <div className="space-y-3">
-              {mode === 'browse' && (
-                <>
-                  {/* İlçe Seçimi */}
+              {/* Nearby Status */}
+              {mode === 'nearby' && (
+                <div className="px-4 pt-3 text-center">
+                  {geo.loading && <p className="text-brand-gold text-sm animate-pulse">Konum alınıyor...</p>}
+                  {geo.position && !geo.loading && (
+                    <div className="inline-flex items-center gap-2 text-brand-fresh text-sm bg-brand-fresh/10 px-3 py-1 rounded-full">
+                      <Icon.Navigation />
+                      {nearbyMeta?.area_detected ? `${nearbyMeta.area_detected}` : 'Konum algılandı'}
+                    </div>
+                  )}
+                  {geo.error && !geo.position && <p className="text-red-400 text-xs">{geo.error}</p>}
+                  {geo.permissionDenied && <p className="text-brand-muted text-xs">Varsayılan konum kullanılacak</p>}
+                </div>
+              )}
+
+              {/* Filters */}
+              <div className="p-4 space-y-3">
+                {mode === 'browse' && (
                   <select
                     value={selectedIlce || ''}
                     onChange={e => handleIlceChange(e.target.value || null)}
@@ -836,98 +814,99 @@ export default function App() {
                       : areas.map(a => <option key={a.area} value={a.area}>{a.area} ({a.count})</option>)
                     }
                   </select>
-                </>
-              )}
+                )}
 
-              {(mode === 'browse' ? cuisines.length > 0 : true) && (
-                <select
-                  value={cuisine || ''}
-                  onChange={e => setCuisine(e.target.value || null)}
-                  className="select-field"
-                >
-                  <option value="">Tüm Mutfaklar</option>
-                  {mode === 'browse'
-                    ? cuisines.map(c => <option key={c.cuisine} value={c.cuisine}>{c.cuisine} ({c.count})</option>)
-                    : ['Türk Mutfağı', 'Kebap', 'Pizza', 'Burger', 'Suşi', 'Deniz Ürünleri', 'Kafe', 'Fast Food', 'İtalyan', 'Vejetaryen'].map(c =>
-                        <option key={c} value={c}>{c}</option>
-                      )
-                  }
-                </select>
-              )}
-            </div>
-
-            {/* Öğün Tipi Seçimi */}
-            <div className="space-y-2">
-              <p className="text-xs text-brand-muted uppercase tracking-wider font-semibold text-center">Ne yemek istiyorsun?</p>
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide justify-center flex-wrap">
-                {MEAL_TYPES.map(m => (
-                  <button
-                    key={m.id}
-                    onClick={() => setMealType(m.id)}
-                    className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95 ${
-                      mealType === m.id
-                        ? 'bg-brand-coral text-white shadow-lg shadow-brand-coral/20'
-                        : 'bg-brand-surface text-brand-muted hover:text-brand-cream border border-white/5'
-                    }`}
+                {(mode === 'browse' ? cuisines.length > 0 : true) && (
+                  <select
+                    value={cuisine || ''}
+                    onChange={e => setCuisine(e.target.value || null)}
+                    className="select-field"
                   >
-                    <span>{m.emoji}</span> {m.label}
-                  </button>
-                ))}
+                    <option value="">Tüm Mutfaklar</option>
+                    {mode === 'browse'
+                      ? cuisines.map(c => <option key={c.cuisine} value={c.cuisine}>{c.cuisine} ({c.count})</option>)
+                      : ['Türk Mutfağı', 'Kebap', 'Pizza', 'Burger', 'Suşi', 'Deniz Ürünleri', 'Kafe', 'Fast Food', 'İtalyan', 'Vejetaryen'].map(c =>
+                          <option key={c} value={c}>{c}</option>
+                        )
+                    }
+                  </select>
+                )}
               </div>
-            </div>
 
-            {/* Freemium Info */}
-            {tournamentInfo && (
-              <div className="text-center space-y-1">
-                <p className="text-sm font-semibold text-brand-amber">
-                  {tournamentInfo.remaining} / {tournamentInfo.limit} turnuva
-                </p>
-                <p className="text-xs text-brand-muted">
-                  {tournamentInfo.can_play
-                    ? `Bugün ${tournamentInfo.remaining} turnuva hakkınız kaldı`
-                    : 'Günlük limit tamamlandı'}
-                </p>
+              {/* Divider */}
+              <div className="h-px bg-white/[0.06] mx-4" />
+
+              {/* Meal Types */}
+              <div className="p-4">
+                <p className="text-[11px] text-brand-muted uppercase tracking-widest font-semibold mb-3">Ne yemek istiyorsun?</p>
+                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                  {MEAL_TYPES.map(m => (
+                    <button
+                      key={m.id}
+                      onClick={() => setMealType(m.id)}
+                      className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all active:scale-95 shrink-0 ${
+                        mealType === m.id
+                          ? 'bg-brand-coral text-white shadow-md shadow-brand-coral/20'
+                          : 'bg-brand-dark/60 text-brand-muted hover:text-brand-cream border border-white/[0.06]'
+                      }`}
+                    >
+                      <span className="text-sm">{m.emoji}</span> {m.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            )}
 
-            {/* Start Buttons */}
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-3">
+              {/* Divider */}
+              <div className="h-px bg-white/[0.06] mx-4" />
+
+              {/* Tournament Size Buttons */}
+              <div className="p-4 space-y-2.5">
+                {/* Freemium Info - compact */}
+                {tournamentInfo && (
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-brand-muted">Günlük turnuva</span>
+                    <span className="text-xs font-bold text-brand-gold">{tournamentInfo.remaining}/{tournamentInfo.limit}</span>
+                  </div>
+                )}
+
                 <button
                   onClick={() => handleStartTournament(8)}
                   disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                  className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm"
+                  className="w-full py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-brand-coral to-brand-amber text-white shadow-lg shadow-brand-coral/20 transition-all active:scale-[0.98] disabled:opacity-40"
                 >
-                  <Icon.Zap /> {loading ? 'Yükleniyor...' : 'Hızlı (8)'}
+                  <Icon.Zap /> {loading ? 'Yükleniyor...' : 'Hızlı Turnuva — 8 restoran'}
                 </button>
-                <button
-                  onClick={() => handleStartTournament(16)}
-                  disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                  className="btn-secondary flex-1 flex items-center justify-center gap-2 text-sm"
-                >
-                  {loading ? 'Yükleniyor...' : 'Klasik (16)'}
-                </button>
+
+                <div className="flex gap-2.5">
+                  <button
+                    onClick={() => handleStartTournament(16)}
+                    disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
+                    className="flex-1 py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-1.5 bg-brand-surface border border-white/10 text-brand-cream hover:border-brand-coral/30 transition-all active:scale-[0.98] disabled:opacity-40"
+                  >
+                    {loading ? '...' : 'Klasik (16)'}
+                  </button>
+                  <button
+                    onClick={() => handleStartTournament(32)}
+                    disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
+                    className="flex-1 py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-1.5 bg-brand-surface border border-white/10 text-brand-cream hover:border-brand-gold/30 transition-all active:scale-[0.98] disabled:opacity-40"
+                  >
+                    🏆 {loading ? '...' : 'Büyük (32)'}
+                  </button>
+                </div>
+
+                {/* Premium limit */}
+                {tournamentInfo && !tournamentInfo.can_play && (
+                  <p className="text-center text-brand-muted text-xs pt-1">Günlük limit doldu — yarın 3 yeni hak</p>
+                )}
               </div>
-              <button
-                onClick={() => handleStartTournament(32)}
-                disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                className="w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-brand-amber to-brand-coral text-white shadow-lg hover:shadow-xl transition-all"
-              >
-                🏆 {loading ? 'Yükleniyor...' : 'Büyük Turnuva (32)'}
-              </button>
             </div>
 
-            {/* Premium Upgrade Prompt */}
-            {tournamentInfo && !tournamentInfo.can_play && (
-              <div className="p-4 bg-white/5 border border-white/10 rounded-xl text-center space-y-2">
-                <p className="text-brand-cream font-medium text-sm">Bugünkü turnuva hakkın doldu</p>
-                <p className="text-brand-muted text-xs">Yarın 3 yeni turnuva hakkın olacak!</p>
-              </div>
-            )}
-
-            {/* Social Proof */}
-            <SocialProof />
+            {/* Social Proof — outside card */}
+            <div className="max-w-md mx-auto mt-6">
+              <SocialProof />
+            </div>
           </div>
+
           <Footer />
         </div>
       )}
@@ -960,17 +939,18 @@ export default function App() {
 
       {/* ═══ GAME ═══ */}
       {phase === 'game' && !loading && roundMatches.length > 0 && roundMatches[matchIndex] && !roundTransition && (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 gap-6 no-select safe-top">
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 gap-4 no-select safe-top">
           {/* Round Stepper */}
           <RoundStepper totalRounds={totalRounds} currentRound={roundIndex} totalSize={totalCount} roundMatches={roundMatches} matchIndex={matchIndex} />
 
           {/* Header */}
-          <p className="text-xs uppercase tracking-widest text-brand-muted font-bold mb-4">
-            {getRoundName(roundMatches.length * 2, totalCount)} — Hangisini Tercih Edersin?
+          <p className="text-[11px] uppercase tracking-[0.2em] text-brand-muted font-semibold">
+            {getRoundName(roundMatches.length * 2, totalCount)}
           </p>
+          <p className="text-sm text-brand-cream font-medium -mt-2 mb-2">Hangisini tercih edersin?</p>
 
           {/* Battle */}
-          <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center justify-center w-full max-w-4xl">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-6 items-center justify-center w-full max-w-4xl">
             <VSCard
               restaurant={roundMatches[matchIndex][0]}
               onClick={() => handlePick(roundMatches[matchIndex][0])}
@@ -978,7 +958,7 @@ export default function App() {
               side="left"
             />
 
-            <div className="vs-badge flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-brand-coral to-brand-amber text-brand-dark font-extrabold text-lg shadow-lg shadow-brand-coral/30">
+            <div className="vs-badge flex items-center justify-center w-12 h-12 rounded-full bg-brand-surface border border-white/10 text-brand-coral font-extrabold text-sm shadow-xl">
               VS
             </div>
 
