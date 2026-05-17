@@ -1,504 +1,118 @@
+/**
+ * FoodHunt — Ana sayfa orkestrasyonu
+ * Phase router (landing / inspiration / game / results) + state
+ * Tüm büyük UI parçaları features/ altındaki bileşenlere taşındı.
+ */
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { api, authApi, Restaurant, InspirationCard, TournamentSlot, PublicRegion, safeGetItem, safeSetItem } from '../api'
+import { api, authApi, Restaurant, InspirationCard, TournamentSlot, PublicRegion, safeGetItem } from '../api'
 import { useGeolocation } from '../hooks/useGeolocation'
-import { hapticImpact, hapticNotification, nativeShare, configureStatusBar, hideSplashScreen } from '../utils/native'
+import { hapticImpact, hapticNotification, configureStatusBar, hideSplashScreen } from '../utils/native'
 import { playPickSound, playVictorySound, playRoundCompleteSound, isSoundEnabled, toggleSound } from '../utils/sound'
-import { SocialProof } from '../components/ui/SocialProof'
-import { Logo, LogoText } from '../components/ui/Logo'
-import { CookieConsent } from '../components/ui/CookieConsent'
+
+import { SocialProof }      from '../components/ui/SocialProof'
+import { Logo, LogoText }   from '../components/ui/Logo'
+import { CookieConsent }    from '../components/ui/CookieConsent'
 import { Onboarding, shouldShowOnboarding } from '../components/ui/Onboarding'
 import { NoRestaurantsFound } from '../components/ui/EmptyState'
-import { SkeletonCard } from '../components/ui/LoadingSkeleton'
 import { IOSInstallBanner } from '../components/ui/IOSInstallBanner'
+import { ThemeToggle }      from '../components/ui/ThemeToggle'
+import { Icon }             from '../components/ui/Icons'
+import { Footer }           from '../components/ui/Footer'
 
-const PLACEHOLDER_IMG = 'data:image/svg+xml,' + encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="400" height="300" fill="#1E1E24"/><text x="200" y="160" text-anchor="middle" fill="#8B8B9E" font-size="48">&#127869;</text></svg>'
-)
+import { VSCard }          from '../features/tournament/VSCard'
+import { RoundStepper }    from '../features/tournament/RoundStepper'
+import { Confetti }        from '../features/tournament/Confetti'
+import { BattleLoadingSkeleton } from '../features/tournament/BattleLoadingSkeleton'
+import { MEAL_TYPES, getRoundName, createPairs } from '../features/tournament/constants'
 
-// ─── Icons (Lucide-style inline SVGs) ───────────────────────────────────────
-const Icon = {
-  Star: () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
-  MapPin: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
-  Utensils: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2M7 2v20M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>,
-  Trophy: () => (
-    <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-brand-cream mb-4 shadow-card ">
-      <span className="text-5xl">🏆</span>
-    </div>
-  ),
-  Share: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M12 16v-8M8 8l4-4 4 4"/></svg>,
-  External: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>,
-  Refresh: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>,
-  X: () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>,
-  Copy: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>,
-  Whatsapp: () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97s-.47-.15-.67.15c-.2.3-.78.97-.95 1.17-.18.2-.35.22-.65.07-1.73-.9-2.87-1.62-4.01-3.67-.3-.53.31-.49.89-1.63.1-.18.05-.34-.03-.48-.07-.14-.67-1.62-.92-2.21s-.49-.5-.67-.51c-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.8.35-.27.29-1.04 1.02-1.04 2.49s1.06 2.89 1.2 3.09c.15.2 2.09 3.19 5.06 4.48 1.85.8 2.57.87 3.5.73.56-.08 1.76-.72 2-1.41.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z"/><path d="M20.52 3.48A11.84 11.84 0 0012.05 0C5.47 0 .1 5.37.1 11.95c0 2.11.55 4.17 1.59 5.99L0 24l6.26-1.64c1.75.95 3.72 1.46 5.74 1.46h.01c6.57 0 11.94-5.35 11.95-11.93A11.85 11.85 0 0020.52 3.48zM12.05 21.79c-1.79 0-3.54-.48-5.07-1.39l-.36-.22-3.78.99 1.01-3.69-.24-.38A9.86 9.86 0 012.12 12c0-5.46 4.44-9.9 9.93-9.9A9.87 9.87 0 0121.95 12c0 5.47-4.44 9.9-9.9 9.9z"/></svg>,
-  Twitter: () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>,
-  Zap: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>,
-  ChevronDown: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M6 9l6 6 6-6"/></svg>,
-  Crosshair: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>,
-  Navigation: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>,
-  AlertTriangle: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
-}
+import { Deeplinks }   from '../features/share/Deeplinks'
+import { ShareModal }  from '../features/share/ShareModal'
 
-// ─── VS Battle Card ─────────────────────────────────────────────────────────
-interface VSCardProps {
-  restaurant: Restaurant
-  onClick: () => void
-  isWinner?: boolean
-  animating?: boolean
-  side?: 'left' | 'right'
-}
-
-const PriceLevel = ({ level }: { level?: number }) => {
-  const l = level || 1
-  return (
-    <span className="flex items-center gap-0.5 text-xs">
-      {[1, 2, 3].map(i => (
-        <span key={i} className={i <= l ? 'text-brand-trust font-bold' : 'text-brand-cream/20'}>₺</span>
-      ))}
-    </span>
-  )
-}
-
-const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps) => {
-  const stars = (restaurant.rating ?? 0).toFixed(1)
-  const imgSrc = restaurant.image_url || PLACEHOLDER_IMG
-
-  return (
-    <button
-      onClick={onClick}
-      disabled={animating}
-      className={`
-        group relative w-full max-w-sm rounded-3xl overflow-hidden
-        transition-all duration-150 text-left
-        ${animating ? 'scale-95 opacity-40 pointer-events-none' : 'hover:scale-[1.03] active:scale-[0.97]'}
-        ${isWinner ? 'ring-2 ring-brand-cream ' : ''}
-        ${side === 'left' ? 'animate-card-slide-left' : side === 'right' ? 'animate-card-slide-right' : ''}
-      `}
-    >
-      {/* Image with overlay */}
-      <div className="relative w-full aspect-[4/3] bg-brand-card overflow-hidden">
-        <img
-          src={imgSrc}
-          alt={restaurant.name}
-          loading="lazy"
-          decoding="async"
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          style={{ contentVisibility: 'auto' }}
-          onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMG }}
-        />
-        <div className="food-overlay absolute inset-0" />
-
-        {/* Rating badge */}
-        <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-md text-brand-cream px-2.5 py-1 rounded-full text-xs font-bold">
-          <Icon.Star /> {stars}
-        </div>
-
-        {/* Price level badge */}
-        <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full">
-          <PriceLevel level={restaurant.price_level} />
-        </div>
-
-        {isWinner && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-brand-cream text-brand-dark px-4 py-1.5 rounded-full text-xs font-semibold shadow-lg animate-fade-in">
-            🏆 ŞAMPİYON
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="p-4 bg-brand-card border-t border-brand-line">
-        <h3 className="text-lg font-bold text-brand-cream mb-1.5 truncate">{restaurant.name}</h3>
-        <div className="flex flex-wrap items-center gap-2 text-xs text-brand-muted mb-2">
-          {restaurant.cuisine && (
-            <span className="flex items-center gap-1 bg-brand-elevated text-brand-cream-light px-2 py-0.5 rounded-full">
-              <Icon.Utensils /> {restaurant.cuisine}
-            </span>
-          )}
-          {restaurant.area && (
-            <span className="flex items-center gap-1 bg-brand-elevated px-2 py-0.5 rounded-full">
-              <Icon.MapPin /> {restaurant.area}
-            </span>
-          )}
-        </div>
-
-        {/* Top 3 Products */}
-        {restaurant.top3_products && restaurant.top3_products.length > 0 && (
-          <div className="flex flex-col gap-1 pt-2 border-t border-brand-line">
-            <span className="text-[10px] uppercase tracking-wider text-brand-muted font-semibold">Popüler</span>
-            <div className="flex flex-wrap gap-1.5">
-              {restaurant.top3_products.slice(0, 3).map((p, i) => (
-                <span key={i} className="inline-flex items-center gap-1 bg-brand-elevated text-brand-cream px-2 py-0.5 rounded-full text-xs font-medium">
-                  <span>{p.emoji}</span> {p.name}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    </button>
-  )
-}
-
-// ─── Loading Skeleton for VS Battle ─────────────────────────────────────────
-const BattleLoadingSkeleton = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 gap-6">
-    <div className="text-center space-y-3 w-full max-w-md">
-      <div className="h-3 bg-brand-elevated rounded w-48 mx-auto animate-pulse" />
-      <div className="h-1.5 bg-brand-surface rounded-full overflow-hidden">
-        <div className="h-full bg-brand-elevated rounded-full w-1/3 animate-pulse" />
-      </div>
-    </div>
-    <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center justify-center w-full max-w-4xl">
-      <div className="w-full max-w-sm"><SkeletonCard /></div>
-      <div className="w-14 h-14 rounded-full bg-brand-elevated animate-pulse" />
-      <div className="w-full max-w-sm"><SkeletonCard /></div>
-    </div>
-  </div>
-)
-
-// ─── Progress Bar ───────────────────────────────────────────────────────────
-const ProgressBar = ({ current, total }: { current: number; total: number }) => {
-  const pct = total > 0 ? ((total - current) / (total - 1)) * 100 : 0
-  return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="flex justify-between text-xs text-brand-muted mb-1.5">
-        <span>Kalan: {current}</span>
-        <span>{Math.round(pct)}%</span>
-      </div>
-      <div className="h-1.5 bg-brand-surface rounded-full overflow-hidden">
-        <div
-          className="h-full bg-brand-cream rounded-full transition-all duration-500 "
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-    </div>
-  )
-}
-
-// ─── Deeplinks (Her zaman ana platform linklerine yönlendir) ────────────────
-const PLATFORM_LINKS = [
-  { key: 'yemeksepeti', label: "Yemeksepeti'de Sipariş Ver", url: 'https://www.yemeksepeti.com', appUrl: 'yemeksepeti://', color: 'bg-[#D4202C] hover:bg-[#b81a24]' },
-  { key: 'getir', label: "Getir'de Sipariş Ver", url: 'https://getir.com', appUrl: 'getir://', color: 'bg-[#5D3EBC] hover:bg-[#4a2fa0]' },
-  { key: 'trendyol', label: "Trendyol Go'da Sipariş Ver", url: 'https://www.trendyol.com/trendyol-go', appUrl: 'trendyol://', color: 'bg-[#F27A1A] hover:bg-[#d96a12]' },
-]
-
-const Deeplinks = ({ restaurant }: { restaurant: Restaurant }) => {
-  const handleDeeplinkClick = (platform: string) => {
-    api.trackEvent('deeplink_click', {
-      platform,
-      restaurant_id: restaurant.id,
-      restaurant_name: restaurant.name,
-    })
-    const token = safeGetItem('local', 'foodhunt_token')
-    if (token) {
-      authApi.trackDeeplinkOrder(token, {
-        restaurant_id: restaurant.id,
-        platform,
-      }).catch(() => {})
-    }
-  }
-
-  // Google Maps linki varsa ekle
-  const extraLinks = [
-    restaurant.google_maps_url && { key: 'gmaps', label: 'Google Maps', url: restaurant.google_maps_url, color: 'bg-[#4285F4] hover:bg-[#3275e4]' },
-  ].filter(Boolean) as { key: string; label: string; url: string; color: string }[]
-
-  return (
-    <div className="mt-6 space-y-3">
-      <p className="text-center text-brand-cream text-sm font-bold">Hemen Sipariş Ver!</p>
-      <p className="text-center text-brand-muted text-xs">Şampiyonunu seçtin, şimdi sipariş zamanı</p>
-      <div className="flex flex-col gap-2">
-        {PLATFORM_LINKS.map(l => (
-          <a
-            key={l.key}
-            href={l.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => handleDeeplinkClick(l.key)}
-            className={`flex items-center justify-center gap-2 px-5 py-3.5 ${l.color} text-brand-cream rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg hover:shadow-card`}
-          >
-            {l.label}
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
-          </a>
-        ))}
-        {extraLinks.map(l => (
-          <a
-            key={l.key}
-            href={l.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => handleDeeplinkClick(l.key)}
-            className={`flex items-center justify-center gap-2 px-5 py-3.5 ${l.color} text-brand-cream rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg hover:shadow-card`}
-          >
-            {l.label}
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
-          </a>
-        ))}
-      </div>
-      {safeGetItem('local', 'foodhunt_token') && (
-        <p className="text-center text-brand-cream text-xs font-semibold">+50 puan kazanırsınız!</p>
-      )}
-    </div>
-  )
-}
-
-// ─── Share Modal ────────────────────────────────────────────────────────────
-const ShareModal = ({ isOpen, onClose, champion }: { isOpen: boolean; onClose: () => void; champion: Restaurant | null }) => {
-  const [copied, setCopied] = useState(false)
-  if (!isOpen || !champion) return null
-
-  const shareText = `FoodHunt'ta şampiyonu seçtim: ${champion.name}! Sen de oyna`
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://foodhunt.app'
-
-  // Try native share first (iOS share sheet), fallback to manual options
-  const handleNativeShare = async () => {
-    const used = await nativeShare({
-      title: 'FoodHunt Şampiyonu',
-      text: shareText,
-      url: shareUrl,
-    })
-    if (used) {
-      hapticImpact('light')
-      onClose()
-    }
-  }
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(`${shareText}\n${shareUrl}`).then(() => {
-      setCopied(true)
-      hapticImpact('light')
-      setTimeout(() => setCopied(false), 2000)
-    })
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4 safe-bottom" onClick={onClose}>
-      <div className="bg-brand-card rounded-t-3xl sm:rounded-3xl w-full max-w-sm p-6 animate-slide-up" onClick={e => e.stopPropagation()}>
-        <div className="w-10 h-1 bg-brand-elevated rounded-full mx-auto mb-4 sm:hidden" />
-        <h2 className="text-xl font-bold text-brand-cream mb-4">Paylaş</h2>
-        <div className="space-y-2">
-          {/* Native share button (iOS share sheet) */}
-          <button onClick={handleNativeShare}
-            className="w-full flex items-center gap-3 bg-brand-cream hover:bg-brand-cream-light text-brand-cream px-4 py-3 rounded-xl transition font-semibold active:scale-95">
-            <Icon.Share /> Paylaş
-          </button>
-          <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`, '_blank')}
-            className="w-full flex items-center gap-3 bg-green-600 hover:bg-green-700 text-brand-cream px-4 py-3 rounded-xl transition font-semibold active:scale-95">
-            <Icon.Whatsapp /> WhatsApp
-          </button>
-          <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank')}
-            className="w-full flex items-center gap-3 bg-brand-surface hover:bg-brand-elevated text-brand-cream px-4 py-3 rounded-xl transition font-semibold active:scale-95 border border-brand-line">
-            <Icon.Twitter /> X (Twitter)
-          </button>
-          <button onClick={handleCopy}
-            className="w-full flex items-center gap-3 bg-brand-surface hover:bg-brand-elevated text-brand-cream px-4 py-3 rounded-xl transition font-semibold active:scale-95 border border-brand-line">
-            <Icon.Copy /> {copied ? 'Kopyalandı!' : 'Linki Kopyala'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── Footer ─────────────────────────────────────────────────────────────────
-const Footer = () => (
-  <footer className="mt-16 py-6 text-center text-xs text-brand-muted space-y-3">
-    <div className="flex flex-wrap justify-center gap-4">
-      <a href="/kvkk" className="hover:text-brand-cream transition">KVKK</a>
-      <a href="/kullanim" className="hover:text-brand-cream transition">Kullanım Şartları</a>
-      <a href="/cerez" className="hover:text-brand-cream transition">Çerez Politikası</a>
-    </div>
-    <p className="text-brand-muted/50">&copy; 2026 FoodHunt</p>
-  </footer>
-)
-
-// ─── Round Stepper Component ────────────────────────────────────────────────
-const RoundStepper = ({ totalRounds, currentRound, totalSize, roundMatches, matchIndex }: {
-  totalRounds: number; currentRound: number; totalSize: number; roundMatches: Restaurant[][]; matchIndex: number
-}) => {
-  const steps: { label: string; size: number }[] = []
-  let size = totalSize
-  for (let i = 0; i <= totalRounds; i++) {
-    if (size === 2) steps.push({ label: 'Final', size: 2 })
-    else if (size === 4) steps.push({ label: 'Yarı Final', size: 4 })
-    else steps.push({ label: `${size}`, size })
-    size = Math.floor(size / 2)
-  }
-
-  return (
-    <div className="w-full max-w-lg mx-auto mb-6">
-      <div className="flex items-center justify-between gap-1">
-        {steps.map((step, i) => (
-          <div key={i} className="flex items-center gap-1 flex-1">
-            <div className={`
-              flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all duration-500
-              ${i < currentRound ? 'bg-brand-fresh text-brand-cream scale-90' : ''}
-              ${i === currentRound ? 'bg-brand-cream text-brand-cream scale-110 shadow-lg ' : ''}
-              ${i > currentRound ? 'bg-brand-surface text-brand-muted' : ''}
-            `}>
-              {i < currentRound ? '✓' : step.size}
-            </div>
-            {i < steps.length - 1 && (
-              <div className={`flex-1 h-0.5 rounded-full transition-all duration-500 ${i < currentRound ? 'bg-brand-fresh' : 'bg-brand-surface'}`} />
-            )}
-          </div>
-        ))}
-      </div>
-      {/* Match counter within round */}
-      <p className="text-center text-brand-muted text-xs mt-2">
-        Maç {matchIndex + 1} / {roundMatches.length}
-      </p>
-    </div>
-  )
-}
-
-// ─── Meal Types ─────────────────────────────────────────────────────────────
-const MEAL_TYPES = [
-  { id: 'all', label: 'Hepsi', emoji: '🍽️' },
-  { id: 'protein', label: 'Protein', emoji: '🥩' },
-  { id: 'cheat', label: 'Cheat Meal', emoji: '🍔' },
-  { id: 'healthy', label: 'Sağlıklı', emoji: '🥗' },
-  { id: 'quick', label: 'Hızlı Atıştırma', emoji: '⚡' },
-  { id: 'dessert', label: 'Tatlı', emoji: '🍰' },
-  { id: 'breakfast', label: 'Kahvaltı', emoji: '🥐' },
-  { id: 'seafood', label: 'Deniz Ürünü', emoji: '🐟' },
-]
-
-// ─── Confetti Component ──────────────────────────────────────────────────────
-const Confetti = () => {
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; color: string; delay: number; duration: number }>>([])
-
-  useEffect(() => {
-    const colors = ['#FF5A1F', '#E63946', '#FFB627', '#34D399', '#FF7A47', '#fff']
-    const p = Array.from({ length: 50 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      delay: Math.random() * 0.5,
-      duration: 1.5 + Math.random() * 2,
-    }))
-    setParticles(p)
-  }, [])
-
-  return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {particles.map(p => (
-        <div
-          key={p.id}
-          className="absolute top-0 animate-confetti-fall"
-          style={{
-            left: `${p.x}%`,
-            backgroundColor: p.color,
-            width: `${6 + Math.random() * 6}px`,
-            height: `${6 + Math.random() * 6}px`,
-            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-            animationDelay: `${p.delay}s`,
-            animationDuration: `${p.duration}s`,
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
-// ─── Main App ───────────────────────────────────────────────────────────────
+// ─── Main App ────────────────────────────────────────────────────────────────
 export default function App() {
-  const [phase, setPhase] = useState<'landing' | 'inspiration' | 'game' | 'results'>('landing')
-  const [mode, setMode] = useState<'browse' | 'nearby'>('browse')
-  const [area, setArea] = useState<string | null>(null)
-  const [cuisine, setCuisine] = useState<string | null>(null)
+  // ── Phase + filter state
+  const [phase, setPhase]       = useState<'landing' | 'inspiration' | 'game' | 'results'>('landing')
+  const [mode, setMode]         = useState<'browse' | 'nearby'>('browse')
+  const [area, setArea]         = useState<string | null>(null)
+  const [cuisine, setCuisine]   = useState<string | null>(null)
   const [mealType, setMealType] = useState<string>('all')
-  const [areas, setAreas] = useState<{ area: string; count: number }[]>([])
+
+  // ── Data lists
+  const [areas, setAreas]       = useState<{ area: string; count: number }[]>([])
   const [cuisines, setCuisines] = useState<{ cuisine: string; count: number }[]>([])
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
-  const [eliminated, setEliminated] = useState<Restaurant[]>([])
-  const [inspiration, setInspiration] = useState<InspirationCard | null>(null)
-  const [apiError, setApiError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [shareModalOpen, setShareModalOpen] = useState(false)
-  const [totalCount, setTotalCount] = useState(0)
-  const [nearbyMeta, setNearbyMeta] = useState<{ area_detected: string | null; google_count: number; seed_count: number } | null>(null)
-  const [showOnboarding, setShowOnboarding] = useState(false)
-  const [serverDown, setServerDown] = useState(false)
-  const [scheduledSlots, setScheduledSlots] = useState<TournamentSlot[]>([])
-  const [currentSlot, setCurrentSlot] = useState<TournamentSlot | null>(null)
-  const [tournamentInfo, setTournamentInfo] = useState<{ used: number; limit: number; remaining: number; can_play: boolean } | null>(null)
-  const [regions, setRegions] = useState<PublicRegion[]>([])
+  const [regions, setRegions]   = useState<PublicRegion[]>([])
   const [selectedIlce, setSelectedIlce] = useState<string | null>(null)
+
+  // ── Tournament state
+  const [restaurants, setRestaurants]   = useState<Restaurant[]>([])
+  const [eliminated, setEliminated]     = useState<Restaurant[]>([])
   const [roundMatches, setRoundMatches] = useState<Restaurant[][]>([])
-  const [matchIndex, setMatchIndex] = useState(0)
-  const [roundIndex, setRoundIndex] = useState(0)
+  const [matchIndex, setMatchIndex]     = useState(0)
+  const [roundIndex, setRoundIndex]     = useState(0)
   const [roundWinners, setRoundWinners] = useState<Restaurant[]>([])
-  const [totalRounds, setTotalRounds] = useState(0)
+  const [totalRounds, setTotalRounds]   = useState(0)
+  const [totalCount, setTotalCount]     = useState(0)
   const [roundTransition, setRoundTransition] = useState(false)
+
+  // ── UI state
+  const [inspiration, setInspiration]   = useState<InspirationCard | null>(null)
+  const [apiError, setApiError]         = useState<string | null>(null)
+  const [loading, setLoading]           = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [nearbyMeta, setNearbyMeta]     = useState<{ area_detected: string | null; google_count: number; seed_count: number } | null>(null)
+  const [showOnboarding, setShowOnboarding] = useState(false)
+  const [serverDown, setServerDown]     = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
-  const [soundOn, setSoundOn] = useState(isSoundEnabled())
+  const [soundOn, setSoundOn]           = useState(isSoundEnabled())
+  const [scheduledSlots, setScheduledSlots] = useState<TournamentSlot[]>([])
+  const [currentSlot, setCurrentSlot]   = useState<TournamentSlot | null>(null)
+  const [tournamentInfo, setTournamentInfo] = useState<{ used: number; limit: number; remaining: number; can_play: boolean } | null>(null)
 
   const abortRef = useRef<AbortController | null>(null)
   const pickLockRef = useRef(false)
 
-  // Geolocation
-  const geo = useGeolocation(false) // Don't auto-request — let user tap "Nearby"
+  // Geolocation — auto-fetch yapma, kullanıcı "Yakındakiler"e basınca
+  const geo = useGeolocation(false)
 
-  const champion = useMemo(() => (restaurants.length === 1 ? restaurants[0] : null), [restaurants])
-  const runnerUp = useMemo(() => (eliminated.length > 0 ? eliminated[eliminated.length - 1] : null), [eliminated])
+  // Derived state
+  const champion   = useMemo(() => (restaurants.length === 1 ? restaurants[0] : null), [restaurants])
+  const runnerUp   = useMemo(() => (eliminated.length > 0 ? eliminated[eliminated.length - 1] : null), [eliminated])
   const thirdPlace = useMemo(() => (eliminated.length > 1 ? eliminated[eliminated.length - 2] : null), [eliminated])
 
-  // Helper function to create pairs from restaurant array
-  const createPairs = (arr: Restaurant[]): Restaurant[][] => {
-    const pairs: Restaurant[][] = []
-    for (let i = 0; i < arr.length; i += 2) {
-      if (i + 1 < arr.length) pairs.push([arr[i], arr[i + 1]])
-    }
-    return pairs
-  }
-
-  // Helper function to get round name
-  const getRoundName = (remaining: number, total: number): string => {
-    if (remaining === 2) return 'Final'
-    if (remaining === 4) return 'Yarı Final'
-    if (remaining === 8) return 'Çeyrek Final'
-    return `Son ${remaining}`
-  }
-
+  // ─── Mount: native iOS, health check, onboarding, ilk data ────────────
   useEffect(() => {
     const controller = new AbortController()
 
-    // Native iOS setup
     configureStatusBar()
     hideSplashScreen()
 
-    // Health check
     fetch('/api/health', { signal: controller.signal })
       .then(r => { if (!r.ok) setServerDown(true) })
       .catch(e => { if (e.name !== 'AbortError') setServerDown(true) })
 
-    // Check onboarding
-    if (shouldShowOnboarding()) {
-      setShowOnboarding(true)
-    }
+    if (shouldShowOnboarding()) setShowOnboarding(true)
 
     api.trackEvent('page_view')
     api.getAreas().then(setAreas).catch(e => { if (e.name !== 'AbortError') setApiError('Bağlantı hatası. Tekrar deneyin.') })
     api.getRegions().then(setRegions).catch(() => {})
 
-    // Load freemium info
+    // Freemium info
     const userToken = safeGetItem('local', 'foodhunt_token')
     if (userToken) {
       fetch('/api/auth/me', { headers: { Authorization: `Bearer ${userToken}` }, signal: controller.signal })
         .then(r => r.ok ? r.json() : null)
         .then(data => {
           if (data) setTournamentInfo({
-            used: data.daily_tournaments || 0,
-            limit: data.daily_limit || 3,
+            used:      data.daily_tournaments || 0,
+            limit:     data.daily_limit       || 3,
             remaining: Math.max(0, (data.daily_limit || 3) - (data.daily_tournaments || 0)),
-            can_play: data.can_play !== false,
+            can_play:  data.can_play !== false,
           })
         })
         .catch(() => {})
     }
 
-    // Load tournament slots
+    // Scheduled tournament slots — her dakika yenile
     const loadSlots = () => {
       api.getScheduledTournaments().then(slots => {
         setScheduledSlots(slots)
@@ -510,81 +124,60 @@ export default function App() {
     return () => { clearInterval(slotInterval); controller.abort() }
   }, [])
 
+  // ─── Bölge seçildiğinde mutfakları yükle ───────────────────────────────
   useEffect(() => {
     if (!area) { setCuisines([]); return }
     api.getCuisines(area).then(setCuisines).catch(() => {})
   }, [area])
 
-  // When nearby mode activated and position obtained, fetch nearby areas
+  // ─── Yakındakiler modu: konum gelince bölgeleri çek ────────────────────
   useEffect(() => {
     if (mode === 'nearby' && geo.position) {
-      api.getNearbyAreas(geo.position.lat, geo.position.lng)
-        .then(setAreas)
-        .catch(() => {})
+      api.getNearbyAreas(geo.position.lat, geo.position.lng).then(setAreas).catch(() => {})
     }
   }, [mode, geo.position])
 
-  const handleNearbyMode = useCallback(() => {
-    setMode('nearby')
-    geo.refresh()
-  }, [geo])
+  // ─── Handlers ──────────────────────────────────────────────────────────
+  const handleNearbyMode = useCallback(() => { setMode('nearby'); geo.refresh() }, [geo])
 
   const handleBrowseMode = useCallback(() => {
     setMode('browse')
     api.getAreas().then(setAreas).catch(() => {})
-    setArea(null)
-    setCuisine(null)
-    setSelectedIlce(null)
-    setNearbyMeta(null)
+    setArea(null); setCuisine(null); setSelectedIlce(null); setNearbyMeta(null)
   }, [])
 
   const handleIlceChange = useCallback((ilce: string | null) => {
-    setSelectedIlce(ilce)
-    setArea(ilce)  // ilçe name = area name in DB
-    setCuisine(null)
+    setSelectedIlce(ilce); setArea(ilce); setCuisine(null)
   }, [])
 
   const handleStartTournament = useCallback(async (count: 8 | 16 | 32) => {
-    setLoading(true)
-    setApiError(null)
+    setLoading(true); setApiError(null)
     try {
       abortRef.current?.abort()
       abortRef.current = new AbortController()
 
       let data: Restaurant[]
-
       if (mode === 'nearby' && geo.position) {
-        // Use nearby endpoint
         const result = await api.getNearby(
-          geo.position.lat, geo.position.lng,
-          3000, count,
-          cuisine || undefined,
-          mealType !== 'all' ? mealType : undefined
+          geo.position.lat, geo.position.lng, 3000, count,
+          cuisine || undefined, mealType !== 'all' ? mealType : undefined,
         )
         data = result.restaurants
         setNearbyMeta(result.meta)
       } else {
-        // Classic catalog
         data = await api.getCatalog(area || undefined, cuisine || undefined, count, abortRef.current.signal, mealType !== 'all' ? mealType : undefined)
       }
 
       if (data.length < 2) {
-        setApiError('Yeterli restoran yok. Filtreleri değiştirin.')
+        setApiError('Yeterli restoran yok. Filtreleri değiştir.')
         setLoading(false)
         return
       }
-      // Shuffle the data
-      const shuffled = [...data].sort(() => Math.random() - 0.5)
-      setRestaurants(shuffled)
-      setEliminated([])
-      setTotalCount(shuffled.length)
 
-      // Initialize bracket
-      const pairs = createPairs(shuffled)
-      setRoundMatches(pairs)
-      setMatchIndex(0)
-      setRoundIndex(0)
-      setRoundWinners([])
+      const shuffled = [...data].sort(() => Math.random() - 0.5)
+      setRestaurants(shuffled); setEliminated([]); setTotalCount(shuffled.length)
+      setRoundMatches(createPairs(shuffled))
+      setMatchIndex(0); setRoundIndex(0); setRoundWinners([])
       setTotalRounds(Math.log2(shuffled.length))
 
       try {
@@ -606,16 +199,13 @@ export default function App() {
 
     const currentPair = roundMatches[matchIndex]
     const loser = currentPair[0].id === winner.id ? currentPair[1] : currentPair[0]
-
     const newWinners = [...roundWinners, winner]
-    const newEliminated = [...eliminated, loser]
-    setEliminated(newEliminated)
+    setEliminated(prev => [...prev, loser])
 
-    // Check if this was the last match of the round
     if (matchIndex + 1 >= roundMatches.length) {
       // Round complete
       if (newWinners.length === 1) {
-        // Tournament over! We have a champion
+        // Tournament over!
         setRestaurants(newWinners)
         setPhase('results')
         setShowConfetti(true)
@@ -629,68 +219,54 @@ export default function App() {
         return
       }
 
-      // Advance to next round with transition animation
+      // Sonraki tura geç
       setRoundTransition(true)
       setRoundWinners(newWinners)
       playRoundCompleteSound()
 
       setTimeout(() => {
-        const nextPairs = createPairs(newWinners)
-        setRoundMatches(nextPairs)
+        setRoundMatches(createPairs(newWinners))
         setMatchIndex(0)
         setRoundIndex(prev => prev + 1)
         setRoundWinners([])
         setRestaurants(newWinners)
         setRoundTransition(false)
         pickLockRef.current = false
-      }, 800) // 0.8s for round transition animation
+      }, 700)
     } else {
-      // More matches in this round
       setRoundWinners(newWinners)
-      setTimeout(() => {
-        setMatchIndex(prev => prev + 1)
-        pickLockRef.current = false
-      }, 300)
+      setTimeout(() => { setMatchIndex(prev => prev + 1); pickLockRef.current = false }, 250)
     }
 
     api.trackEvent('choice_made', { winner: winner.name, loser: loser.name, round: roundIndex })
-  }, [roundMatches, matchIndex, roundWinners, eliminated, roundIndex, totalCount])
+  }, [roundMatches, matchIndex, roundWinners, roundIndex, totalCount])
 
   const handleRestart = useCallback(() => {
-    setPhase('landing'); setArea(null); setCuisine(null); setSelectedIlce(null); setMealType('all')
+    setPhase('landing')
+    setArea(null); setCuisine(null); setSelectedIlce(null); setMealType('all')
     setRestaurants([]); setEliminated([]); setCuisines([])
     setNearbyMeta(null)
-    setRoundMatches([])
-    setMatchIndex(0)
-    setRoundIndex(0)
-    setRoundWinners([])
-    setTotalRounds(0)
-    setRoundTransition(false)
-    setShowConfetti(false)
+    setRoundMatches([]); setMatchIndex(0); setRoundIndex(0); setRoundWinners([])
+    setTotalRounds(0); setRoundTransition(false); setShowConfetti(false)
   }, [])
 
+  // ───────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-brand-dark text-brand-cream overflow-hidden relative">
-      {/* Ambient background glows */}
-      <div className="" style={{ top: '-100px', right: '-50px' }} />
-      <div className="" style={{ bottom: '20%', left: '-80px' }} />
-
-      {/* Onboarding */}
+    <div className="min-h-screen bg-brand-dark text-brand-cream relative">
       {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
 
       {/* Server down banner */}
       {serverDown && (
-        <div className="sticky top-0 z-50 bg-brand-elevated border-b border-brand-line text-brand-cream px-4 py-3 text-center text-sm backdrop-blur-md flex items-center justify-center gap-2">
-          <Icon.AlertTriangle />
-          Sunucu bakımda. Lütfen daha sonra tekrar deneyin.
+        <div className="sticky top-0 z-50 bg-brand-elevated border-b border-brand-line text-brand-cream px-4 py-2.5 text-center text-sm backdrop-blur flex items-center justify-center gap-2">
+          <Icon.Alert /> Sunucu bakımda. Lütfen daha sonra tekrar dene.
         </div>
       )}
 
-      {/* Error Banner */}
+      {/* API error banner */}
       {apiError && !serverDown && (
-        <div className="sticky top-0 z-50 bg-red-500/10 border-b border-red-500/30 text-red-300 px-4 py-3 text-center text-sm backdrop-blur-md">
+        <div className="sticky top-0 z-50 bg-brand-elevated border-b border-brand-line text-brand-cream px-4 py-2.5 text-center text-sm backdrop-blur relative">
           {apiError}
-          <button onClick={() => setApiError(null)} className="absolute right-4 top-1/2 -translate-y-1/2 text-red-300 hover:text-brand-cream">
+          <button onClick={() => setApiError(null)} className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-brand-cream">
             <Icon.X />
           </button>
         </div>
@@ -698,230 +274,42 @@ export default function App() {
 
       {/* ═══ LANDING ═══ */}
       {phase === 'landing' && (
-        <div className="min-h-screen relative">
-          {/* ── Top Bar ── */}
-          <div className="flex items-center justify-between px-5 pt-5 pb-2 safe-top">
-            <button
-              onClick={() => { const on = toggleSound(); setSoundOn(on); }}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
-                soundOn ? 'border-brand-line bg-brand-elevated text-brand-cream' : 'border-brand-line bg-brand-surface text-brand-muted'
-              }`}
-            >
-              {soundOn ? '🔊' : '🔇'}
-            </button>
-
-            {safeGetItem('local', 'foodhunt_token') ? (
-              <a href="/profil" className="flex items-center gap-2.5 bg-brand-surface border border-brand-line pl-2 pr-4 py-1.5 rounded-full text-sm font-semibold text-brand-cream hover:border-brand-line transition">
-                <span className="w-7 h-7 rounded-full bg-brand-cream flex items-center justify-center text-[11px] font-bold text-brand-cream">
-                  {(() => { try { const u = JSON.parse(safeGetItem('local', 'foodhunt_user') || '{}'); return u.name?.charAt(0)?.toUpperCase() || '?' } catch { return '?' } })()}
-                </span>
-                Profil
-              </a>
-            ) : (
-              <a href="/giris" className="px-5 py-2 rounded-full text-sm font-bold text-brand-cream border border-brand-line hover:border-brand-line hover:bg-brand-elevated transition active:scale-95">
-                Giriş Yap
-              </a>
-            )}
-          </div>
-
-          {/* ── Hero Section ── */}
-          <div className="flex flex-col items-center px-6 pt-8 pb-6 text-center">
-            <Logo size={72} className="mb-4" />
-            {currentSlot ? (
-              <>
-                <h1 className="font-sans text-3xl sm:text-4xl font-semibold mb-1">
-                  <span className="text-gradient-warm">{currentSlot.slot}</span>
-                </h1>
-                <div className="flex items-center gap-2 mt-2 mb-3">
-                  <span className="text-lg">{currentSlot.icon}</span>
-                  <span className="text-[10px] bg-brand-cream text-brand-cream px-2.5 py-0.5 rounded-full font-bold animate-pulse uppercase tracking-wider">Canlı</span>
-                  <span className="text-xs text-brand-muted">{currentSlot.start} – {currentSlot.end}</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <LogoText className="text-4xl sm:text-5xl mb-1" />
-              </>
-            )}
-            <p className="text-brand-muted text-sm max-w-[260px] leading-relaxed">
-              Favorin restoranı turnuva usulü seç
-            </p>
-          </div>
-
-          {/* ── Main Card ── */}
-          <div className="px-5 pb-8">
-            <div className="max-w-md mx-auto bg-brand-surface/60 backdrop-blur-sm border border-white/[0.06] rounded-3xl overflow-hidden">
-
-              {/* Mode Toggle */}
-              <div className="p-4 pb-0">
-                <div className="flex bg-brand-dark/60 rounded-2xl p-1">
-                  <button
-                    onClick={handleBrowseMode}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                      mode === 'browse'
-                        ? 'bg-brand-cream text-brand-cream shadow-lg '
-                        : 'text-brand-muted hover:text-brand-cream'
-                    }`}
-                  >
-                    <Icon.MapPin /> Bölge Seç
-                  </button>
-                  <button
-                    onClick={handleNearbyMode}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                      mode === 'nearby'
-                        ? 'bg-brand-cream text-brand-cream shadow-lg '
-                        : 'text-brand-muted hover:text-brand-cream'
-                    }`}
-                  >
-                    <Icon.Crosshair /> Yakınımdakiler
-                  </button>
-                </div>
-              </div>
-
-              {/* Nearby Status */}
-              {mode === 'nearby' && (
-                <div className="px-4 pt-3 text-center">
-                  {geo.loading && <p className="text-brand-cream text-sm animate-pulse">Konum alınıyor...</p>}
-                  {geo.position && !geo.loading && (
-                    <div className="inline-flex items-center gap-2 text-brand-fresh text-sm bg-brand-fresh/10 px-3 py-1 rounded-full">
-                      <Icon.Navigation />
-                      {nearbyMeta?.area_detected ? `${nearbyMeta.area_detected}` : 'Konum algılandı'}
-                    </div>
-                  )}
-                  {geo.error && !geo.position && <p className="text-red-400 text-xs">{geo.error}</p>}
-                  {geo.permissionDenied && <p className="text-brand-muted text-xs">Varsayılan konum kullanılacak</p>}
-                </div>
-              )}
-
-              {/* Filters */}
-              <div className="p-4 space-y-3">
-                {mode === 'browse' && (
-                  <select
-                    value={selectedIlce || ''}
-                    onChange={e => handleIlceChange(e.target.value || null)}
-                    className="select-field"
-                  >
-                    <option value="">İlçe Seçin</option>
-                    {regions.length > 0
-                      ? regions.map(r => {
-                          const areaData = areas.find(a => a.area === r.ilce)
-                          return (
-                            <option key={r.ilce} value={r.ilce}>
-                              {r.ilce}{areaData ? ` (${areaData.count})` : ''}
-                            </option>
-                          )
-                        })
-                      : areas.map(a => <option key={a.area} value={a.area}>{a.area} ({a.count})</option>)
-                    }
-                  </select>
-                )}
-
-                {(mode === 'browse' ? cuisines.length > 0 : true) && (
-                  <select
-                    value={cuisine || ''}
-                    onChange={e => setCuisine(e.target.value || null)}
-                    className="select-field"
-                  >
-                    <option value="">Tüm Mutfaklar</option>
-                    {mode === 'browse'
-                      ? cuisines.map(c => <option key={c.cuisine} value={c.cuisine}>{c.cuisine} ({c.count})</option>)
-                      : ['Türk Mutfağı', 'Kebap', 'Pizza', 'Burger', 'Suşi', 'Deniz Ürünleri', 'Kafe', 'Fast Food', 'İtalyan', 'Vejetaryen'].map(c =>
-                          <option key={c} value={c}>{c}</option>
-                        )
-                    }
-                  </select>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-white/[0.06] mx-4" />
-
-              {/* Meal Types */}
-              <div className="p-4">
-                <p className="text-[11px] text-brand-muted uppercase tracking-widest font-semibold mb-3">Ne yemek istiyorsun?</p>
-                <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-                  {MEAL_TYPES.map(m => (
-                    <button
-                      key={m.id}
-                      onClick={() => setMealType(m.id)}
-                      className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all active:scale-95 shrink-0 ${
-                        mealType === m.id
-                          ? 'bg-brand-cream text-brand-cream shadow-md '
-                          : 'bg-brand-dark/60 text-brand-muted hover:text-brand-cream border border-white/[0.06]'
-                      }`}
-                    >
-                      <span className="text-sm">{m.emoji}</span> {m.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div className="h-px bg-white/[0.06] mx-4" />
-
-              {/* Tournament Size Buttons */}
-              <div className="p-4 space-y-2.5">
-                {/* Freemium Info - compact */}
-                {tournamentInfo && (
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-brand-muted">Günlük turnuva</span>
-                    <span className="text-xs font-bold text-brand-cream">{tournamentInfo.remaining}/{tournamentInfo.limit}</span>
-                  </div>
-                )}
-
-                <button
-                  onClick={() => handleStartTournament(8)}
-                  disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                  className="w-full py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-brand-cream text-brand-cream shadow-lg transition-all active:scale-[0.98] disabled:opacity-40"
-                >
-                  <Icon.Zap /> {loading ? 'Yükleniyor...' : 'Hızlı Turnuva — 8 restoran'}
-                </button>
-
-                <div className="flex gap-2.5">
-                  <button
-                    onClick={() => handleStartTournament(16)}
-                    disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                    className="flex-1 py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-1.5 bg-brand-surface border border-brand-line text-brand-cream hover:border-brand-line transition-all active:scale-[0.98] disabled:opacity-40"
-                  >
-                    {loading ? '...' : 'Klasik (16)'}
-                  </button>
-                  <button
-                    onClick={() => handleStartTournament(32)}
-                    disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                    className="flex-1 py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-1.5 bg-brand-surface border border-brand-line text-brand-cream hover:border-brand-line transition-all active:scale-[0.98] disabled:opacity-40"
-                  >
-                    🏆 {loading ? '...' : 'Büyük (32)'}
-                  </button>
-                </div>
-
-                {/* Premium limit */}
-                {tournamentInfo && !tournamentInfo.can_play && (
-                  <p className="text-center text-brand-muted text-xs pt-1">Günlük limit doldu — yarın 3 yeni hak</p>
-                )}
-              </div>
-            </div>
-
-            {/* Social Proof — outside card */}
-            <div className="max-w-md mx-auto mt-6">
-              <SocialProof />
-            </div>
-          </div>
-
-          <Footer />
-        </div>
+        <LandingScreen
+          soundOn={soundOn}
+          toggleSoundClick={() => setSoundOn(toggleSound())}
+          mode={mode}
+          handleBrowseMode={handleBrowseMode}
+          handleNearbyMode={handleNearbyMode}
+          geo={geo}
+          nearbyMeta={nearbyMeta}
+          regions={regions}
+          areas={areas}
+          cuisines={cuisines}
+          selectedIlce={selectedIlce}
+          handleIlceChange={handleIlceChange}
+          cuisine={cuisine}
+          setCuisine={setCuisine}
+          mealType={mealType}
+          setMealType={setMealType}
+          currentSlot={currentSlot}
+          tournamentInfo={tournamentInfo}
+          loading={loading}
+          serverDown={serverDown}
+          onStart={handleStartTournament}
+        />
       )}
 
       {/* ═══ INSPIRATION ═══ */}
       {phase === 'inspiration' && inspiration && (
         <div className="min-h-screen flex flex-col items-center justify-center px-6">
-          <div className="max-w-sm text-center animate-fade-in space-y-6">
-            <div className="text-8xl">{inspiration.emoji}</div>
+          <div className="max-w-sm text-center animate-fade-in space-y-5">
+            <div className="text-6xl">{inspiration.emoji}</div>
             <div>
-              <p className="text-brand-muted text-xs uppercase tracking-widest mb-2">Bugünün İlham Kaynağı</p>
-              <h2 className="font-sans text-2xl font-bold text-brand-cream">{inspiration.text}</h2>
+              <p className="text-brand-muted text-xs uppercase tracking-widest mb-1.5">Bugünün ilham kaynağı</p>
+              <h2 className="font-sans text-xl font-semibold text-brand-cream tracking-tight">{inspiration.text}</h2>
             </div>
             <button onClick={() => setPhase('game')} className="btn-primary w-full">
-              Turnuvaya Başla
+              Turnuvaya başla
             </button>
           </div>
         </div>
@@ -930,7 +318,7 @@ export default function App() {
       {/* ═══ GAME (Loading) ═══ */}
       {phase === 'game' && loading && <BattleLoadingSkeleton />}
 
-      {/* ═══ GAME (Empty State) ═══ */}
+      {/* ═══ GAME (Empty) ═══ */}
       {phase === 'game' && !loading && restaurants.length < 2 && (
         <div className="min-h-screen flex items-center justify-center px-4">
           <NoRestaurantsFound onReset={handleRestart} />
@@ -939,17 +327,20 @@ export default function App() {
 
       {/* ═══ GAME ═══ */}
       {phase === 'game' && !loading && roundMatches.length > 0 && roundMatches[matchIndex] && !roundTransition && (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 gap-4 no-select safe-top">
-          {/* Round Stepper */}
-          <RoundStepper totalRounds={totalRounds} currentRound={roundIndex} totalSize={totalCount} roundMatches={roundMatches} matchIndex={matchIndex} />
+        <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 gap-3 no-select safe-top">
+          <RoundStepper
+            totalRounds={totalRounds}
+            currentRound={roundIndex}
+            totalSize={totalCount}
+            roundMatches={roundMatches}
+            matchIndex={matchIndex}
+          />
 
-          {/* Header */}
-          <p className="text-[11px] uppercase tracking-[0.2em] text-brand-muted font-semibold">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-brand-muted font-medium">
             {getRoundName(roundMatches.length * 2, totalCount)}
           </p>
-          <p className="text-sm text-brand-cream font-medium -mt-2 mb-2">Hangisini tercih edersin?</p>
+          <p className="text-sm text-brand-cream font-medium -mt-1 mb-1.5">Hangisini tercih edersin?</p>
 
-          {/* Battle */}
           <div className="flex flex-col md:flex-row gap-3 md:gap-6 items-center justify-center w-full max-w-4xl">
             <VSCard
               restaurant={roundMatches[matchIndex][0]}
@@ -957,11 +348,9 @@ export default function App() {
               animating={pickLockRef.current}
               side="left"
             />
-
-            <div className="vs-badge flex items-center justify-center w-12 h-12 rounded-full bg-brand-surface border border-brand-line text-brand-cream font-semibold text-sm shadow-card">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-surface border border-brand-line text-brand-muted font-medium text-xs">
               VS
             </div>
-
             <VSCard
               restaurant={roundMatches[matchIndex][1]}
               onClick={() => handlePick(roundMatches[matchIndex][1])}
@@ -975,9 +364,9 @@ export default function App() {
       {/* ═══ GAME (Round Transition) ═══ */}
       {phase === 'game' && !loading && roundTransition && (
         <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
-          <div className="text-6xl mb-4 animate-fade-in">🎯</div>
-          <h2 className="text-2xl font-bold text-brand-cream mb-2">Tur Tamamlandı!</h2>
-          <p className="text-brand-muted">{getRoundName(roundWinners.length, totalCount)} turuna geçiliyor...</p>
+          <div className="text-4xl mb-3">→</div>
+          <h2 className="text-lg font-semibold text-brand-cream tracking-tight">Tur tamamlandı</h2>
+          <p className="text-brand-muted text-sm mt-1">{getRoundName(roundWinners.length, totalCount)} turuna geçiliyor…</p>
         </div>
       )}
 
@@ -985,29 +374,27 @@ export default function App() {
       {phase === 'results' && champion && (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
           {showConfetti && <Confetti />}
-          <div className="text-center max-w-lg animate-fade-in space-y-6">
+          <div className="text-center max-w-lg animate-fade-in space-y-5">
             <Icon.Trophy />
-            <h2 className="font-sans text-3xl sm:text-4xl font-semibold text-gradient-warm">
-              Şampiyonun!
-            </h2>
+            <h2 className="font-sans text-2xl sm:text-3xl font-semibold tracking-tight">Şampiyonun</h2>
 
             <VSCard restaurant={champion} onClick={() => {}} isWinner />
 
-            {/* Podium */}
+            {/* 2. ve 3. sıra */}
             {(runnerUp || thirdPlace) && (
-              <div className="grid grid-cols-2 gap-3 mt-4">
+              <div className="grid grid-cols-2 gap-2.5 mt-3">
                 {runnerUp && (
-                  <div className="bg-brand-card border border-brand-line p-4 rounded-2xl text-left">
-                    <p className="text-brand-muted text-xs mb-1">2. Sırada</p>
-                    <h3 className="font-bold text-brand-cream text-sm">{runnerUp.name}</h3>
-                    {runnerUp.cuisine && <p className="text-brand-muted text-xs mt-1">{runnerUp.cuisine}</p>}
+                  <div className="bg-brand-surface border border-brand-line p-3.5 rounded-xl text-left">
+                    <p className="text-brand-muted text-xs mb-0.5">2. sırada</p>
+                    <h3 className="font-medium text-brand-cream text-sm tracking-tight">{runnerUp.name}</h3>
+                    {runnerUp.cuisine && <p className="text-brand-muted text-xs mt-0.5">{runnerUp.cuisine}</p>}
                   </div>
                 )}
                 {thirdPlace && (
-                  <div className="bg-brand-card border border-brand-line p-4 rounded-2xl text-left">
-                    <p className="text-brand-muted text-xs mb-1">3. Sırada</p>
-                    <h3 className="font-bold text-brand-cream text-sm">{thirdPlace.name}</h3>
-                    {thirdPlace.cuisine && <p className="text-brand-muted text-xs mt-1">{thirdPlace.cuisine}</p>}
+                  <div className="bg-brand-surface border border-brand-line p-3.5 rounded-xl text-left">
+                    <p className="text-brand-muted text-xs mb-0.5">3. sırada</p>
+                    <h3 className="font-medium text-brand-cream text-sm tracking-tight">{thirdPlace.name}</h3>
+                    {thirdPlace.cuisine && <p className="text-brand-muted text-xs mt-0.5">{thirdPlace.cuisine}</p>}
                   </div>
                 )}
               </div>
@@ -1015,30 +402,28 @@ export default function App() {
 
             <Deeplinks restaurant={champion} />
 
-            {/* Points CTA for non-logged-in users */}
+            {/* CTA — misafir kullanıcılar için */}
             {!safeGetItem('local', 'foodhunt_token') && (
-              <div className="bg-brand-elevated border border-brand-line rounded-2xl p-4 mt-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">✨</span>
-                  <div className="flex-1">
-                    <p className="text-brand-cream text-sm font-medium">Turnuva geçmişini kaydet</p>
-                    <p className="text-brand-muted text-xs mt-0.5">Favorilerini ve puanlarını takip et</p>
-                  </div>
-                  <a href="/giris" className="bg-brand-elevated text-brand-cream text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-elevated transition">
-                    Giriş
-                  </a>
+              <div className="bg-brand-surface border border-brand-line rounded-xl p-3.5 mt-3 flex items-center gap-3">
+                <span className="text-xl">✨</span>
+                <div className="flex-1 text-left">
+                  <p className="text-brand-cream text-sm font-medium">Turnuva geçmişini kaydet</p>
+                  <p className="text-brand-muted text-xs mt-0.5">Favorilerini ve puanlarını takip et</p>
                 </div>
+                <a href="/giris" className="text-xs font-medium px-3 py-1.5 rounded-md border border-brand-line text-brand-cream hover:bg-brand-elevated transition-colors">
+                  Giriş
+                </a>
               </div>
             )}
 
-            {/* Actions */}
-            <div className="flex gap-3 pt-2">
+            {/* Aksiyonlar */}
+            <div className="flex gap-2.5 pt-1">
               <button onClick={() => { setShareModalOpen(true); api.trackEvent('share_click') }}
-                className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm">
+                className="btn-primary flex-1 inline-flex items-center justify-center gap-2">
                 <Icon.Share /> Paylaş
               </button>
               <button onClick={handleRestart}
-                className="btn-secondary flex-1 flex items-center justify-center gap-2 text-sm">
+                className="btn-secondary flex-1 inline-flex items-center justify-center gap-2">
                 <Icon.Refresh /> Tekrar
               </button>
             </div>
@@ -1050,6 +435,241 @@ export default function App() {
       <ShareModal isOpen={shareModalOpen} onClose={() => setShareModalOpen(false)} champion={champion} />
       <CookieConsent />
       <IOSInstallBanner />
+    </div>
+  )
+}
+
+// ─── Landing Screen (alt bileşen, App içine alındı çünkü çok prop alıyor) ────
+interface LandingProps {
+  soundOn: boolean
+  toggleSoundClick: () => void
+  mode: 'browse' | 'nearby'
+  handleBrowseMode: () => void
+  handleNearbyMode: () => void
+  geo: ReturnType<typeof useGeolocation>
+  nearbyMeta: { area_detected: string | null; google_count: number; seed_count: number } | null
+  regions: PublicRegion[]
+  areas: { area: string; count: number }[]
+  cuisines: { cuisine: string; count: number }[]
+  selectedIlce: string | null
+  handleIlceChange: (ilce: string | null) => void
+  cuisine: string | null
+  setCuisine: (c: string | null) => void
+  mealType: string
+  setMealType: (m: string) => void
+  currentSlot: TournamentSlot | null
+  tournamentInfo: { used: number; limit: number; remaining: number; can_play: boolean } | null
+  loading: boolean
+  serverDown: boolean
+  onStart: (count: 8 | 16 | 32) => void
+}
+
+function LandingScreen(p: LandingProps) {
+  const userName = (() => {
+    try { return JSON.parse(safeGetItem('local', 'foodhunt_user') || '{}').name?.charAt(0)?.toUpperCase() || '?' }
+    catch { return '?' }
+  })()
+
+  return (
+    <div className="min-h-screen relative">
+      {/* Top bar */}
+      <header className="flex items-center justify-between px-5 pt-5 pb-2 safe-top">
+        <button
+          onClick={p.toggleSoundClick}
+          className="w-9 h-9 rounded-lg flex items-center justify-center border border-brand-line text-brand-muted hover:text-brand-cream transition-colors"
+          aria-label={p.soundOn ? 'Sesi kapat' : 'Sesi aç'}
+        >
+          {p.soundOn ? '🔊' : '🔇'}
+        </button>
+
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          {safeGetItem('local', 'foodhunt_token') ? (
+            <a href="/profil" className="inline-flex items-center gap-2 bg-brand-surface border border-brand-line pl-1.5 pr-3 py-1 rounded-full text-sm font-medium text-brand-cream hover:border-brand-muted/40 transition-colors">
+              <span className="w-6 h-6 rounded-full bg-brand-elevated border border-brand-line flex items-center justify-center text-[10px] font-medium">
+                {userName}
+              </span>
+              Profil
+            </a>
+          ) : (
+            <a href="/giris" className="px-3.5 py-1.5 rounded-lg text-sm font-medium text-brand-cream border border-brand-line hover:bg-brand-elevated transition-colors">
+              Giriş yap
+            </a>
+          )}
+        </div>
+      </header>
+
+      {/* Hero */}
+      <section className="flex flex-col items-center px-6 pt-6 pb-5 text-center">
+        <Logo size={56} className="mb-4 text-brand-cream" />
+        {p.currentSlot ? (
+          <>
+            <h1 className="font-sans text-2xl sm:text-3xl font-semibold tracking-tight">
+              {p.currentSlot.slot}
+            </h1>
+            <div className="flex items-center gap-2 mt-2 mb-2">
+              <span className="text-base">{p.currentSlot.icon}</span>
+              <span className="inline-flex items-center gap-1 text-[10px] bg-brand-elevated text-brand-fresh px-2 py-0.5 rounded-md font-medium uppercase tracking-wider border border-brand-line">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-fresh animate-pulse" /> Canlı
+              </span>
+              <span className="text-xs text-brand-muted tabular-nums">{p.currentSlot.start} – {p.currentSlot.end}</span>
+            </div>
+          </>
+        ) : (
+          <LogoText className="text-3xl sm:text-4xl mb-1" />
+        )}
+        <p className="text-brand-muted text-sm max-w-[280px] leading-relaxed mt-1">
+          Favorin restoranı turnuva usulü seç
+        </p>
+      </section>
+
+      {/* Main card */}
+      <section className="px-5 pb-8">
+        <div className="max-w-md mx-auto card">
+
+          {/* Mode toggle */}
+          <div className="p-3 pb-0">
+            <div className="flex bg-brand-elevated border border-brand-line rounded-xl p-1">
+              <button
+                onClick={p.handleBrowseMode}
+                className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  p.mode === 'browse' ? 'bg-brand-surface text-brand-cream border border-brand-line' : 'text-brand-muted hover:text-brand-cream'
+                }`}
+              >
+                <Icon.MapPin /> Bölge seç
+              </button>
+              <button
+                onClick={p.handleNearbyMode}
+                className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  p.mode === 'nearby' ? 'bg-brand-surface text-brand-cream border border-brand-line' : 'text-brand-muted hover:text-brand-cream'
+                }`}
+              >
+                <Icon.Crosshair /> Yakınımdakiler
+              </button>
+            </div>
+          </div>
+
+          {/* Nearby status */}
+          {p.mode === 'nearby' && (
+            <div className="px-4 pt-3 text-center">
+              {p.geo.loading && <p className="text-brand-cream text-sm animate-pulse">Konum alınıyor…</p>}
+              {p.geo.position && !p.geo.loading && (
+                <span className="inline-flex items-center gap-1.5 text-brand-fresh text-xs bg-brand-elevated border border-brand-line px-2.5 py-1 rounded-md">
+                  <Icon.Navigation />
+                  {p.nearbyMeta?.area_detected ? p.nearbyMeta.area_detected : 'Konum algılandı'}
+                </span>
+              )}
+              {p.geo.error && !p.geo.position && <p className="text-brand-cream text-xs">{p.geo.error}</p>}
+              {p.geo.permissionDenied && <p className="text-brand-muted text-xs">Varsayılan konum kullanılacak</p>}
+            </div>
+          )}
+
+          {/* Filters */}
+          <div className="p-4 space-y-2.5">
+            {p.mode === 'browse' && (
+              <select
+                value={p.selectedIlce || ''}
+                onChange={e => p.handleIlceChange(e.target.value || null)}
+                className="select-field"
+              >
+                <option value="">İlçe seçin</option>
+                {p.regions.length > 0
+                  ? p.regions.map(r => {
+                      const ad = p.areas.find(a => a.area === r.ilce)
+                      return <option key={r.ilce} value={r.ilce}>{r.ilce}{ad ? ` (${ad.count})` : ''}</option>
+                    })
+                  : p.areas.map(a => <option key={a.area} value={a.area}>{a.area} ({a.count})</option>)
+                }
+              </select>
+            )}
+
+            {(p.mode === 'browse' ? p.cuisines.length > 0 : true) && (
+              <select
+                value={p.cuisine || ''}
+                onChange={e => p.setCuisine(e.target.value || null)}
+                className="select-field"
+              >
+                <option value="">Tüm mutfaklar</option>
+                {p.mode === 'browse'
+                  ? p.cuisines.map(c => <option key={c.cuisine} value={c.cuisine}>{c.cuisine} ({c.count})</option>)
+                  : ['Türk Mutfağı', 'Kebap', 'Pizza', 'Burger', 'Suşi', 'Deniz Ürünleri', 'Kafe', 'Fast Food', 'İtalyan', 'Vejetaryen'].map(c =>
+                      <option key={c} value={c}>{c}</option>
+                    )
+                }
+              </select>
+            )}
+          </div>
+
+          <div className="h-px bg-brand-line mx-4" />
+
+          {/* Meal types */}
+          <div className="p-4">
+            <p className="text-[11px] text-brand-muted uppercase tracking-widest font-medium mb-2.5">Ne yemek istiyorsun</p>
+            <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+              {MEAL_TYPES.map(m => (
+                <button
+                  key={m.id}
+                  onClick={() => p.setMealType(m.id)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors shrink-0 ${
+                    p.mealType === m.id
+                      ? 'bg-brand-cream text-brand-dark'
+                      : 'bg-brand-elevated text-brand-muted hover:text-brand-cream border border-brand-line'
+                  }`}
+                >
+                  <span className="text-sm">{m.emoji}</span> {m.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-px bg-brand-line mx-4" />
+
+          {/* Tournament size buttons */}
+          <div className="p-4 space-y-2">
+            {p.tournamentInfo && (
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs text-brand-muted">Günlük turnuva</span>
+                <span className="text-xs font-medium text-brand-cream tabular-nums">{p.tournamentInfo.remaining}/{p.tournamentInfo.limit}</span>
+              </div>
+            )}
+
+            <button
+              onClick={() => p.onStart(8)}
+              disabled={p.loading || p.serverDown || (p.tournamentInfo !== null && !p.tournamentInfo.can_play)}
+              className="btn-primary w-full inline-flex items-center justify-center gap-2 disabled:opacity-40"
+            >
+              <Icon.Zap /> {p.loading ? 'Yükleniyor…' : 'Hızlı turnuva — 8 restoran'}
+            </button>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => p.onStart(16)}
+                disabled={p.loading || p.serverDown || (p.tournamentInfo !== null && !p.tournamentInfo.can_play)}
+                className="btn-secondary flex-1 disabled:opacity-40"
+              >
+                {p.loading ? '…' : 'Klasik (16)'}
+              </button>
+              <button
+                onClick={() => p.onStart(32)}
+                disabled={p.loading || p.serverDown || (p.tournamentInfo !== null && !p.tournamentInfo.can_play)}
+                className="btn-secondary flex-1 disabled:opacity-40"
+              >
+                {p.loading ? '…' : 'Büyük (32)'}
+              </button>
+            </div>
+
+            {p.tournamentInfo && !p.tournamentInfo.can_play && (
+              <p className="text-center text-brand-muted text-xs pt-1">Günlük limit doldu — yarın 3 yeni hak</p>
+            )}
+          </div>
+        </div>
+
+        <div className="max-w-md mx-auto mt-6">
+          <SocialProof />
+        </div>
+      </section>
+
+      <Footer />
     </div>
   )
 }
