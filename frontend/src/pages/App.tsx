@@ -21,7 +21,7 @@ const Icon = {
   MapPin: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>,
   Utensils: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2M7 2v20M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>,
   Trophy: () => (
-    <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-brand-coral via-brand-amber to-brand-gold mb-4 shadow-2xl shadow-brand-coral/30">
+    <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-brand-cream mb-4 shadow-card ">
       <span className="text-5xl">🏆</span>
     </div>
   ),
@@ -53,7 +53,7 @@ const PriceLevel = ({ level }: { level?: number }) => {
   return (
     <span className="flex items-center gap-0.5 text-xs">
       {[1, 2, 3].map(i => (
-        <span key={i} className={i <= l ? 'text-brand-trust font-bold' : 'text-white/20'}>₺</span>
+        <span key={i} className={i <= l ? 'text-brand-trust font-bold' : 'text-brand-cream/20'}>₺</span>
       ))}
     </span>
   )
@@ -71,7 +71,7 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
         group relative w-full max-w-sm rounded-3xl overflow-hidden
         transition-all duration-150 text-left
         ${animating ? 'scale-95 opacity-40 pointer-events-none' : 'hover:scale-[1.03] active:scale-[0.97]'}
-        ${isWinner ? 'ring-2 ring-brand-gold winner-card-glow' : ''}
+        ${isWinner ? 'ring-2 ring-brand-cream ' : ''}
         ${side === 'left' ? 'animate-card-slide-left' : side === 'right' ? 'animate-card-slide-right' : ''}
       `}
     >
@@ -89,7 +89,7 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
         <div className="food-overlay absolute inset-0" />
 
         {/* Rating badge */}
-        <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-md text-brand-amber px-2.5 py-1 rounded-full text-xs font-bold">
+        <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-md text-brand-cream px-2.5 py-1 rounded-full text-xs font-bold">
           <Icon.Star /> {stars}
         </div>
 
@@ -99,23 +99,23 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
         </div>
 
         {isWinner && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-brand-gold to-brand-amber text-brand-dark px-4 py-1.5 rounded-full text-xs font-black shadow-lg animate-bounce-in">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-brand-cream text-brand-dark px-4 py-1.5 rounded-full text-xs font-semibold shadow-lg animate-fade-in">
             🏆 ŞAMPİYON
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-4 bg-brand-card border-t border-white/5">
+      <div className="p-4 bg-brand-card border-t border-brand-line">
         <h3 className="text-lg font-bold text-brand-cream mb-1.5 truncate">{restaurant.name}</h3>
         <div className="flex flex-wrap items-center gap-2 text-xs text-brand-muted mb-2">
           {restaurant.cuisine && (
-            <span className="flex items-center gap-1 bg-brand-coral/10 text-brand-coral-light px-2 py-0.5 rounded-full">
+            <span className="flex items-center gap-1 bg-brand-elevated text-brand-cream-light px-2 py-0.5 rounded-full">
               <Icon.Utensils /> {restaurant.cuisine}
             </span>
           )}
           {restaurant.area && (
-            <span className="flex items-center gap-1 bg-white/5 px-2 py-0.5 rounded-full">
+            <span className="flex items-center gap-1 bg-brand-elevated px-2 py-0.5 rounded-full">
               <Icon.MapPin /> {restaurant.area}
             </span>
           )}
@@ -123,11 +123,11 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
 
         {/* Top 3 Products */}
         {restaurant.top3_products && restaurant.top3_products.length > 0 && (
-          <div className="flex flex-col gap-1 pt-2 border-t border-white/5">
+          <div className="flex flex-col gap-1 pt-2 border-t border-brand-line">
             <span className="text-[10px] uppercase tracking-wider text-brand-muted font-semibold">Popüler</span>
             <div className="flex flex-wrap gap-1.5">
               {restaurant.top3_products.slice(0, 3).map((p, i) => (
-                <span key={i} className="inline-flex items-center gap-1 bg-brand-amber/10 text-brand-amber px-2 py-0.5 rounded-full text-xs font-medium">
+                <span key={i} className="inline-flex items-center gap-1 bg-brand-elevated text-brand-cream px-2 py-0.5 rounded-full text-xs font-medium">
                   <span>{p.emoji}</span> {p.name}
                 </span>
               ))}
@@ -143,14 +143,14 @@ const VSCard = ({ restaurant, onClick, isWinner, animating, side }: VSCardProps)
 const BattleLoadingSkeleton = () => (
   <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 gap-6">
     <div className="text-center space-y-3 w-full max-w-md">
-      <div className="h-3 bg-white/10 rounded w-48 mx-auto animate-pulse" />
+      <div className="h-3 bg-brand-elevated rounded w-48 mx-auto animate-pulse" />
       <div className="h-1.5 bg-brand-surface rounded-full overflow-hidden">
-        <div className="h-full bg-white/10 rounded-full w-1/3 animate-pulse" />
+        <div className="h-full bg-brand-elevated rounded-full w-1/3 animate-pulse" />
       </div>
     </div>
     <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center justify-center w-full max-w-4xl">
       <div className="w-full max-w-sm"><SkeletonCard /></div>
-      <div className="w-14 h-14 rounded-full bg-white/10 animate-pulse" />
+      <div className="w-14 h-14 rounded-full bg-brand-elevated animate-pulse" />
       <div className="w-full max-w-sm"><SkeletonCard /></div>
     </div>
   </div>
@@ -167,7 +167,7 @@ const ProgressBar = ({ current, total }: { current: number; total: number }) => 
       </div>
       <div className="h-1.5 bg-brand-surface rounded-full overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-brand-coral to-brand-amber rounded-full transition-all duration-500 progress-glow"
+          className="h-full bg-brand-cream rounded-full transition-all duration-500 "
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -215,7 +215,7 @@ const Deeplinks = ({ restaurant }: { restaurant: Restaurant }) => {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => handleDeeplinkClick(l.key)}
-            className={`flex items-center justify-center gap-2 px-5 py-3.5 ${l.color} text-white rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg hover:shadow-xl`}
+            className={`flex items-center justify-center gap-2 px-5 py-3.5 ${l.color} text-brand-cream rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg hover:shadow-card`}
           >
             {l.label}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
@@ -228,7 +228,7 @@ const Deeplinks = ({ restaurant }: { restaurant: Restaurant }) => {
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => handleDeeplinkClick(l.key)}
-            className={`flex items-center justify-center gap-2 px-5 py-3.5 ${l.color} text-white rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg hover:shadow-xl`}
+            className={`flex items-center justify-center gap-2 px-5 py-3.5 ${l.color} text-brand-cream rounded-2xl text-sm font-bold transition-all active:scale-95 shadow-lg hover:shadow-card`}
           >
             {l.label}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
@@ -236,7 +236,7 @@ const Deeplinks = ({ restaurant }: { restaurant: Restaurant }) => {
         ))}
       </div>
       {safeGetItem('local', 'foodhunt_token') && (
-        <p className="text-center text-brand-amber text-xs font-semibold">+50 puan kazanırsınız!</p>
+        <p className="text-center text-brand-cream text-xs font-semibold">+50 puan kazanırsınız!</p>
       )}
     </div>
   )
@@ -274,24 +274,24 @@ const ShareModal = ({ isOpen, onClose, champion }: { isOpen: boolean; onClose: (
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4 safe-bottom" onClick={onClose}>
       <div className="bg-brand-card rounded-t-3xl sm:rounded-3xl w-full max-w-sm p-6 animate-slide-up" onClick={e => e.stopPropagation()}>
-        <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4 sm:hidden" />
+        <div className="w-10 h-1 bg-brand-elevated rounded-full mx-auto mb-4 sm:hidden" />
         <h2 className="text-xl font-bold text-brand-cream mb-4">Paylaş</h2>
         <div className="space-y-2">
           {/* Native share button (iOS share sheet) */}
           <button onClick={handleNativeShare}
-            className="w-full flex items-center gap-3 bg-brand-coral hover:bg-brand-coral-light text-white px-4 py-3 rounded-xl transition font-semibold active:scale-95">
+            className="w-full flex items-center gap-3 bg-brand-cream hover:bg-brand-cream-light text-brand-cream px-4 py-3 rounded-xl transition font-semibold active:scale-95">
             <Icon.Share /> Paylaş
           </button>
           <button onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`${shareText}\n${shareUrl}`)}`, '_blank')}
-            className="w-full flex items-center gap-3 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl transition font-semibold active:scale-95">
+            className="w-full flex items-center gap-3 bg-green-600 hover:bg-green-700 text-brand-cream px-4 py-3 rounded-xl transition font-semibold active:scale-95">
             <Icon.Whatsapp /> WhatsApp
           </button>
           <button onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank')}
-            className="w-full flex items-center gap-3 bg-brand-surface hover:bg-brand-elevated text-white px-4 py-3 rounded-xl transition font-semibold active:scale-95 border border-white/10">
+            className="w-full flex items-center gap-3 bg-brand-surface hover:bg-brand-elevated text-brand-cream px-4 py-3 rounded-xl transition font-semibold active:scale-95 border border-brand-line">
             <Icon.Twitter /> X (Twitter)
           </button>
           <button onClick={handleCopy}
-            className="w-full flex items-center gap-3 bg-brand-surface hover:bg-brand-elevated text-white px-4 py-3 rounded-xl transition font-semibold active:scale-95 border border-white/10">
+            className="w-full flex items-center gap-3 bg-brand-surface hover:bg-brand-elevated text-brand-cream px-4 py-3 rounded-xl transition font-semibold active:scale-95 border border-brand-line">
             <Icon.Copy /> {copied ? 'Kopyalandı!' : 'Linki Kopyala'}
           </button>
         </div>
@@ -304,9 +304,9 @@ const ShareModal = ({ isOpen, onClose, champion }: { isOpen: boolean; onClose: (
 const Footer = () => (
   <footer className="mt-16 py-6 text-center text-xs text-brand-muted space-y-3">
     <div className="flex flex-wrap justify-center gap-4">
-      <a href="/kvkk" className="hover:text-brand-coral transition">KVKK</a>
-      <a href="/kullanim" className="hover:text-brand-coral transition">Kullanım Şartları</a>
-      <a href="/cerez" className="hover:text-brand-coral transition">Çerez Politikası</a>
+      <a href="/kvkk" className="hover:text-brand-cream transition">KVKK</a>
+      <a href="/kullanim" className="hover:text-brand-cream transition">Kullanım Şartları</a>
+      <a href="/cerez" className="hover:text-brand-cream transition">Çerez Politikası</a>
     </div>
     <p className="text-brand-muted/50">&copy; 2026 FoodHunt</p>
   </footer>
@@ -332,8 +332,8 @@ const RoundStepper = ({ totalRounds, currentRound, totalSize, roundMatches, matc
           <div key={i} className="flex items-center gap-1 flex-1">
             <div className={`
               flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all duration-500
-              ${i < currentRound ? 'bg-brand-fresh text-white scale-90' : ''}
-              ${i === currentRound ? 'bg-gradient-to-r from-brand-coral to-brand-amber text-white scale-110 shadow-lg shadow-brand-coral/30' : ''}
+              ${i < currentRound ? 'bg-brand-fresh text-brand-cream scale-90' : ''}
+              ${i === currentRound ? 'bg-brand-cream text-brand-cream scale-110 shadow-lg ' : ''}
               ${i > currentRound ? 'bg-brand-surface text-brand-muted' : ''}
             `}>
               {i < currentRound ? '✓' : step.size}
@@ -672,15 +672,15 @@ export default function App() {
   return (
     <div className="min-h-screen bg-brand-dark text-brand-cream overflow-hidden relative">
       {/* Ambient background glows */}
-      <div className="ambient-glow ambient-coral" style={{ top: '-100px', right: '-50px' }} />
-      <div className="ambient-glow ambient-amber" style={{ bottom: '20%', left: '-80px' }} />
+      <div className="" style={{ top: '-100px', right: '-50px' }} />
+      <div className="" style={{ bottom: '20%', left: '-80px' }} />
 
       {/* Onboarding */}
       {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
 
       {/* Server down banner */}
       {serverDown && (
-        <div className="sticky top-0 z-50 bg-brand-amber/10 border-b border-brand-amber/30 text-brand-amber px-4 py-3 text-center text-sm backdrop-blur-md flex items-center justify-center gap-2">
+        <div className="sticky top-0 z-50 bg-brand-elevated border-b border-brand-line text-brand-cream px-4 py-3 text-center text-sm backdrop-blur-md flex items-center justify-center gap-2">
           <Icon.AlertTriangle />
           Sunucu bakımda. Lütfen daha sonra tekrar deneyin.
         </div>
@@ -690,7 +690,7 @@ export default function App() {
       {apiError && !serverDown && (
         <div className="sticky top-0 z-50 bg-red-500/10 border-b border-red-500/30 text-red-300 px-4 py-3 text-center text-sm backdrop-blur-md">
           {apiError}
-          <button onClick={() => setApiError(null)} className="absolute right-4 top-1/2 -translate-y-1/2 text-red-300 hover:text-white">
+          <button onClick={() => setApiError(null)} className="absolute right-4 top-1/2 -translate-y-1/2 text-red-300 hover:text-brand-cream">
             <Icon.X />
           </button>
         </div>
@@ -704,21 +704,21 @@ export default function App() {
             <button
               onClick={() => { const on = toggleSound(); setSoundOn(on); }}
               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${
-                soundOn ? 'border-brand-coral/30 bg-brand-coral/10 text-brand-coral' : 'border-white/10 bg-brand-surface text-brand-muted'
+                soundOn ? 'border-brand-line bg-brand-elevated text-brand-cream' : 'border-brand-line bg-brand-surface text-brand-muted'
               }`}
             >
               {soundOn ? '🔊' : '🔇'}
             </button>
 
             {safeGetItem('local', 'foodhunt_token') ? (
-              <a href="/profil" className="flex items-center gap-2.5 bg-brand-surface border border-white/10 pl-2 pr-4 py-1.5 rounded-full text-sm font-semibold text-brand-cream hover:border-brand-coral/40 transition">
-                <span className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-coral to-brand-gold flex items-center justify-center text-[11px] font-bold text-white">
+              <a href="/profil" className="flex items-center gap-2.5 bg-brand-surface border border-brand-line pl-2 pr-4 py-1.5 rounded-full text-sm font-semibold text-brand-cream hover:border-brand-line transition">
+                <span className="w-7 h-7 rounded-full bg-brand-cream flex items-center justify-center text-[11px] font-bold text-brand-cream">
                   {(() => { try { const u = JSON.parse(safeGetItem('local', 'foodhunt_user') || '{}'); return u.name?.charAt(0)?.toUpperCase() || '?' } catch { return '?' } })()}
                 </span>
                 Profil
               </a>
             ) : (
-              <a href="/giris" className="px-5 py-2 rounded-full text-sm font-bold text-brand-cream border border-white/15 hover:border-brand-coral/40 hover:bg-brand-coral/10 transition active:scale-95">
+              <a href="/giris" className="px-5 py-2 rounded-full text-sm font-bold text-brand-cream border border-brand-line hover:border-brand-line hover:bg-brand-elevated transition active:scale-95">
                 Giriş Yap
               </a>
             )}
@@ -729,12 +729,12 @@ export default function App() {
             <Logo size={72} className="mb-4" />
             {currentSlot ? (
               <>
-                <h1 className="font-display text-3xl sm:text-4xl font-extrabold mb-1">
+                <h1 className="font-sans text-3xl sm:text-4xl font-semibold mb-1">
                   <span className="text-gradient-warm">{currentSlot.slot}</span>
                 </h1>
                 <div className="flex items-center gap-2 mt-2 mb-3">
                   <span className="text-lg">{currentSlot.icon}</span>
-                  <span className="text-[10px] bg-brand-coral text-white px-2.5 py-0.5 rounded-full font-bold animate-pulse uppercase tracking-wider">Canlı</span>
+                  <span className="text-[10px] bg-brand-cream text-brand-cream px-2.5 py-0.5 rounded-full font-bold animate-pulse uppercase tracking-wider">Canlı</span>
                   <span className="text-xs text-brand-muted">{currentSlot.start} – {currentSlot.end}</span>
                 </div>
               </>
@@ -759,7 +759,7 @@ export default function App() {
                     onClick={handleBrowseMode}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                       mode === 'browse'
-                        ? 'bg-brand-coral text-white shadow-lg shadow-brand-coral/25'
+                        ? 'bg-brand-cream text-brand-cream shadow-lg '
                         : 'text-brand-muted hover:text-brand-cream'
                     }`}
                   >
@@ -769,7 +769,7 @@ export default function App() {
                     onClick={handleNearbyMode}
                     className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                       mode === 'nearby'
-                        ? 'bg-brand-coral text-white shadow-lg shadow-brand-coral/25'
+                        ? 'bg-brand-cream text-brand-cream shadow-lg '
                         : 'text-brand-muted hover:text-brand-cream'
                     }`}
                   >
@@ -781,7 +781,7 @@ export default function App() {
               {/* Nearby Status */}
               {mode === 'nearby' && (
                 <div className="px-4 pt-3 text-center">
-                  {geo.loading && <p className="text-brand-gold text-sm animate-pulse">Konum alınıyor...</p>}
+                  {geo.loading && <p className="text-brand-cream text-sm animate-pulse">Konum alınıyor...</p>}
                   {geo.position && !geo.loading && (
                     <div className="inline-flex items-center gap-2 text-brand-fresh text-sm bg-brand-fresh/10 px-3 py-1 rounded-full">
                       <Icon.Navigation />
@@ -846,7 +846,7 @@ export default function App() {
                       onClick={() => setMealType(m.id)}
                       className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all active:scale-95 shrink-0 ${
                         mealType === m.id
-                          ? 'bg-brand-coral text-white shadow-md shadow-brand-coral/20'
+                          ? 'bg-brand-cream text-brand-cream shadow-md '
                           : 'bg-brand-dark/60 text-brand-muted hover:text-brand-cream border border-white/[0.06]'
                       }`}
                     >
@@ -865,14 +865,14 @@ export default function App() {
                 {tournamentInfo && (
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-brand-muted">Günlük turnuva</span>
-                    <span className="text-xs font-bold text-brand-gold">{tournamentInfo.remaining}/{tournamentInfo.limit}</span>
+                    <span className="text-xs font-bold text-brand-cream">{tournamentInfo.remaining}/{tournamentInfo.limit}</span>
                   </div>
                 )}
 
                 <button
                   onClick={() => handleStartTournament(8)}
                   disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                  className="w-full py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-r from-brand-coral to-brand-amber text-white shadow-lg shadow-brand-coral/20 transition-all active:scale-[0.98] disabled:opacity-40"
+                  className="w-full py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-brand-cream text-brand-cream shadow-lg transition-all active:scale-[0.98] disabled:opacity-40"
                 >
                   <Icon.Zap /> {loading ? 'Yükleniyor...' : 'Hızlı Turnuva — 8 restoran'}
                 </button>
@@ -881,14 +881,14 @@ export default function App() {
                   <button
                     onClick={() => handleStartTournament(16)}
                     disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                    className="flex-1 py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-1.5 bg-brand-surface border border-white/10 text-brand-cream hover:border-brand-coral/30 transition-all active:scale-[0.98] disabled:opacity-40"
+                    className="flex-1 py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-1.5 bg-brand-surface border border-brand-line text-brand-cream hover:border-brand-line transition-all active:scale-[0.98] disabled:opacity-40"
                   >
                     {loading ? '...' : 'Klasik (16)'}
                   </button>
                   <button
                     onClick={() => handleStartTournament(32)}
                     disabled={loading || serverDown || (tournamentInfo !== null && !tournamentInfo.can_play)}
-                    className="flex-1 py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-1.5 bg-brand-surface border border-white/10 text-brand-cream hover:border-brand-gold/30 transition-all active:scale-[0.98] disabled:opacity-40"
+                    className="flex-1 py-3 rounded-2xl font-semibold text-sm flex items-center justify-center gap-1.5 bg-brand-surface border border-brand-line text-brand-cream hover:border-brand-line transition-all active:scale-[0.98] disabled:opacity-40"
                   >
                     🏆 {loading ? '...' : 'Büyük (32)'}
                   </button>
@@ -914,11 +914,11 @@ export default function App() {
       {/* ═══ INSPIRATION ═══ */}
       {phase === 'inspiration' && inspiration && (
         <div className="min-h-screen flex flex-col items-center justify-center px-6">
-          <div className="max-w-sm text-center animate-bounce-in space-y-6">
+          <div className="max-w-sm text-center animate-fade-in space-y-6">
             <div className="text-8xl">{inspiration.emoji}</div>
             <div>
               <p className="text-brand-muted text-xs uppercase tracking-widest mb-2">Bugünün İlham Kaynağı</p>
-              <h2 className="font-display text-2xl font-bold text-brand-cream">{inspiration.text}</h2>
+              <h2 className="font-sans text-2xl font-bold text-brand-cream">{inspiration.text}</h2>
             </div>
             <button onClick={() => setPhase('game')} className="btn-primary w-full">
               Turnuvaya Başla
@@ -958,7 +958,7 @@ export default function App() {
               side="left"
             />
 
-            <div className="vs-badge flex items-center justify-center w-12 h-12 rounded-full bg-brand-surface border border-white/10 text-brand-coral font-extrabold text-sm shadow-xl">
+            <div className="vs-badge flex items-center justify-center w-12 h-12 rounded-full bg-brand-surface border border-brand-line text-brand-cream font-semibold text-sm shadow-card">
               VS
             </div>
 
@@ -975,7 +975,7 @@ export default function App() {
       {/* ═══ GAME (Round Transition) ═══ */}
       {phase === 'game' && !loading && roundTransition && (
         <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
-          <div className="text-6xl mb-4 animate-bounce-in">🎯</div>
+          <div className="text-6xl mb-4 animate-fade-in">🎯</div>
           <h2 className="text-2xl font-bold text-brand-cream mb-2">Tur Tamamlandı!</h2>
           <p className="text-brand-muted">{getRoundName(roundWinners.length, totalCount)} turuna geçiliyor...</p>
         </div>
@@ -985,9 +985,9 @@ export default function App() {
       {phase === 'results' && champion && (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
           {showConfetti && <Confetti />}
-          <div className="text-center max-w-lg animate-bounce-in space-y-6">
+          <div className="text-center max-w-lg animate-fade-in space-y-6">
             <Icon.Trophy />
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold text-gradient-warm">
+            <h2 className="font-sans text-3xl sm:text-4xl font-semibold text-gradient-warm">
               Şampiyonun!
             </h2>
 
@@ -997,14 +997,14 @@ export default function App() {
             {(runnerUp || thirdPlace) && (
               <div className="grid grid-cols-2 gap-3 mt-4">
                 {runnerUp && (
-                  <div className="bg-brand-card border border-white/5 p-4 rounded-2xl text-left">
+                  <div className="bg-brand-card border border-brand-line p-4 rounded-2xl text-left">
                     <p className="text-brand-muted text-xs mb-1">2. Sırada</p>
                     <h3 className="font-bold text-brand-cream text-sm">{runnerUp.name}</h3>
                     {runnerUp.cuisine && <p className="text-brand-muted text-xs mt-1">{runnerUp.cuisine}</p>}
                   </div>
                 )}
                 {thirdPlace && (
-                  <div className="bg-brand-card border border-white/5 p-4 rounded-2xl text-left">
+                  <div className="bg-brand-card border border-brand-line p-4 rounded-2xl text-left">
                     <p className="text-brand-muted text-xs mb-1">3. Sırada</p>
                     <h3 className="font-bold text-brand-cream text-sm">{thirdPlace.name}</h3>
                     {thirdPlace.cuisine && <p className="text-brand-muted text-xs mt-1">{thirdPlace.cuisine}</p>}
@@ -1017,14 +1017,14 @@ export default function App() {
 
             {/* Points CTA for non-logged-in users */}
             {!safeGetItem('local', 'foodhunt_token') && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mt-4">
+              <div className="bg-brand-elevated border border-brand-line rounded-2xl p-4 mt-4">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">✨</span>
                   <div className="flex-1">
                     <p className="text-brand-cream text-sm font-medium">Turnuva geçmişini kaydet</p>
                     <p className="text-brand-muted text-xs mt-0.5">Favorilerini ve puanlarını takip et</p>
                   </div>
-                  <a href="/giris" className="bg-brand-coral/20 text-brand-coral text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-coral/30 transition">
+                  <a href="/giris" className="bg-brand-elevated text-brand-cream text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-elevated transition">
                     Giriş
                   </a>
                 </div>

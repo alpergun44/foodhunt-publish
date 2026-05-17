@@ -46,15 +46,15 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-brand-dark border border-white/10 rounded-3xl p-8 max-w-sm w-full text-center
-                      shadow-2xl transform transition-all">
+      <div className="bg-brand-dark border border-brand-line rounded-3xl p-8 max-w-sm w-full text-center
+                      shadow-card transform transition-all">
         {/* Progress dots */}
         <div className="flex justify-center gap-2 mb-6">
           {steps.map((_, i) => (
             <div
               key={i}
               className={`w-2 h-2 rounded-full transition-all ${
-                i === step ? 'bg-brand-coral w-6' : i < step ? 'bg-brand-coral/50' : 'bg-white/20'
+                i === step ? 'bg-brand-cream w-6' : i < step ? 'bg-brand-elevated' : 'bg-brand-elevated'
               }`}
             />
           ))}
@@ -62,21 +62,21 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
 
         {/* Content */}
         <span className="text-6xl block mb-4">{current.emoji}</span>
-        <h2 className="text-2xl font-bold text-white mb-3">{current.title}</h2>
-        <p className="text-white/70 mb-8 leading-relaxed">{current.description}</p>
+        <h2 className="text-2xl font-bold text-brand-cream mb-3">{current.title}</h2>
+        <p className="text-brand-cream/70 mb-8 leading-relaxed">{current.description}</p>
 
         {/* Actions */}
         <div className="flex gap-3">
           <button
             onClick={handleSkip}
-            className="flex-1 py-3 text-white/50 hover:text-white/80 transition-colors text-sm"
+            className="flex-1 py-3 text-brand-cream/50 hover:text-brand-cream/80 transition-colors text-sm"
           >
             Atla
           </button>
           <button
             onClick={handleNext}
-            className="flex-1 py-3 bg-brand-coral text-white font-semibold rounded-xl
-                       hover:bg-brand-coral-light transition-all active:scale-95"
+            className="flex-1 py-3 bg-brand-cream text-brand-cream font-semibold rounded-xl
+                       hover:bg-brand-cream-light transition-all active:scale-95"
           >
             {step < steps.length - 1 ? 'Devam' : 'Başla!'}
           </button>

@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-    <meta name="theme-color" content="#141417" />
+    <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#FAFAFA" media="(prefers-color-scheme: light)" />
     <meta name="description" content="FoodHunt — Ne yesem? sorusuna turnuva sistemiyle cevap bul. İstanbul'un en iyi restoranlarını keşfet!" />
     <meta property="og:title" content="FoodHunt — Ne Yesem?" />
     <meta property="og:description" content="Turnuva sistemiyle restoran seç, İstanbul'un lezzetlerini keşfet!" />
@@ -26,15 +27,23 @@
       "@type": "WebApplication",
       "name": "FoodHunt",
       "description": "Turnuva sistemiyle restoran seç, yemek kararını eğlenceye dönüştür!",
-      "url": "https://foodhunt.app",
+      "url": "https://gofoodhunt.com",
       "applicationCategory": "LifestyleApplication",
       "operatingSystem": "Web",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "TRY" }
     }
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <!-- Theme bootstrap — flash önleme -->
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('foodhunt_theme');
+          if (t === 'light' || t === 'dark') {
+            document.documentElement.setAttribute('data-theme', t);
+          }
+        } catch(e) {}
+      })();
+    </script>
     <title>FoodHunt — Ne yesem?</title>
   </head>
   <body class="bg-brand-dark">

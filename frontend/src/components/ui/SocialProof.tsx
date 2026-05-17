@@ -18,7 +18,7 @@ export function SocialProof() {
 
   return (
     <div className="flex items-center justify-center gap-2 py-2 px-4
-                    bg-white/5 rounded-full text-white/60 text-sm">
+                    bg-brand-elevated rounded-full text-brand-cream/60 text-sm">
       <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse" />
       {message}
     </div>

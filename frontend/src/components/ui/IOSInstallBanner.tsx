@@ -75,8 +75,8 @@ export function IOSInstallBanner() {
 
         <div className="flex items-start gap-3 pr-6">
           {/* App icon */}
-          <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-brand-coral to-brand-amber flex items-center justify-center text-2xl shadow-lg">
-            🍽️
+          <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-brand-elevated border border-brand-line flex items-center justify-center text-xl">
+            🍽
           </div>
 
           <div className="flex-1 min-w-0">
@@ -87,7 +87,7 @@ export function IOSInstallBanner() {
               Hızlı erişim için ana ekranına ekle:{' '}
               {/* iOS Share icon inline */}
               <span className="inline-flex items-center align-middle mx-0.5">
-                <svg className="w-4 h-4 text-brand-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <svg className="w-4 h-4 text-brand-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M12 16v-8M8 8l4-4 4 4"/>
                 </svg>
               </span>
@@ -112,19 +112,19 @@ export function IOSInstallBanner() {
 function Step({ num, text, icon }: { num: number; text: string; icon: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className="w-8 h-8 rounded-full bg-brand-coral/15 flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full bg-brand-elevated border border-brand-line flex items-center justify-center">
         {icon === 'share' && (
-          <svg className="w-4 h-4 text-brand-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <svg className="w-4 h-4 text-brand-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M12 16v-8M8 8l4-4 4 4"/>
           </svg>
         )}
         {icon === 'plus' && (
-          <svg className="w-4 h-4 text-brand-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <svg className="w-4 h-4 text-brand-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/>
           </svg>
         )}
         {icon === 'check' && (
-          <svg className="w-4 h-4 text-brand-coral" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <svg className="w-4 h-4 text-brand-cream" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path d="M20 6L9 17l-5-5"/>
           </svg>
         )}

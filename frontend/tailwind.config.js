@@ -1,92 +1,92 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
-        // ─── FoodHunt Design System v5 — Charcoal + Lava Orange ───
-        // Bilimsel araştırma temelli: turuncu+kırmızı iştah tetikler,
-        // koyu gri arka plan göz yorgunluğunu %40 azaltır.
-        // WCAG 2.1 AA uyumlu kontrast oranları.
+        // ─── FoodHunt Design System v6 — Saf Monokrom (Linear/Vercel vibe) ───
+        // Tüm renkler CSS variable üzerinden — light + dark mod
+        // RGB ondalık format Tailwind'in `/<alpha-value>` syntax'ı için
         brand: {
-          // Primary CTA — Lava Orange (iştah tetikleyici, hipotalamus aktivasyonu)
-          coral:    '#FF5A1F',
-          'coral-light': '#FF7A47',
-          'coral-dark':  '#E04D18',
+          // Surfaces
+          dark:     'rgb(var(--bg) / <alpha-value>)',       // page bg
+          surface:  'rgb(var(--surface) / <alpha-value>)',  // cards
+          card:     'rgb(var(--surface) / <alpha-value>)',
+          elevated: 'rgb(var(--elevated) / <alpha-value>)', // hover, raised
+          navy:     'rgb(var(--surface) / <alpha-value>)',  // legacy alias
 
-          // Secondary — Chili Red (aciliyet, aksiyon, CTA vurgusu)
-          amber:    '#E63946',
-          'amber-light': '#FF4D5A',
+          // Foreground (text)
+          cream:    'rgb(var(--fg) / <alpha-value>)',
+          muted:    'rgb(var(--muted) / <alpha-value>)',
 
-          // Accent — Saffron Gold (ödül, badge, premium, dopamin tetikleyici)
-          gold:     '#FFB627',
-          'gold-light': '#FFCA5C',
+          // Borders
+          line:     'rgb(var(--border) / <alpha-value>)',
 
-          // Background — Charcoal Night (yumuşak koyu gri, göz dostu)
-          dark:     '#141417',
-          surface:  '#1E1E24',
-          card:     '#1E1E24',
-          elevated: '#2A2A35',
+          // Accent — A varyantı: aksiyon rengi = ön plan rengi (monokrom)
+          coral:        'rgb(var(--fg) / <alpha-value>)',
+          'coral-light':'rgb(var(--fg) / <alpha-value>)',
+          'coral-dark': 'rgb(var(--fg) / <alpha-value>)',
+          amber:        'rgb(var(--fg) / <alpha-value>)',
+          'amber-light':'rgb(var(--fg) / <alpha-value>)',
+          gold:         'rgb(var(--fg) / <alpha-value>)',
+          'gold-light': 'rgb(var(--fg) / <alpha-value>)',
+          orange:       'rgb(var(--fg) / <alpha-value>)',
+          light:        'rgb(var(--fg) / <alpha-value>)',
 
-          // Text — Snow Mist (göz dostu off-white)
-          cream:    '#F2F2F7',
-          muted:    '#8B8B9E',
-
-          // Success — Fresh Mint (tazelik, sağlıklı seçenekler)
-          fresh:    '#34D399',
-          'fresh-dark': '#2BB584',
-
-          // Legacy aliases (geriye uyumluluk)
-          orange:   '#FF5A1F',
-          light:    '#FF7A47',
-          navy:     '#1E1E24',
-
-          // Feature colors
-          trust:    '#34D399',
+          // Semantic — sadece anlamlı yerlerde (live, success, danger)
+          fresh:       'rgb(var(--success) / <alpha-value>)',
+          'fresh-dark':'rgb(var(--success) / <alpha-value>)',
+          trust:       'rgb(var(--success) / <alpha-value>)',
+          danger:      'rgb(var(--danger) / <alpha-value>)',
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        sans:    ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Inter', 'system-ui', 'sans-serif'],
+        mono:    ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+      },
+      letterSpacing: {
+        tightest: '-0.03em',
+        tighter:  '-0.02em',
+        tight:    '-0.011em',
       },
       borderRadius: {
-        '4xl': '2rem',
+        '4xl': '1.25rem',
+      },
+      boxShadow: {
+        'soft': '0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.02)',
+        'card': '0 1px 3px rgb(0 0 0 / 0.05), 0 1px 2px rgb(0 0 0 / 0.03)',
+        'pop':  '0 4px 12px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.04)',
       },
       animation: {
-        'fade-in':    'fadeIn 0.3s ease-out',
-        'slide-up':   'slideUp 0.4s ease-out',
-        'bounce-in':  'bounceIn 0.5s ease-out',
+        'fade-in':  'fadeIn 0.2s ease-out',
+        'slide-up': 'slideUp 0.3s ease-out',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
-        'shimmer':    'shimmer 2s linear infinite',
-        'float':      'float 3s ease-in-out infinite',
-        'glow':       'glow 2s ease-in-out infinite alternate',
-        'skeleton':   'shimmer 1.5s linear infinite',
-        'pull-refresh': 'pullRefresh 0.5s cubic-bezier(0.34,1.56,0.64,1)',
-        'card-slide-left': 'cardSlideLeft 0.4s ease-out',
-        'card-slide-right': 'cardSlideRight 0.4s ease-out',
-        'round-pulse': 'roundPulse 0.6s ease-out',
-        'victory-glow': 'victoryGlow 2s ease-in-out infinite',
-        'step-complete': 'stepComplete 0.4s ease-out',
+        // Legacy aliases — preserved so existing JSX doesn't break
+        'bounce-in':         'fadeIn 0.25s ease-out',
+        'shimmer':           'shimmer 1.8s linear infinite',
+        'float':             'fadeIn 0.25s ease-out',
+        'glow':              'fadeIn 0.25s ease-out',
+        'skeleton':          'shimmer 1.5s linear infinite',
+        'pull-refresh':      'fadeIn 0.25s ease-out',
+        'card-slide-left':   'slideUp 0.25s ease-out',
+        'card-slide-right':  'slideUp 0.25s ease-out',
+        'round-pulse':       'fadeIn 0.25s ease-out',
+        'victory-glow':      'fadeIn 0.25s ease-out',
+        'step-complete':     'fadeIn 0.25s ease-out',
       },
       keyframes: {
-        fadeIn:   { from: { opacity: '0' }, to: { opacity: '1' } },
-        slideUp:  { from: { opacity: '0', transform: 'translateY(20px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
-        bounceIn: { '0%': { transform: 'scale(0.8)', opacity: '0' }, '60%': { transform: 'scale(1.05)' }, '100%': { transform: 'scale(1)', opacity: '1' } },
-        shimmer:  { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
-        float:    { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },
-        glow:     { '0%': { boxShadow: '0 0 20px rgba(255,90,31,0.3)' }, '100%': { boxShadow: '0 0 40px rgba(255,90,31,0.6)' } },
-        pullRefresh: { '0%': { transform: 'rotate(0deg) scale(0.8)' }, '100%': { transform: 'rotate(360deg) scale(1)' } },
-        cardSlideLeft: { from: { transform: 'translateX(-30px)', opacity: '0' }, to: { transform: 'translateX(0)', opacity: '1' } },
-        cardSlideRight: { from: { transform: 'translateX(30px)', opacity: '0' }, to: { transform: 'translateX(0)', opacity: '1' } },
-        roundPulse: { '0%': { transform: 'scale(0.8)', opacity: '0' }, '50%': { transform: 'scale(1.1)', opacity: '1' }, '100%': { transform: 'scale(1)', opacity: '1' } },
-        victoryGlow: { '0%, 100%': { boxShadow: '0 0 20px rgba(255, 182, 39, 0.3)' }, '50%': { boxShadow: '0 0 40px rgba(255, 182, 39, 0.6), 0 0 80px rgba(255, 90, 31, 0.3)' } },
-        stepComplete: { '0%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.3)' }, '100%': { transform: 'scale(0.9)' } },
+        fadeIn:  { from: { opacity: '0' }, to: { opacity: '1' } },
+        slideUp: { from: { opacity: '0', transform: 'translateY(8px)' }, to: { opacity: '1', transform: 'translateY(0)' } },
+        shimmer: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
       },
       backgroundImage: {
+        // A varyantı: gradient yok, mevcut sınıfları solid renge bağla
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-food': 'linear-gradient(135deg, #FF5A1F, #E63946)',
-        'gradient-golden': 'linear-gradient(135deg, #FFB627, #FF5A1F)',
-        'gradient-dark': 'linear-gradient(180deg, #141417 0%, #1E1E24 100%)',
+        'gradient-food':   'none',
+        'gradient-golden': 'none',
+        'gradient-dark':   'none',
       }
     }
   },

@@ -13,16 +13,20 @@ class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#141417] flex items-center justify-center p-6">
-          <div className="text-center">
-            <div className="text-6xl mb-4">🍔</div>
-            <h1 className="text-2xl font-bold text-white mb-2">Bir seyler ters gitti</h1>
-            <p className="text-gray-400 mb-6">Uygulama beklenmeyen bir hatayla karsilasti.</p>
+        <div className="min-h-screen bg-brand-dark flex items-center justify-center p-6">
+          <div className="text-center max-w-md">
+            <div className="text-5xl mb-5 select-none">⚠</div>
+            <h1 className="text-xl font-semibold text-brand-cream mb-2 tracking-tight">
+              Bir şeyler ters gitti
+            </h1>
+            <p className="text-brand-muted mb-6 text-sm">
+              Uygulama beklenmeyen bir hatayla karşılaştı.
+            </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-[#FF5A1F] text-white rounded-xl font-semibold"
+              className="btn-primary"
             >
-              Yeniden Dene
+              Yeniden dene
             </button>
           </div>
         </div>

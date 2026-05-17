@@ -14,15 +14,15 @@ export function EmptyState({ emoji = '🍽️', title, description, actionLabel,
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
       <span className="text-6xl mb-4">{emoji}</span>
-      <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+      <h3 className="text-xl font-bold text-brand-cream mb-2">{title}</h3>
       {description && (
-        <p className="text-white/60 max-w-sm mb-6">{description}</p>
+        <p className="text-brand-cream/60 max-w-sm mb-6">{description}</p>
       )}
       {actionLabel && onAction && (
         <button
           onClick={onAction}
-          className="px-6 py-3 bg-brand-coral text-white font-semibold rounded-xl
-                     hover:bg-brand-coral-light transition-all active:scale-95"
+          className="px-6 py-3 bg-brand-cream text-brand-cream font-semibold rounded-xl
+                     hover:bg-brand-cream-light transition-all active:scale-95"
         >
           {actionLabel}
         </button>
