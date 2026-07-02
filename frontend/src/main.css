@@ -1,49 +1,51 @@
-/* ─── FoodHunt v6 — Saf Monokrom (Linear/Vercel vibe) ─────────────────── */
-/* Inter tek font, ağırlık 400/500/600 — display fontu kaldırıldı */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* ─── FoodHunt v7 — Native iOS ─────────────────────────────────────────── */
+/* SF sistem fontu (-apple-system) — web font import yok, native his + hızlı yükleme */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Tema değişkenleri ─────────────────────────────────────────────── */
+/* ─── Tema değişkenleri — iOS sistem paleti ─────────────────────────── */
 /* RGB ondalık format — Tailwind'in `/<alpha-value>` ile uyumlu */
 :root, [data-theme="light"] {
-  --bg:       250 250 250;   /* #FAFAFA — page background */
-  --surface:  255 255 255;   /* #FFFFFF — cards */
-  --elevated: 244 244 245;   /* #F4F4F5 — hover, raised */
-  --fg:       9 9 11;        /* #09090B — text + CTA (zinc-950) */
-  --muted:    113 113 122;   /* #71717A — secondary text */
-  --border:   228 228 231;   /* #E4E4E7 — 1px borders */
-  --success:  22 163 74;     /* #16A34A */
-  --danger:   220 38 38;     /* #DC2626 */
-  --html-bg:  #FAFAFA;
+  --bg:       242 242 247;   /* #F2F2F7 — systemGroupedBackground */
+  --surface:  255 255 255;   /* #FFFFFF — inset grouped cards */
+  --elevated: 229 229 234;   /* #E5E5EA — fill, hover */
+  --fg:       0 0 0;         /* #000000 — label */
+  --muted:    142 142 147;   /* #8E8E93 — secondaryLabel */
+  --border:   229 229 234;   /* #E5E5EA — separator (görünür güçte) */
+  --tint:     255 122 0;     /* #FF7A00 — FoodHunt turuncu (iOS tint dili) */
+  --success:  52 199 89;     /* #34C759 — systemGreen */
+  --danger:   255 59 48;     /* #FF3B30 — systemRed */
+  --html-bg:  #F2F2F7;
 }
 
 [data-theme="dark"] {
-  --bg:       10 10 10;      /* #0A0A0A */
-  --surface:  17 17 19;      /* #111113 */
-  --elevated: 24 24 27;      /* #18181B */
-  --fg:       250 250 250;   /* #FAFAFA */
-  --muted:    161 161 170;   /* #A1A1AA */
-  --border:   31 31 34;      /* #1F1F22 */
-  --success:  52 211 153;    /* #34D399 */
-  --danger:   239 68 68;     /* #EF4444 */
-  --html-bg:  #0A0A0A;
+  --bg:       0 0 0;         /* #000000 — OLED grouped bg */
+  --surface:  28 28 30;      /* #1C1C1E — secondarySystemGroupedBackground */
+  --elevated: 44 44 46;      /* #2C2C2E — tertiary fill */
+  --fg:       255 255 255;   /* #FFFFFF */
+  --muted:    142 142 147;   /* #8E8E93 */
+  --border:   56 56 58;      /* #38383A — separator (görünür güçte) */
+  --tint:     255 141 40;    /* #FF8D28 — dark modda bir tık parlak */
+  --success:  48 209 88;     /* #30D158 */
+  --danger:   255 69 58;     /* #FF453A */
+  --html-bg:  #000000;
 }
 
 /* Auto dark — sistem tercihi (kullanıcı manuel seçmediyse) */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg:       10 10 10;
-    --surface:  17 17 19;
-    --elevated: 24 24 27;
-    --fg:       250 250 250;
-    --muted:    161 161 170;
-    --border:   31 31 34;
-    --success:  52 211 153;
-    --danger:   239 68 68;
-    --html-bg:  #0A0A0A;
+    --bg:       0 0 0;
+    --surface:  28 28 30;
+    --elevated: 44 44 46;
+    --fg:       255 255 255;
+    --muted:    142 142 147;
+    --border:   56 56 58;
+    --tint:     255 141 40;
+    --success:  48 209 88;
+    --danger:   255 69 58;
+    --html-bg:  #000000;
   }
 }
 
@@ -51,8 +53,8 @@
   html { scroll-behavior: smooth; background: var(--html-bg); }
   body {
     @apply bg-brand-dark text-brand-cream font-sans antialiased;
-    font-feature-settings: "cv11", "ss01", "ss03";
-    letter-spacing: -0.011em;
+    /* SF Pro kendi tracking'ini yönetir — ekstra negatif letter-spacing yok */
+    letter-spacing: normal;
     min-height: 100dvh;
     -webkit-tap-highlight-color: transparent;
     padding-top: env(safe-area-inset-top);
@@ -62,7 +64,7 @@
     transition: background-color 0.18s ease;
   }
   * { box-sizing: border-box; }
-  :focus-visible { @apply outline-2 outline-brand-cream outline-offset-2; }
+  :focus-visible { @apply outline-2 outline-brand-coral outline-offset-2; }
 
   @supports (padding-top: env(safe-area-inset-top)) {
     .safe-top { padding-top: env(safe-area-inset-top); }
@@ -78,81 +80,82 @@
   /* Scrollbar — sade */
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgb(var(--border)); border-radius: 4px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgb(var(--muted)); }
+  ::-webkit-scrollbar-thumb { background: rgb(var(--muted) / 0.3); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgb(var(--muted) / 0.5); }
 }
 
 @layer components {
-  /* ─── Buttons (monokrom) ──────────────────────────────────── */
+  /* ─── Buttons — iOS filled/tinted/gray ───────────────────── */
+  /* iOS butonlar basınca ölçek değil opaklık düşürür; min 44pt dokunma alanı */
   .btn-primary {
-    @apply bg-brand-cream text-brand-dark font-medium rounded-xl px-5 py-2.5
-           text-sm border border-brand-cream
-           transition-all duration-150 select-none cursor-pointer
-           hover:opacity-90 active:scale-[0.98] disabled:opacity-50;
+    @apply bg-brand-coral text-white font-semibold rounded-xl px-5 py-3
+           text-base border-0 min-h-[44px]
+           transition-opacity duration-150 select-none cursor-pointer
+           hover:opacity-90 active:opacity-60 disabled:opacity-40;
   }
   .btn-secondary {
-    @apply bg-transparent text-brand-cream font-medium rounded-xl px-5 py-2.5
-           text-sm border border-brand-line
-           transition-all duration-150 select-none cursor-pointer
-           hover:bg-brand-elevated hover:border-brand-muted/40
-           active:scale-[0.98] disabled:opacity-50;
+    @apply bg-brand-elevated text-brand-coral font-semibold rounded-xl px-5 py-3
+           text-base border-0 min-h-[44px]
+           transition-opacity duration-150 select-none cursor-pointer
+           hover:opacity-90 active:opacity-60 disabled:opacity-40;
   }
   .btn-amber {
     @apply btn-primary;
   }
 
-  /* ─── Cards ────────────────────────────────────────────── */
+  /* ─── Cards — iOS inset grouped: kenarlıksız, yüzey rengiyle ayrışır ── */
   .card {
-    @apply bg-brand-surface rounded-2xl border border-brand-line
-           overflow-hidden shadow-card;
+    @apply bg-brand-surface rounded-2xl border-0 overflow-hidden shadow-card;
   }
   .card-hover {
     @apply transition-all duration-200 cursor-pointer
-           hover:border-brand-muted/40 hover:-translate-y-px;
+           hover:shadow-pop active:opacity-80;
   }
   .card-glass {
-    background: rgb(var(--surface) / 0.7);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    @apply rounded-2xl border border-brand-line;
+    background: rgb(var(--surface) / 0.72);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    @apply rounded-2xl border-0;
   }
 
-  /* ─── Badges (sade) ──────────────────────────────────────── */
+  /* ─── Badges ─────────────────────────────────────────────── */
   .badge {
-    @apply inline-flex items-center gap-1 rounded-md px-2 py-0.5
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5
            text-xs font-medium;
   }
-  .badge-coral { @apply badge bg-brand-elevated text-brand-cream; }
+  .badge-coral { @apply badge bg-brand-coral/15 text-brand-coral; }
   .badge-amber { @apply badge bg-brand-elevated text-brand-cream; }
-  .badge-fresh { @apply badge bg-brand-elevated text-brand-fresh; }
+  .badge-fresh { @apply badge bg-brand-fresh/15 text-brand-fresh; }
 
   /* ─── Social login button ────────────────────────────────── */
   .social-btn {
     @apply w-full inline-flex items-center justify-center gap-2.5
-           bg-brand-surface text-brand-cream font-medium rounded-xl px-4 py-2.5
-           text-sm border border-brand-line
-           transition-colors duration-150 cursor-pointer
-           hover:bg-brand-elevated hover:border-brand-muted/40
-           disabled:opacity-50;
+           bg-brand-surface text-brand-cream font-semibold rounded-xl px-4 py-3
+           text-base border-0 min-h-[44px] shadow-card
+           transition-opacity duration-150 cursor-pointer
+           hover:opacity-90 active:opacity-60 disabled:opacity-40;
   }
 
-  /* ─── Inputs ─────────────────────────────────────────────── */
+  /* ─── Inputs — iOS dolgulu alan, kenarlıksız ─────────────── */
   .input-field {
-    @apply bg-brand-surface border border-brand-line rounded-xl px-4 py-2.5
-           text-sm text-brand-cream placeholder:text-brand-muted w-full
-           focus:outline-none focus:border-brand-cream
-           transition-colors duration-150;
+    @apply bg-brand-surface border-0 rounded-xl px-4 py-3 min-h-[44px]
+           text-base text-brand-cream placeholder:text-brand-muted w-full
+           focus:outline-none focus:ring-2 focus:ring-brand-coral/60
+           transition-shadow duration-150;
   }
   .select-field {
     @apply input-field appearance-none cursor-pointer bg-no-repeat;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23A1A1AA' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238E8E93' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
     background-position: right 12px center;
     padding-right: 36px;
   }
+
+  /* iOS hairline separator — border yerine liste içi ayraçlarda kullan */
+  .hairline { box-shadow: inset 0 -0.5px 0 rgb(var(--border)); }
 }
 
 @layer utilities {
-  /* ─── Tipografi gradient'leri — A varyantında düz renge düşürüldü ─── */
+  /* Eski gradient tipografi sınıfları — düz renk */
   .text-gradient,
   .text-gradient-warm {
     color: rgb(var(--fg));
@@ -160,23 +163,23 @@
     -webkit-text-fill-color: currentColor;
   }
   .glass {
-    background: rgb(var(--surface) / 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgb(var(--border));
+    background: rgb(var(--surface) / 0.72);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 0;
   }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
   .shimmer {
-    background: linear-gradient(90deg, transparent 25%, rgb(var(--muted) / 0.08) 50%, transparent 75%);
+    background: linear-gradient(90deg, transparent 25%, rgb(var(--muted) / 0.1) 50%, transparent 75%);
     background-size: 200% 100%;
     animation: shimmer 1.8s linear infinite;
   }
 
-  /* Eski "glow" utilities — sade haline indirildi */
+  /* Legacy "glow" utilities — iOS sadeliğinde nötr */
   .progress-glow { box-shadow: none; }
-  .winner-card-glow { box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), 0 0 0 1px rgb(var(--fg) / 0.2); }
+  .winner-card-glow { box-shadow: 0 0 0 2px rgb(var(--tint)); }
   .ambient-glow { display: none; }
   .vs-badge { animation: none; }
   .food-overlay {
@@ -201,12 +204,12 @@
 
 /* Skeleton shimmer */
 .skeleton-shimmer {
-  background: linear-gradient(90deg, transparent 25%, rgb(var(--muted) / 0.08) 50%, transparent 75%);
+  background: linear-gradient(90deg, transparent 25%, rgb(var(--muted) / 0.1) 50%, transparent 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
-/* Confetti — sade tek renkli, yine de eğlenceli */
+/* Confetti */
 @keyframes confetti      { 0% { transform: translateY(0) rotate(0deg); opacity:1; } 100% { transform: translateY(100vh) rotate(720deg); opacity:0; } }
 @keyframes confetti-fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity:1; } 100% { transform: translateY(110vh) rotate(720deg); opacity:0; } }
 .animate-confetti-fall { animation: confetti-fall linear forwards; }
@@ -215,7 +218,7 @@
   border-radius: 2px; animation: confetti 3s ease-in-out forwards;
 }
 
-/* Legacy animation class isimleri — anim'leri fade-in'e indirgedik */
+/* Legacy animation class isimleri — fade/slide'a indirgenmiş */
 .animate-round-pulse       { animation: slideUp 0.25s ease-out; }
 .animate-victory-glow      { animation: fadeIn  0.25s ease-out; }
 .animate-card-slide-left   { animation: slideUp 0.25s ease-out; }

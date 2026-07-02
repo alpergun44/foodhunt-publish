@@ -5,36 +5,37 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ─── FoodHunt Design System v6 — Saf Monokrom (Linear/Vercel vibe) ───
+        // ─── FoodHunt Design System v7 — Native iOS ───
         // Tüm renkler CSS variable üzerinden — light + dark mod
         // RGB ondalık format Tailwind'in `/<alpha-value>` syntax'ı için
         brand: {
           // Surfaces
-          dark:     'rgb(var(--bg) / <alpha-value>)',       // page bg
+          dark:     'rgb(var(--bg) / <alpha-value>)',       // page bg (grouped)
           surface:  'rgb(var(--surface) / <alpha-value>)',  // cards
           card:     'rgb(var(--surface) / <alpha-value>)',
-          elevated: 'rgb(var(--elevated) / <alpha-value>)', // hover, raised
+          elevated: 'rgb(var(--elevated) / <alpha-value>)', // fill, hover
           navy:     'rgb(var(--surface) / <alpha-value>)',  // legacy alias
 
           // Foreground (text)
-          cream:    'rgb(var(--fg) / <alpha-value>)',
-          muted:    'rgb(var(--muted) / <alpha-value>)',
+          cream:        'rgb(var(--fg) / <alpha-value>)',
+          'cream-light':'rgb(var(--fg) / <alpha-value>)',
+          muted:        'rgb(var(--muted) / <alpha-value>)',
 
-          // Borders
+          // Borders / separators
           line:     'rgb(var(--border) / <alpha-value>)',
 
-          // Accent — A varyantı: aksiyon rengi = ön plan rengi (monokrom)
-          coral:        'rgb(var(--fg) / <alpha-value>)',
-          'coral-light':'rgb(var(--fg) / <alpha-value>)',
-          'coral-dark': 'rgb(var(--fg) / <alpha-value>)',
-          amber:        'rgb(var(--fg) / <alpha-value>)',
-          'amber-light':'rgb(var(--fg) / <alpha-value>)',
-          gold:         'rgb(var(--fg) / <alpha-value>)',
-          'gold-light': 'rgb(var(--fg) / <alpha-value>)',
-          orange:       'rgb(var(--fg) / <alpha-value>)',
+          // Accent — iOS tint (FoodHunt turuncu)
+          coral:        'rgb(var(--tint) / <alpha-value>)',
+          'coral-light':'rgb(var(--tint) / <alpha-value>)',
+          'coral-dark': 'rgb(var(--tint) / <alpha-value>)',
+          amber:        'rgb(var(--tint) / <alpha-value>)',
+          'amber-light':'rgb(var(--tint) / <alpha-value>)',
+          gold:         'rgb(var(--tint) / <alpha-value>)',
+          'gold-light': 'rgb(var(--tint) / <alpha-value>)',
+          orange:       'rgb(var(--tint) / <alpha-value>)',
           light:        'rgb(var(--fg) / <alpha-value>)',
 
-          // Semantic — sadece anlamlı yerlerde (live, success, danger)
+          // Semantic — iOS system colors
           fresh:       'rgb(var(--success) / <alpha-value>)',
           'fresh-dark':'rgb(var(--success) / <alpha-value>)',
           trust:       'rgb(var(--success) / <alpha-value>)',
@@ -42,22 +43,25 @@ export default {
         }
       },
       fontFamily: {
-        sans:    ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Inter', 'system-ui', 'sans-serif'],
-        mono:    ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        // SF sistem fontu — iOS'ta SF Pro, macOS'ta SF, diğerlerinde sistem
+        sans:    ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'system-ui', 'sans-serif'],
+        mono:    ['ui-monospace', 'SF Mono', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       letterSpacing: {
-        tightest: '-0.03em',
-        tighter:  '-0.02em',
-        tight:    '-0.011em',
+        // SF kendi optik tracking'ini yönetir — legacy sınıflar nötrlendi
+        tightest: '0',
+        tighter:  '0',
+        tight:    '0',
       },
       borderRadius: {
         '4xl': '1.25rem',
       },
       boxShadow: {
-        'soft': '0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.02)',
-        'card': '0 1px 3px rgb(0 0 0 / 0.05), 0 1px 2px rgb(0 0 0 / 0.03)',
-        'pop':  '0 4px 12px rgb(0 0 0 / 0.06), 0 1px 3px rgb(0 0 0 / 0.04)',
+        // iOS: gölge neredeyse yok — ayrışma yüzey rengiyle
+        'soft': '0 1px 2px rgb(0 0 0 / 0.04)',
+        'card': '0 1px 2px rgb(0 0 0 / 0.04)',
+        'pop':  '0 4px 16px rgb(0 0 0 / 0.08)',
       },
       animation: {
         'fade-in':  'fadeIn 0.2s ease-out',
@@ -82,7 +86,6 @@ export default {
         shimmer: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
       },
       backgroundImage: {
-        // A varyantı: gradient yok, mevcut sınıfları solid renge bağla
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-food':   'none',
         'gradient-golden': 'none',

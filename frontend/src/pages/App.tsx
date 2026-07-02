@@ -212,7 +212,7 @@ export default function App() {
         setTimeout(() => setShowConfetti(false), 4000)
         hapticNotification('success')
         playVictorySound()
-        api.trackEvent('game_complete', { champion: winner.name, champion_id: winner.id, total: totalCount })
+        api.trackEvent('game_complete', { champion: winner.name, winner_id: winner.id, total_count: totalCount, area, cuisine, meal_type: mealType, mode })
         const token = safeGetItem('local', 'foodhunt_token')
         if (token) authApi.trackTournamentComplete(token, { champion_id: winner.id }).catch(() => {})
         pickLockRef.current = false
@@ -238,8 +238,21 @@ export default function App() {
       setTimeout(() => { setMatchIndex(prev => prev + 1); pickLockRef.current = false }, 250)
     }
 
-    api.trackEvent('choice_made', { winner: winner.name, loser: loser.name, round: roundIndex })
-  }, [roundMatches, matchIndex, roundWinners, roundIndex, totalCount])
+    // Pairwise tercih verisi — moat: kim kimi, hangi bağlamda yendi
+    api.trackEvent('choice_made', {
+      winner_id: winner.id,
+      loser_id: loser.id,
+      winner: winner.name,
+      loser: loser.name,
+      round: roundIndex,
+      match_index: matchIndex,
+      area,
+      cuisine,
+      meal_type: mealType,
+      mode,
+      total_count: totalCount,
+    })
+  }, [roundMatches, matchIndex, roundWinners, roundIndex, totalCount, area, cuisine, mealType, mode])
 
   const handleRestart = useCallback(() => {
     setPhase('landing')
@@ -348,7 +361,7 @@ export default function App() {
               animating={pickLockRef.current}
               side="left"
             />
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-surface border border-brand-line text-brand-muted font-medium text-xs">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-surface shadow-pop text-brand-cream font-semibold text-xs">
               VS
             </div>
             <VSCard
@@ -384,14 +397,14 @@ export default function App() {
             {(runnerUp || thirdPlace) && (
               <div className="grid grid-cols-2 gap-2.5 mt-3">
                 {runnerUp && (
-                  <div className="bg-brand-surface border border-brand-line p-3.5 rounded-xl text-left">
+                  <div className="bg-brand-surface p-3.5 rounded-2xl text-left shadow-card">
                     <p className="text-brand-muted text-xs mb-0.5">2. sırada</p>
                     <h3 className="font-medium text-brand-cream text-sm tracking-tight">{runnerUp.name}</h3>
                     {runnerUp.cuisine && <p className="text-brand-muted text-xs mt-0.5">{runnerUp.cuisine}</p>}
                   </div>
                 )}
                 {thirdPlace && (
-                  <div className="bg-brand-surface border border-brand-line p-3.5 rounded-xl text-left">
+                  <div className="bg-brand-surface p-3.5 rounded-2xl text-left shadow-card">
                     <p className="text-brand-muted text-xs mb-0.5">3. sırada</p>
                     <h3 className="font-medium text-brand-cream text-sm tracking-tight">{thirdPlace.name}</h3>
                     {thirdPlace.cuisine && <p className="text-brand-muted text-xs mt-0.5">{thirdPlace.cuisine}</p>}
@@ -404,13 +417,12 @@ export default function App() {
 
             {/* CTA — misafir kullanıcılar için */}
             {!safeGetItem('local', 'foodhunt_token') && (
-              <div className="bg-brand-surface border border-brand-line rounded-xl p-3.5 mt-3 flex items-center gap-3">
-                <span className="text-xl">✨</span>
+              <div className="bg-brand-surface rounded-2xl p-3.5 mt-3 flex items-center gap-3 shadow-card">
                 <div className="flex-1 text-left">
-                  <p className="text-brand-cream text-sm font-medium">Turnuva geçmişini kaydet</p>
+                  <p className="text-brand-cream text-sm font-semibold">Turnuva geçmişini kaydet</p>
                   <p className="text-brand-muted text-xs mt-0.5">Favorilerini ve puanlarını takip et</p>
                 </div>
-                <a href="/giris" className="text-xs font-medium px-3 py-1.5 rounded-md border border-brand-line text-brand-cream hover:bg-brand-elevated transition-colors">
+                <a href="/giris" className="text-sm font-semibold px-3.5 py-1.5 rounded-full bg-brand-elevated text-brand-coral active:opacity-60 transition-opacity">
                   Giriş
                 </a>
               </div>
@@ -476,23 +488,23 @@ function LandingScreen(p: LandingProps) {
       <header className="flex items-center justify-between px-5 pt-5 pb-2 safe-top">
         <button
           onClick={p.toggleSoundClick}
-          className="w-9 h-9 rounded-lg flex items-center justify-center border border-brand-line text-brand-muted hover:text-brand-cream transition-colors"
+          className="w-9 h-9 rounded-full flex items-center justify-center bg-brand-surface shadow-card text-brand-muted hover:text-brand-cream transition-colors"
           aria-label={p.soundOn ? 'Sesi kapat' : 'Sesi aç'}
         >
-          {p.soundOn ? '🔊' : '🔇'}
+          {p.soundOn ? <Icon.SoundOn /> : <Icon.SoundOff />}
         </button>
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
           {safeGetItem('local', 'foodhunt_token') ? (
-            <a href="/profil" className="inline-flex items-center gap-2 bg-brand-surface border border-brand-line pl-1.5 pr-3 py-1 rounded-full text-sm font-medium text-brand-cream hover:border-brand-muted/40 transition-colors">
-              <span className="w-6 h-6 rounded-full bg-brand-elevated border border-brand-line flex items-center justify-center text-[10px] font-medium">
+            <a href="/profil" className="inline-flex items-center gap-2 bg-brand-surface shadow-card pl-1.5 pr-3 py-1 rounded-full text-sm font-semibold text-brand-cream active:opacity-60 transition-opacity">
+              <span className="w-6 h-6 rounded-full bg-brand-elevated flex items-center justify-center text-[10px] font-semibold">
                 {userName}
               </span>
               Profil
             </a>
           ) : (
-            <a href="/giris" className="px-3.5 py-1.5 rounded-lg text-sm font-medium text-brand-cream border border-brand-line hover:bg-brand-elevated transition-colors">
+            <a href="/giris" className="px-3.5 py-1.5 rounded-full text-sm font-semibold text-brand-coral active:opacity-60 transition-opacity">
               Giriş yap
             </a>
           )}
@@ -529,19 +541,20 @@ function LandingScreen(p: LandingProps) {
 
           {/* Mode toggle */}
           <div className="p-3 pb-0">
-            <div className="flex bg-brand-elevated border border-brand-line rounded-xl p-1">
+            {/* iOS segmented control */}
+            <div className="flex bg-brand-elevated rounded-xl p-1">
               <button
                 onClick={p.handleBrowseMode}
-                className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  p.mode === 'browse' ? 'bg-brand-surface text-brand-cream border border-brand-line' : 'text-brand-muted hover:text-brand-cream'
+                className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-sm font-semibold transition-all ${
+                  p.mode === 'browse' ? 'bg-brand-surface text-brand-cream shadow-card' : 'text-brand-muted hover:text-brand-cream'
                 }`}
               >
                 <Icon.MapPin /> Bölge seç
               </button>
               <button
                 onClick={p.handleNearbyMode}
-                className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  p.mode === 'nearby' ? 'bg-brand-surface text-brand-cream border border-brand-line' : 'text-brand-muted hover:text-brand-cream'
+                className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-sm font-semibold transition-all ${
+                  p.mode === 'nearby' ? 'bg-brand-surface text-brand-cream shadow-card' : 'text-brand-muted hover:text-brand-cream'
                 }`}
               >
                 <Icon.Crosshair /> Yakınımdakiler
@@ -610,10 +623,10 @@ function LandingScreen(p: LandingProps) {
                 <button
                   key={m.id}
                   onClick={() => p.setMealType(m.id)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors shrink-0 ${
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors shrink-0 ${
                     p.mealType === m.id
-                      ? 'bg-brand-cream text-brand-dark'
-                      : 'bg-brand-elevated text-brand-muted hover:text-brand-cream border border-brand-line'
+                      ? 'bg-brand-coral text-white'
+                      : 'bg-brand-elevated text-brand-muted hover:text-brand-cream'
                   }`}
                 >
                   <span className="text-sm">{m.emoji}</span> {m.label}
