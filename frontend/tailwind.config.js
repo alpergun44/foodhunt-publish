@@ -24,14 +24,15 @@ export default {
           // Borders / separators
           line:     'rgb(var(--border) / <alpha-value>)',
 
-          // Accent — iOS tint (FoodHunt turuncu)
+          // Accent — KOR (lav turuncusu)
           coral:        'rgb(var(--tint) / <alpha-value>)',
-          'coral-light':'rgb(var(--tint) / <alpha-value>)',
+          'coral-light':'rgb(var(--tint2) / <alpha-value>)',
           'coral-dark': 'rgb(var(--tint) / <alpha-value>)',
+          ember:        'rgb(var(--tint2) / <alpha-value>)',
           amber:        'rgb(var(--tint) / <alpha-value>)',
-          'amber-light':'rgb(var(--tint) / <alpha-value>)',
+          'amber-light':'rgb(var(--tint2) / <alpha-value>)',
           gold:         'rgb(var(--tint) / <alpha-value>)',
-          'gold-light': 'rgb(var(--tint) / <alpha-value>)',
+          'gold-light': 'rgb(var(--tint2) / <alpha-value>)',
           orange:       'rgb(var(--tint) / <alpha-value>)',
           light:        'rgb(var(--fg) / <alpha-value>)',
 
@@ -43,9 +44,9 @@ export default {
         }
       },
       fontFamily: {
-        // SF sistem fontu — iOS'ta SF Pro, macOS'ta SF, diğerlerinde sistem
-        sans:    ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Text', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
-        display: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'system-ui', 'sans-serif'],
+        // KOR: Futura (Mac/iOS native) → Jost (web fallback) → sistem
+        sans:    ['Futura', 'Jost', 'Century Gothic', '-apple-system', 'system-ui', 'sans-serif'],
+        display: ['Futura', 'Jost', 'Century Gothic', '-apple-system', 'system-ui', 'sans-serif'],
         mono:    ['ui-monospace', 'SF Mono', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       letterSpacing: {

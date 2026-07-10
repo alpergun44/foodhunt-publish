@@ -1,51 +1,33 @@
-/* ─── FoodHunt v7 — Native iOS ─────────────────────────────────────────── */
-/* SF sistem fontu (-apple-system) — web font import yok, native his + hızlı yükleme */
+/* ─── FoodHunt v8 — KOR / OCAK ─────────────────────────────────────────── */
+/* Kömür siyahı + lav turuncusu. Turuncu = kor/ısı. Dark-first, tek tema. */
+/* Tipografi: Futura (Mac/iOS'ta native) → Jost (web fallback) */
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Tema değişkenleri — iOS sistem paleti ─────────────────────────── */
+/* ─── Tema değişkenleri — KOR paleti ─────────────────────────────────── */
 /* RGB ondalık format — Tailwind'in `/<alpha-value>` ile uyumlu */
-:root, [data-theme="light"] {
-  --bg:       242 242 247;   /* #F2F2F7 — systemGroupedBackground */
-  --surface:  255 255 255;   /* #FFFFFF — inset grouped cards */
-  --elevated: 229 229 234;   /* #E5E5EA — fill, hover */
-  --fg:       0 0 0;         /* #000000 — label */
-  --muted:    142 142 147;   /* #8E8E93 — secondaryLabel */
-  --border:   229 229 234;   /* #E5E5EA — separator (görünür güçte) */
-  --tint:     255 122 0;     /* #FF7A00 — FoodHunt turuncu (iOS tint dili) */
-  --success:  52 199 89;     /* #34C759 — systemGreen */
-  --danger:   255 59 48;     /* #FF3B30 — systemRed */
-  --html-bg:  #F2F2F7;
+/* Dark-first tasarım: light ve dark ikisi de kömür — tek, tutarlı kimlik */
+:root, [data-theme="light"], [data-theme="dark"] {
+  --bg:       11 9 8;        /* #0B0908 — kömür zemin */
+  --surface:  21 15 12;      /* #150F0C — kart / yüzey */
+  --elevated: 36 26 20;      /* #241A14 — hover / raised */
+  --fg:       245 237 227;   /* #F5EDE3 — krem metin */
+  --muted:    138 126 115;   /* #8A7E73 — kül (ikincil metin) */
+  --border:   42 33 27;      /* #2A211B — ince kenarlık */
+  --tint:     255 90 31;     /* #FF5A1F — lav turuncusu (kor) */
+  --tint2:    255 122 60;    /* #FF7A3C — parlak kor */
+  --success:  52 199 89;     /* #34C759 */
+  --danger:   239 68 68;     /* #EF4444 */
+  --html-bg:  #0B0908;
 }
 
-[data-theme="dark"] {
-  --bg:       0 0 0;         /* #000000 — OLED grouped bg */
-  --surface:  28 28 30;      /* #1C1C1E — secondarySystemGroupedBackground */
-  --elevated: 44 44 46;      /* #2C2C2E — tertiary fill */
-  --fg:       255 255 255;   /* #FFFFFF */
-  --muted:    142 142 147;   /* #8E8E93 */
-  --border:   56 56 58;      /* #38383A — separator (görünür güçte) */
-  --tint:     255 141 40;    /* #FF8D28 — dark modda bir tık parlak */
-  --success:  48 209 88;     /* #30D158 */
-  --danger:   255 69 58;     /* #FF453A */
-  --html-bg:  #000000;
-}
-
-/* Auto dark — sistem tercihi (kullanıcı manuel seçmediyse) */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg:       0 0 0;
-    --surface:  28 28 30;
-    --elevated: 44 44 46;
-    --fg:       255 255 255;
-    --muted:    142 142 147;
-    --border:   56 56 58;
-    --tint:     255 141 40;
-    --success:  48 209 88;
-    --danger:   255 69 58;
-    --html-bg:  #000000;
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    /* Kor tasarımı dark-first — sistem light olsa da kömür kalır */
+    --html-bg: #0B0908;
   }
 }
 
@@ -53,7 +35,6 @@
   html { scroll-behavior: smooth; background: var(--html-bg); }
   body {
     @apply bg-brand-dark text-brand-cream font-sans antialiased;
-    /* SF Pro kendi tracking'ini yönetir — ekstra negatif letter-spacing yok */
     letter-spacing: normal;
     min-height: 100dvh;
     -webkit-tap-highlight-color: transparent;
@@ -85,8 +66,30 @@
 }
 
 @layer components {
-  /* ─── Buttons — iOS filled/tinted/gray ───────────────────── */
-  /* iOS butonlar basınca ölçek değil opaklık düşürür; min 44pt dokunma alanı */
+  /* ─── KOR kimlik parçaları ────────────────────────────────── */
+  /* Kinetik marker: kelimenin altını çizen -9° eğik kor şeridi */
+  .kor-mark { position: relative; display: inline-block; }
+  .kor-mark::after {
+    content: ''; position: absolute; left: -2px; right: -2px; bottom: 0.09em;
+    height: 0.26em; background: rgb(var(--tint)); z-index: -1;
+    transform: skewX(-9deg); box-shadow: 0 0 22px rgba(255, 90, 31, 0.5);
+  }
+  /* Akkor CTA — parlayan lav butonu */
+  .btn-kor {
+    @apply relative text-center font-bold uppercase tracking-wider
+           text-[#160A04] rounded-sm px-5 py-4 select-none cursor-pointer
+           transition-opacity duration-150 hover:opacity-95 active:opacity-80 disabled:opacity-40;
+    background: rgb(var(--tint));
+    box-shadow: 0 0 30px rgba(255, 90, 31, 0.4);
+  }
+  /* Grain doku — tüm ekranın üstüne hafif film */
+  .kor-grain {
+    position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    opacity: 0.28; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ─── Buttons ─────────────────────────────────────────────── */
   .btn-primary {
     @apply bg-brand-coral text-white font-semibold rounded-xl px-5 py-3
            text-base border-0 min-h-[44px]

@@ -4,6 +4,7 @@
  * Tüm büyük UI parçaları features/ altındaki bileşenlere taşındı.
  */
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import type { ReactNode } from 'react'
 import { api, authApi, Restaurant, InspirationCard, TournamentSlot, PublicRegion, safeGetItem } from '../api'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { hapticImpact, hapticNotification, configureStatusBar, hideSplashScreen } from '../utils/native'
@@ -23,7 +24,7 @@ import { VSCard }          from '../features/tournament/VSCard'
 import { RoundStepper }    from '../features/tournament/RoundStepper'
 import { Confetti }        from '../features/tournament/Confetti'
 import { BattleLoadingSkeleton } from '../features/tournament/BattleLoadingSkeleton'
-import { MEAL_TYPES, getRoundName, createPairs } from '../features/tournament/constants'
+import { MEAL_TYPES, getRoundName, createPairs, PLACEHOLDER_IMG } from '../features/tournament/constants'
 
 import { Deeplinks }   from '../features/share/Deeplinks'
 import { ShareModal }  from '../features/share/ShareModal'
@@ -59,6 +60,7 @@ export default function App() {
   const [apiError, setApiError]         = useState<string | null>(null)
   const [loading, setLoading]           = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
   const [nearbyMeta, setNearbyMeta]     = useState<{ area_detected: string | null; google_count: number; seed_count: number } | null>(null)
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [serverDown, setServerDown]     = useState(false)
@@ -338,110 +340,53 @@ export default function App() {
         </div>
       )}
 
-      {/* ═══ GAME ═══ */}
+      {/* ═══ GAME — diagonal foto-split arena ═══ */}
       {phase === 'game' && !loading && roundMatches.length > 0 && roundMatches[matchIndex] && !roundTransition && (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 py-8 gap-3 no-select safe-top">
-          <RoundStepper
-            totalRounds={totalRounds}
-            currentRound={roundIndex}
-            totalSize={totalCount}
-            roundMatches={roundMatches}
-            matchIndex={matchIndex}
-          />
-
-          <p className="text-[11px] uppercase tracking-[0.18em] text-brand-muted font-medium">
-            {getRoundName(roundMatches.length * 2, totalCount)}
-          </p>
-          <p className="text-sm text-brand-cream font-medium -mt-1 mb-1.5">Hangisini tercih edersin?</p>
-
-          <div className="flex flex-col md:flex-row gap-3 md:gap-6 items-center justify-center w-full max-w-4xl">
-            <VSCard
-              restaurant={roundMatches[matchIndex][0]}
-              onClick={() => handlePick(roundMatches[matchIndex][0])}
-              animating={pickLockRef.current}
-              side="left"
-            />
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-surface shadow-pop text-brand-cream font-semibold text-xs">
-              VS
-            </div>
-            <VSCard
-              restaurant={roundMatches[matchIndex][1]}
-              onClick={() => handlePick(roundMatches[matchIndex][1])}
-              animating={pickLockRef.current}
-              side="right"
-            />
-          </div>
-        </div>
+        <ArenaMatch
+          top={roundMatches[matchIndex][0]}
+          bottom={roundMatches[matchIndex][1]}
+          onPick={handlePick}
+          animating={pickLockRef.current}
+          roundName={getRoundName(roundMatches.length * 2, totalCount)}
+          totalRounds={totalRounds}
+          currentRound={roundIndex}
+          matchIndex={matchIndex}
+          matchCount={roundMatches.length}
+        />
       )}
 
       {/* ═══ GAME (Round Transition) ═══ */}
       {phase === 'game' && !loading && roundTransition && (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in">
-          <div className="text-4xl mb-3">→</div>
-          <h2 className="text-lg font-semibold text-brand-cream tracking-tight">Tur tamamlandı</h2>
+        <div className="flex flex-col items-center justify-center min-h-screen animate-fade-in px-6">
+          <div className="font-display font-bold text-5xl text-brand-coral" style={{ textShadow: '0 0 30px rgba(255,90,31,0.5)' }}>→</div>
+          <h2 className="font-display text-xl font-bold text-brand-cream mt-4">Tur tamamlandı</h2>
           <p className="text-brand-muted text-sm mt-1">{getRoundName(roundWinners.length, totalCount)} turuna geçiliyor…</p>
         </div>
       )}
 
-      {/* ═══ RESULTS ═══ */}
+      {/* ═══ RESULTS — Kor şampiyon + sipariş akışı ═══ */}
+      {phase === 'results' && champion && showConfetti && <Confetti />}
       {phase === 'results' && champion && (
-        <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
-          {showConfetti && <Confetti />}
-          <div className="text-center max-w-lg animate-fade-in space-y-5">
-            <Icon.Trophy />
-            <h2 className="font-sans text-2xl sm:text-3xl font-semibold tracking-tight">Şampiyonun</h2>
-
-            <VSCard restaurant={champion} onClick={() => {}} isWinner />
-
-            {/* 2. ve 3. sıra */}
-            {(runnerUp || thirdPlace) && (
-              <div className="grid grid-cols-2 gap-2.5 mt-3">
-                {runnerUp && (
-                  <div className="bg-brand-surface p-3.5 rounded-2xl text-left shadow-card">
-                    <p className="text-brand-muted text-xs mb-0.5">2. sırada</p>
-                    <h3 className="font-medium text-brand-cream text-sm tracking-tight">{runnerUp.name}</h3>
-                    {runnerUp.cuisine && <p className="text-brand-muted text-xs mt-0.5">{runnerUp.cuisine}</p>}
-                  </div>
-                )}
-                {thirdPlace && (
-                  <div className="bg-brand-surface p-3.5 rounded-2xl text-left shadow-card">
-                    <p className="text-brand-muted text-xs mb-0.5">3. sırada</p>
-                    <h3 className="font-medium text-brand-cream text-sm tracking-tight">{thirdPlace.name}</h3>
-                    {thirdPlace.cuisine && <p className="text-brand-muted text-xs mt-0.5">{thirdPlace.cuisine}</p>}
-                  </div>
-                )}
-              </div>
-            )}
-
-            <Deeplinks restaurant={champion} />
-
-            {/* CTA — misafir kullanıcılar için */}
-            {!safeGetItem('local', 'foodhunt_token') && (
-              <div className="bg-brand-surface rounded-2xl p-3.5 mt-3 flex items-center gap-3 shadow-card">
-                <div className="flex-1 text-left">
-                  <p className="text-brand-cream text-sm font-semibold">Turnuva geçmişini kaydet</p>
-                  <p className="text-brand-muted text-xs mt-0.5">Favorilerini ve puanlarını takip et</p>
-                </div>
-                <a href="/giris" className="text-sm font-semibold px-3.5 py-1.5 rounded-full bg-brand-elevated text-brand-coral active:opacity-60 transition-opacity">
-                  Giriş
-                </a>
-              </div>
-            )}
-
-            {/* Aksiyonlar */}
-            <div className="flex gap-2.5 pt-1">
-              <button onClick={() => { setShareModalOpen(true); api.trackEvent('share_click') }}
-                className="btn-primary flex-1 inline-flex items-center justify-center gap-2">
-                <Icon.Share /> Paylaş
-              </button>
-              <button onClick={handleRestart}
-                className="btn-secondary flex-1 inline-flex items-center justify-center gap-2">
-                <Icon.Refresh /> Tekrar
-              </button>
-            </div>
-          </div>
-          <Footer />
-        </div>
+        <ChampionScreen
+          champion={champion}
+          runnerUp={runnerUp}
+          thirdPlace={thirdPlace}
+          copied={copied}
+          onCopy={() => {
+            try { navigator.clipboard?.writeText(champion.name) } catch { /* noop */ }
+            setCopied(true)
+            api.trackEvent('copy_name', { restaurant_id: champion.id })
+            setTimeout(() => setCopied(false), 1600)
+          }}
+          onChannel={(platform) => {
+            api.trackEvent('deeplink_click', { platform, restaurant_id: champion.id, restaurant_name: champion.name })
+            const token = safeGetItem('local', 'foodhunt_token')
+            if (token) authApi.trackDeeplinkOrder(token, { restaurant_id: champion.id, platform }).catch(() => {})
+          }}
+          onShare={() => { setShareModalOpen(true); api.trackEvent('share_click') }}
+          onRestart={handleRestart}
+          isGuest={!safeGetItem('local', 'foodhunt_token')}
+        />
       )}
 
       <ShareModal isOpen={shareModalOpen} onClose={() => setShareModalOpen(false)} champion={champion} />
@@ -481,208 +426,417 @@ function LandingScreen(p: LandingProps) {
     try { return JSON.parse(safeGetItem('local', 'foodhunt_user') || '{}').name?.charAt(0)?.toUpperCase() || '?' }
     catch { return '?' }
   })()
+  const [size, setSize] = useState<8 | 16 | 32>(8)
+  const startDisabled = p.loading || p.serverDown || (p.tournamentInfo !== null && !p.tournamentInfo.can_play)
 
   return (
-    <div className="min-h-screen relative">
-      {/* Top bar */}
-      <header className="flex items-center justify-between px-5 pt-5 pb-2 safe-top">
-        <button
-          onClick={p.toggleSoundClick}
-          className="w-9 h-9 rounded-full flex items-center justify-center bg-brand-surface shadow-card text-brand-muted hover:text-brand-cream transition-colors"
-          aria-label={p.soundOn ? 'Sesi kapat' : 'Sesi aç'}
-        >
-          {p.soundOn ? <Icon.SoundOn /> : <Icon.SoundOff />}
-        </button>
+    <div className="min-h-screen relative flex flex-col overflow-hidden">
+      <div className="kor-grain" />
+      {/* Alttan yükselen kor ışığı */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 z-0"
+        style={{ background: 'radial-gradient(120% 80% at 50% 115%, rgba(255,90,31,0.20), transparent 60%)' }}
+      />
 
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
+      {/* Top bar */}
+      <header className="relative z-10 flex items-center justify-between px-6 pt-5 pb-1 safe-top">
+        <span className="font-display font-bold text-sm tracking-[0.08em]">FOODHUNT</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={p.toggleSoundClick}
+            className="text-brand-muted hover:text-brand-cream transition-colors"
+            aria-label={p.soundOn ? 'Sesi kapat' : 'Sesi aç'}
+          >
+            {p.soundOn ? <Icon.SoundOn /> : <Icon.SoundOff />}
+          </button>
           {safeGetItem('local', 'foodhunt_token') ? (
-            <a href="/profil" className="inline-flex items-center gap-2 bg-brand-surface shadow-card pl-1.5 pr-3 py-1 rounded-full text-sm font-semibold text-brand-cream active:opacity-60 transition-opacity">
-              <span className="w-6 h-6 rounded-full bg-brand-elevated flex items-center justify-center text-[10px] font-semibold">
-                {userName}
-              </span>
-              Profil
+            <a href="/profil" className="inline-flex items-center gap-2 text-sm font-semibold text-brand-cream active:opacity-60 transition-opacity">
+              <span className="w-6 h-6 rounded-full bg-brand-elevated flex items-center justify-center text-[10px] font-bold">{userName}</span>
             </a>
           ) : (
-            <a href="/giris" className="px-3.5 py-1.5 rounded-full text-sm font-semibold text-brand-coral active:opacity-60 transition-opacity">
-              Giriş yap
-            </a>
+            <a href="/giris" className="text-sm font-semibold text-brand-coral active:opacity-60 transition-opacity">Giriş</a>
           )}
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="flex flex-col items-center px-6 pt-6 pb-5 text-center">
-        <Logo size={56} className="mb-4 text-brand-cream" />
-        {p.currentSlot ? (
-          <>
-            <h1 className="font-sans text-2xl sm:text-3xl font-semibold tracking-tight">
-              {p.currentSlot.slot}
-            </h1>
-            <div className="flex items-center gap-2 mt-2 mb-2">
-              <span className="text-base">{p.currentSlot.icon}</span>
-              <span className="inline-flex items-center gap-1 text-[10px] bg-brand-elevated text-brand-fresh px-2 py-0.5 rounded-md font-medium uppercase tracking-wider border border-brand-line">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-fresh animate-pulse" /> Canlı
-              </span>
-              <span className="text-xs text-brand-muted tabular-nums">{p.currentSlot.start} – {p.currentSlot.end}</span>
-            </div>
-          </>
-        ) : (
-          <LogoText className="text-3xl sm:text-4xl mb-1" />
+      {/* Hero — kinetik dev başlık */}
+      <section className="relative z-10 px-6 pt-8">
+        {p.currentSlot && (
+          <div className="mb-3">
+            <span className="inline-flex items-center gap-1.5 text-[10px] text-brand-fresh font-bold uppercase tracking-[0.14em]">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-fresh animate-pulse" /> Canlı · {p.currentSlot.start}–{p.currentSlot.end}
+            </span>
+          </div>
         )}
-        <p className="text-brand-muted text-sm max-w-[280px] leading-relaxed mt-1">
-          Favorin restoranı turnuva usulü seç
+        <h1 className="font-display font-bold text-[3.4rem] leading-[0.86] tracking-[-0.02em]">
+          NE<br /><span className="kor-mark">YESEM</span>
+        </h1>
+        <p className="text-brand-muted text-sm mt-5 max-w-[250px] leading-relaxed">
+          {size} restoran kapışır. Sen hakem olursun. Bir dakika sürer.
         </p>
       </section>
 
-      {/* Main card */}
-      <section className="px-5 pb-8">
-        <div className="max-w-md mx-auto card">
+      {/* Alt panel — filtreler + başlat (başparmak bölgesi) */}
+      <section className="relative z-10 mt-auto px-6 pb-8">
+        {/* Mod: bölge / yakınımdakiler */}
+        <div className="flex gap-2 mb-1">
+          <button
+            onClick={p.handleBrowseMode}
+            className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+              p.mode === 'browse' ? 'bg-brand-elevated text-brand-cream' : 'text-brand-muted'
+            }`}
+          >
+            <Icon.MapPin /> Bölge
+          </button>
+          <button
+            onClick={p.handleNearbyMode}
+            className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+              p.mode === 'nearby' ? 'bg-brand-elevated text-brand-cream' : 'text-brand-muted'
+            }`}
+          >
+            <Icon.Crosshair /> Yakınımda
+          </button>
+        </div>
 
-          {/* Mode toggle */}
-          <div className="p-3 pb-0">
-            {/* iOS segmented control */}
-            <div className="flex bg-brand-elevated rounded-xl p-1">
+        {p.mode === 'nearby' && (
+          <div className="text-center py-1">
+            {p.geo.loading && <p className="text-brand-cream text-xs animate-pulse">Konum alınıyor…</p>}
+            {p.geo.position && !p.geo.loading && (
+              <span className="inline-flex items-center gap-1.5 text-brand-fresh text-xs">
+                <Icon.Navigation /> {p.nearbyMeta?.area_detected || 'Konum algılandı'}
+              </span>
+            )}
+            {p.geo.permissionDenied && <p className="text-brand-muted text-xs">Varsayılan konum kullanılacak</p>}
+          </div>
+        )}
+
+        {/* Bölge satırı */}
+        {p.mode === 'browse' && (
+          <label className="flex items-center justify-between py-3.5 border-t border-brand-line">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-muted">Bölge</span>
+            <select
+              value={p.selectedIlce || ''}
+              onChange={e => p.handleIlceChange(e.target.value || null)}
+              className="bg-transparent text-right font-semibold text-brand-cream text-[15px] focus:outline-none cursor-pointer"
+            >
+              <option value="" className="bg-brand-surface">İlçe seçin</option>
+              {p.regions.length > 0
+                ? p.regions.map(r => {
+                    const ad = p.areas.find(a => a.area === r.ilce)
+                    return <option key={r.ilce} value={r.ilce} className="bg-brand-surface">{r.ilce}{ad ? ` (${ad.count})` : ''}</option>
+                  })
+                : p.areas.map(a => <option key={a.area} value={a.area} className="bg-brand-surface">{a.area} ({a.count})</option>)
+              }
+            </select>
+          </label>
+        )}
+
+        {/* Mutfak satırı */}
+        {(p.mode === 'browse' ? p.cuisines.length > 0 : true) && (
+          <label className="flex items-center justify-between py-3.5 border-t border-brand-line">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-muted">Mutfak</span>
+            <select
+              value={p.cuisine || ''}
+              onChange={e => p.setCuisine(e.target.value || null)}
+              className="bg-transparent text-right font-semibold text-brand-cream text-[15px] focus:outline-none cursor-pointer"
+            >
+              <option value="" className="bg-brand-surface">Tümü</option>
+              {p.mode === 'browse'
+                ? p.cuisines.map(c => <option key={c.cuisine} value={c.cuisine} className="bg-brand-surface">{c.cuisine} ({c.count})</option>)
+                : ['Türk Mutfağı', 'Kebap', 'Pizza', 'Burger', 'Suşi', 'Deniz Ürünleri', 'Kafe', 'Fast Food', 'İtalyan', 'Vejetaryen'].map(c =>
+                    <option key={c} value={c} className="bg-brand-surface">{c}</option>)
+              }
+            </select>
+          </label>
+        )}
+
+        {/* Öğün tipi çipleri */}
+        <div className="py-3 border-t border-brand-line">
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+            {MEAL_TYPES.map(m => (
               <button
-                onClick={p.handleBrowseMode}
-                className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-sm font-semibold transition-all ${
-                  p.mode === 'browse' ? 'bg-brand-surface text-brand-cream shadow-card' : 'text-brand-muted hover:text-brand-cream'
+                key={m.id}
+                onClick={() => p.setMealType(m.id)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors shrink-0 ${
+                  p.mealType === m.id ? 'bg-brand-coral text-[#160A04]' : 'bg-brand-elevated text-brand-muted hover:text-brand-cream'
                 }`}
               >
-                <Icon.MapPin /> Bölge seç
+                {m.label}
               </button>
-              <button
-                onClick={p.handleNearbyMode}
-                className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-[10px] text-sm font-semibold transition-all ${
-                  p.mode === 'nearby' ? 'bg-brand-surface text-brand-cream shadow-card' : 'text-brand-muted hover:text-brand-cream'
-                }`}
-              >
-                <Icon.Crosshair /> Yakınımdakiler
-              </button>
-            </div>
+            ))}
           </div>
+        </div>
 
-          {/* Nearby status */}
-          {p.mode === 'nearby' && (
-            <div className="px-4 pt-3 text-center">
-              {p.geo.loading && <p className="text-brand-cream text-sm animate-pulse">Konum alınıyor…</p>}
-              {p.geo.position && !p.geo.loading && (
-                <span className="inline-flex items-center gap-1.5 text-brand-fresh text-xs bg-brand-elevated border border-brand-line px-2.5 py-1 rounded-md">
-                  <Icon.Navigation />
-                  {p.nearbyMeta?.area_detected ? p.nearbyMeta.area_detected : 'Konum algılandı'}
-                </span>
-              )}
-              {p.geo.error && !p.geo.position && <p className="text-brand-cream text-xs">{p.geo.error}</p>}
-              {p.geo.permissionDenied && <p className="text-brand-muted text-xs">Varsayılan konum kullanılacak</p>}
-            </div>
-          )}
-
-          {/* Filters */}
-          <div className="p-4 space-y-2.5">
-            {p.mode === 'browse' && (
-              <select
-                value={p.selectedIlce || ''}
-                onChange={e => p.handleIlceChange(e.target.value || null)}
-                className="select-field"
-              >
-                <option value="">İlçe seçin</option>
-                {p.regions.length > 0
-                  ? p.regions.map(r => {
-                      const ad = p.areas.find(a => a.area === r.ilce)
-                      return <option key={r.ilce} value={r.ilce}>{r.ilce}{ad ? ` (${ad.count})` : ''}</option>
-                    })
-                  : p.areas.map(a => <option key={a.area} value={a.area}>{a.area} ({a.count})</option>)
-                }
-              </select>
-            )}
-
-            {(p.mode === 'browse' ? p.cuisines.length > 0 : true) && (
-              <select
-                value={p.cuisine || ''}
-                onChange={e => p.setCuisine(e.target.value || null)}
-                className="select-field"
-              >
-                <option value="">Tüm mutfaklar</option>
-                {p.mode === 'browse'
-                  ? p.cuisines.map(c => <option key={c.cuisine} value={c.cuisine}>{c.cuisine} ({c.count})</option>)
-                  : ['Türk Mutfağı', 'Kebap', 'Pizza', 'Burger', 'Suşi', 'Deniz Ürünleri', 'Kafe', 'Fast Food', 'İtalyan', 'Vejetaryen'].map(c =>
-                      <option key={c} value={c}>{c}</option>
-                    )
-                }
-              </select>
-            )}
-          </div>
-
-          <div className="h-px bg-brand-line mx-4" />
-
-          {/* Meal types */}
-          <div className="p-4">
-            <p className="text-[11px] text-brand-muted uppercase tracking-widest font-medium mb-2.5">Ne yemek istiyorsun</p>
-            <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-              {MEAL_TYPES.map(m => (
+        {/* Boyut + günlük hak */}
+        <div className="flex items-center justify-between py-3.5 border-t border-brand-line">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-brand-muted">Boyut{p.tournamentInfo ? ' · Hak' : ''}</span>
+          <div className="flex items-center gap-3">
+            <div className="flex gap-3 text-[15px] font-semibold">
+              {([8, 16, 32] as const).map(n => (
                 <button
-                  key={m.id}
-                  onClick={() => p.setMealType(m.id)}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors shrink-0 ${
-                    p.mealType === m.id
-                      ? 'bg-brand-coral text-white'
-                      : 'bg-brand-elevated text-brand-muted hover:text-brand-cream'
-                  }`}
+                  key={n}
+                  onClick={() => setSize(n)}
+                  className={size === n ? 'text-brand-coral' : 'text-brand-muted'}
                 >
-                  <span className="text-sm">{m.emoji}</span> {m.label}
+                  {n}
                 </button>
               ))}
             </div>
-          </div>
-
-          <div className="h-px bg-brand-line mx-4" />
-
-          {/* Tournament size buttons */}
-          <div className="p-4 space-y-2">
             {p.tournamentInfo && (
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-brand-muted">Günlük turnuva</span>
-                <span className="text-xs font-medium text-brand-cream tabular-nums">{p.tournamentInfo.remaining}/{p.tournamentInfo.limit}</span>
+              <span className="text-[15px] font-semibold text-brand-cream tabular-nums">· {p.tournamentInfo.remaining}/{p.tournamentInfo.limit}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Akkor başlat */}
+        <button
+          onClick={() => p.onStart(size)}
+          disabled={startDisabled}
+          className="btn-kor w-full mt-4 disabled:opacity-40"
+        >
+          {p.loading ? 'Yükleniyor…' : 'Turnuvayı Başlat'}
+        </button>
+
+        {p.tournamentInfo && !p.tournamentInfo.can_play && (
+          <p className="text-center text-brand-muted text-xs pt-2">Günlük hak doldu — yarın yenilenir</p>
+        )}
+      </section>
+    </div>
+  )
+}
+
+// ─── ArenaMatch — diagonal foto-split turnuva ekranı ────────────────────────
+interface ArenaMatchProps {
+  top: Restaurant
+  bottom: Restaurant
+  onPick: (r: Restaurant) => void
+  animating: boolean
+  roundName: string
+  totalRounds: number
+  currentRound: number
+  matchIndex: number
+  matchCount: number
+}
+
+function ArenaMatch(p: ArenaMatchProps) {
+  const img = (r: Restaurant) => r.image_url || PLACEHOLDER_IMG
+  const price = (lvl?: number) => '₺'.repeat(Math.max(1, Math.min(3, lvl || 1)))
+
+  return (
+    <div className="fixed inset-0 bg-brand-dark no-select overflow-hidden">
+      <div className="kor-grain" />
+
+      {/* İlerleme çubuğu */}
+      <div className="absolute top-0 inset-x-0 z-20 flex items-center gap-2.5 px-5 pt-[calc(env(safe-area-inset-top)+14px)] pb-2">
+        <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-brand-cream whitespace-nowrap">
+          <span className="text-brand-coral">{p.roundName.split(' ')[0]}</span> {p.roundName.split(' ').slice(1).join(' ')}
+        </span>
+        <div className="flex-1 flex gap-1">
+          {Array.from({ length: p.totalRounds }).map((_, i) => (
+            <span key={i} className={`h-[5px] flex-1 rounded-full ${i <= p.currentRound ? 'bg-brand-coral' : 'bg-brand-elevated'}`}
+              style={i <= p.currentRound ? { boxShadow: '0 0 8px rgba(255,90,31,0.6)' } : undefined} />
+          ))}
+        </div>
+        <span className="text-xs font-semibold text-brand-muted tabular-nums">{p.matchIndex + 1}/{p.matchCount}</span>
+      </div>
+
+      {/* Üst yarı (diagonal) */}
+      <button
+        onClick={() => onPickGuard(p, p.top)}
+        disabled={p.animating}
+        className="absolute inset-x-0 top-0 h-[56%] overflow-hidden text-left active:opacity-90 transition-opacity"
+        style={{ clipPath: 'polygon(0 0, 100% 0, 100% 82%, 0 100%)' }}
+      >
+        <img src={img(p.top)} alt={p.top.name} loading="eager" className="absolute inset-0 w-full h-full object-cover"
+          onError={e => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMG }} />
+        <span className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(11,9,8,0.12), transparent 45%, rgba(11,9,8,0.85))' }} />
+        <span className="absolute left-5 top-[calc(env(safe-area-inset-top)+52px)] right-5 z-[3] block">
+          <span className="block text-[10px] font-bold tracking-[0.18em] text-brand-ember">01 · İDDİALI</span>
+          <span className="block font-display font-bold text-white text-[2rem] leading-[0.9] tracking-[-0.02em] mt-1.5"
+            style={{ textShadow: '0 2px 18px rgba(0,0,0,0.55)' }}>{p.top.name}</span>
+          <span className="flex gap-2 mt-3">
+            <TapeStat accent>★ {(p.top.rating ?? 0).toFixed(1)}</TapeStat>
+            <TapeStat>{price(p.top.price_level)}</TapeStat>
+            {p.top.cuisine && <TapeStat>{p.top.cuisine}</TapeStat>}
+          </span>
+        </span>
+      </button>
+
+      {/* Alt yarı (diagonal) */}
+      <button
+        onClick={() => onPickGuard(p, p.bottom)}
+        disabled={p.animating}
+        className="absolute inset-x-0 bottom-0 h-[56%] overflow-hidden text-right active:opacity-90 transition-opacity"
+        style={{ clipPath: 'polygon(0 18%, 100% 0, 100% 100%, 0 100%)' }}
+      >
+        <img src={img(p.bottom)} alt={p.bottom.name} loading="eager" className="absolute inset-0 w-full h-full object-cover"
+          onError={e => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMG }} />
+        <span className="absolute inset-0" style={{ background: 'linear-gradient(340deg, rgba(11,9,8,0.12), transparent 45%, rgba(11,9,8,0.88))' }} />
+        <span className="absolute left-5 right-5 bottom-[calc(env(safe-area-inset-bottom)+24px)] z-[3] block">
+          <span className="block text-[10px] font-bold tracking-[0.18em] text-brand-ember">02 · İDDİALI</span>
+          <span className="block font-display font-bold text-white text-[2rem] leading-[0.9] tracking-[-0.02em] mt-1.5"
+            style={{ textShadow: '0 2px 18px rgba(0,0,0,0.55)' }}>{p.bottom.name}</span>
+          <span className="flex gap-2 mt-3 justify-end">
+            {p.bottom.cuisine && <TapeStat>{p.bottom.cuisine}</TapeStat>}
+            <TapeStat>{price(p.bottom.price_level)}</TapeStat>
+            <TapeStat accent>★ {(p.bottom.rating ?? 0).toFixed(1)}</TapeStat>
+          </span>
+        </span>
+      </button>
+
+      {/* Diagonal akkor dikiş */}
+      <span className="absolute left-[-6%] right-[-6%] top-1/2 h-[2px] z-[6] pointer-events-none"
+        style={{ background: 'rgb(var(--tint))', transform: 'rotate(-9deg)', boxShadow: '0 0 16px 2px rgba(255,90,31,0.7)' }} />
+
+      {/* VS madalyonu */}
+      <span className="absolute top-1/2 left-1/2 z-[9] -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center w-[58px] h-[58px] rounded-full font-display font-bold text-[16px] text-[#160A04]"
+        style={{ background: 'conic-gradient(from 210deg, #FF7A3C, #F5410A, #FF7A3C)', transform: 'translate(-50%,-50%) rotate(-9deg)', boxShadow: '0 0 28px 6px rgba(255,90,31,0.6), 0 0 0 6px rgb(var(--bg))' }}>
+        VS
+      </span>
+
+      {/* İpucu */}
+      <span className="absolute bottom-[calc(env(safe-area-inset-bottom)+8px)] inset-x-0 z-10 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-muted pointer-events-none">
+        Kazananın yarısına dokun
+      </span>
+    </div>
+  )
+}
+
+function onPickGuard(p: ArenaMatchProps, r: Restaurant) {
+  if (!p.animating) p.onPick(r)
+}
+
+function TapeStat({ children, accent }: { children: ReactNode; accent?: boolean }) {
+  return (
+    <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg backdrop-blur ${accent ? 'text-brand-ember' : 'text-white'}`}
+      style={{ background: 'rgba(0,0,0,0.42)' }}>
+      {children}
+    </span>
+  )
+}
+
+// ─── ChampionScreen — Kor şampiyon + sipariş akışı ──────────────────────────
+interface ChampionProps {
+  champion: Restaurant
+  runnerUp: Restaurant | null
+  thirdPlace: Restaurant | null
+  copied: boolean
+  onCopy: () => void
+  onChannel: (platform: string) => void
+  onShare: () => void
+  onRestart: () => void
+  isGuest: boolean
+}
+
+function ChampionScreen(p: ChampionProps) {
+  const c = p.champion
+  const enc = (s: string) => encodeURIComponent(s)
+  const price = '₺'.repeat(Math.max(1, Math.min(3, c.price_level || 1)))
+  const img = c.image_url || PLACEHOLDER_IMG
+
+  // Sipariş kanalları — restoran bazlı link varsa onu, yoksa isim aramasını kullan
+  const channels = [
+    { key: 'yemeksepeti', label: "Yemeksepeti'nde aç", tag: 'APP', color: '#FA0050', letters: 'YS',
+      url: c.yemeksepeti_link || `https://www.yemeksepeti.com/search?q=${enc(c.name)}` },
+    { key: 'getir', label: "Getir'de aç", tag: 'APP', color: '#5D3EBC', letters: 'G',
+      url: c.getir_link || 'https://getir.com' },
+    { key: 'ubereats', label: "Uber Eats'te aç", tag: 'APP', color: '#142328', letters: 'UE',
+      url: c.trendyol_link || `https://www.ubereats.com/tr/search?q=${enc(c.name)}` },
+    { key: 'gmaps', label: 'Google Maps’te gör', tag: 'YORUM · YOL', color: '#1A73E8', letters: '◉',
+      url: c.google_maps_url || `https://www.google.com/maps/search/${enc(c.name + ' ' + (c.area || ''))}` },
+  ]
+
+  return (
+    <div className="fixed inset-0 bg-brand-dark overflow-y-auto no-scrollbar">
+      <div className="kor-grain" />
+      <div className="relative z-[5] min-h-full flex flex-col">
+        {/* Kazanan foto — tam genişlik */}
+        <div className="relative h-[52vh] min-h-[300px] overflow-hidden shrink-0">
+          <img src={img} alt={c.name} className="absolute inset-0 w-full h-full object-cover"
+            onError={e => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMG }} />
+          <span className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(11,9,8,0.1), transparent 38%, rgb(var(--bg)))' }} />
+          <span className="absolute top-[calc(env(safe-area-inset-top)+16px)] left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.22em] text-[#160A04] px-4 py-1.5 rounded-full"
+            style={{ background: 'rgb(var(--tint))', boxShadow: '0 0 22px rgba(255,90,31,0.5)' }}>
+            ★ Şampiyon
+          </span>
+          <div className="absolute left-5 right-5 bottom-4 z-[6]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-ember">Bu turnuvanın kazananı</p>
+            <h1 className="font-display font-bold text-white text-[2.6rem] leading-[0.88] tracking-[-0.02em] mt-1.5"
+              style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>
+              <span className="kor-mark">{c.name}</span>
+            </h1>
+            <div className="flex gap-2 mt-3">
+              <TapeStat accent>★ {(c.rating ?? 0).toFixed(1)}</TapeStat>
+              {c.cuisine && <TapeStat>{c.cuisine}</TapeStat>}
+              <TapeStat>{price}</TapeStat>
+              {c.area && <TapeStat>{c.area}</TapeStat>}
+            </div>
+          </div>
+        </div>
+
+        {/* Sipariş kanalları */}
+        <div className="px-5 pt-4 flex flex-col gap-2">
+          {channels.map(ch => (
+            <a key={ch.key} href={ch.url} target="_blank" rel="noopener noreferrer"
+              onClick={() => p.onChannel(ch.key)}
+              className="flex items-center gap-3 bg-brand-surface border border-brand-line rounded-xl px-3.5 py-3 active:opacity-70 transition-opacity">
+              <span className="w-[30px] h-[30px] rounded-lg flex items-center justify-center text-[11px] font-bold text-white shrink-0"
+                style={{ background: ch.color }}>{ch.letters}</span>
+              <span className="flex-1 text-[13px] font-semibold text-brand-cream">{ch.label}</span>
+              <span className="text-[9px] font-bold tracking-[0.12em] text-brand-muted">{ch.tag}</span>
+            </a>
+          ))}
+        </div>
+
+        {/* İsmi kopyala + Paylaş */}
+        <div className="px-5 pt-3 flex gap-2.5">
+          <button onClick={p.onCopy}
+            className="flex-1 rounded-xl py-3 text-xs font-bold uppercase tracking-[0.04em] bg-brand-coral text-[#160A04] active:opacity-80 transition-opacity">
+            {p.copied ? '✓ Kopyalandı' : '⧉ İsmi kopyala'}
+          </button>
+          <button onClick={p.onShare}
+            className="flex-1 rounded-xl py-3 text-xs font-bold uppercase tracking-[0.04em] bg-brand-surface border border-brand-line text-brand-cream active:opacity-70 transition-opacity">
+            Paylaş
+          </button>
+        </div>
+
+        {/* 2. – 3. sıra */}
+        {(p.runnerUp || p.thirdPlace) && (
+          <div className="px-5 pt-3 grid grid-cols-2 gap-2.5">
+            {p.runnerUp && (
+              <div className="bg-brand-surface border border-brand-line rounded-xl p-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-muted">2. sırada</p>
+                <p className="text-brand-cream text-sm font-semibold mt-1 truncate">{p.runnerUp.name}</p>
+                {p.runnerUp.cuisine && <p className="text-brand-muted text-xs mt-0.5 truncate">{p.runnerUp.cuisine}</p>}
               </div>
             )}
-
-            <button
-              onClick={() => p.onStart(8)}
-              disabled={p.loading || p.serverDown || (p.tournamentInfo !== null && !p.tournamentInfo.can_play)}
-              className="btn-primary w-full inline-flex items-center justify-center gap-2 disabled:opacity-40"
-            >
-              <Icon.Zap /> {p.loading ? 'Yükleniyor…' : 'Hızlı turnuva — 8 restoran'}
-            </button>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => p.onStart(16)}
-                disabled={p.loading || p.serverDown || (p.tournamentInfo !== null && !p.tournamentInfo.can_play)}
-                className="btn-secondary flex-1 disabled:opacity-40"
-              >
-                {p.loading ? '…' : 'Klasik (16)'}
-              </button>
-              <button
-                onClick={() => p.onStart(32)}
-                disabled={p.loading || p.serverDown || (p.tournamentInfo !== null && !p.tournamentInfo.can_play)}
-                className="btn-secondary flex-1 disabled:opacity-40"
-              >
-                {p.loading ? '…' : 'Büyük (32)'}
-              </button>
-            </div>
-
-            {p.tournamentInfo && !p.tournamentInfo.can_play && (
-              <p className="text-center text-brand-muted text-xs pt-1">Günlük limit doldu — yarın 3 yeni hak</p>
+            {p.thirdPlace && (
+              <div className="bg-brand-surface border border-brand-line rounded-xl p-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-muted">3. sırada</p>
+                <p className="text-brand-cream text-sm font-semibold mt-1 truncate">{p.thirdPlace.name}</p>
+                {p.thirdPlace.cuisine && <p className="text-brand-muted text-xs mt-0.5 truncate">{p.thirdPlace.cuisine}</p>}
+              </div>
             )}
           </div>
-        </div>
+        )}
 
-        <div className="max-w-md mx-auto mt-6">
-          <SocialProof />
-        </div>
-      </section>
+        {/* Misafir CTA */}
+        {p.isGuest && (
+          <div className="mx-5 mt-3 bg-brand-surface border border-brand-line rounded-xl p-3.5 flex items-center gap-3">
+            <div className="flex-1">
+              <p className="text-brand-cream text-sm font-semibold">Turnuva geçmişini kaydet</p>
+              <p className="text-brand-muted text-xs mt-0.5">Favorilerini ve puanlarını takip et</p>
+            </div>
+            <a href="/giris" className="text-sm font-semibold px-3.5 py-1.5 rounded-full bg-brand-elevated text-brand-coral active:opacity-60 transition-opacity">Giriş</a>
+          </div>
+        )}
 
-      <Footer />
+        {/* Fallback + tekrar */}
+        <button onClick={p.onRestart}
+          className="mt-3 mb-[calc(env(safe-area-inset-bottom)+20px)] text-center text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-muted active:text-brand-cream transition-colors">
+          Sipariş veremedim → hak iadesiyle tekrar oyna
+        </button>
+      </div>
     </div>
   )
 }
