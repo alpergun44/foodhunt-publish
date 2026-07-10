@@ -36,11 +36,11 @@ export function CookieConsent() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-brand-dark/95 backdrop-blur-lg
-                    border-t border-white/10 shadow-2xl">
+                    border-t border-brand-line shadow-card">
       <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center gap-4">
-        <p className="text-white/70 text-sm flex-1">
+        <p className="text-brand-cream/70 text-sm flex-1">
           Deneyimini iyilestirmek icin cerezleri kullaniyoruz. Detaylar icin{' '}
-          <a href="/cerez" className="text-brand-coral hover:underline">
+          <a href="/cerez" className="text-brand-cream hover:underline">
             cerez politikamizi
           </a>{' '}
           inceleyebilirsin.
@@ -48,14 +48,14 @@ export function CookieConsent() {
         <div className="flex gap-2 shrink-0">
           <button
             onClick={handleReject}
-            className="px-4 py-2 text-white/60 hover:text-white text-sm transition-colors"
+            className="px-4 py-2 text-brand-cream/60 hover:text-brand-cream text-sm transition-colors"
           >
             Reddet
           </button>
           <button
             onClick={handleAccept}
-            className="px-5 py-2 bg-brand-coral text-white text-sm font-semibold rounded-lg
-                       hover:bg-brand-coral-light transition-all active:scale-95"
+            className="px-5 py-2 bg-brand-cream text-brand-cream text-sm font-semibold rounded-lg
+                       hover:bg-brand-cream-light transition-all active:scale-95"
           >
             Kabul Et
           </button>

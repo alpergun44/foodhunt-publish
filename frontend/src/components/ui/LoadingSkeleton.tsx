@@ -6,28 +6,27 @@ export function SkeletonCard() {
   return (
     <div className="w-full max-w-sm rounded-3xl overflow-hidden animate-pulse">
       {/* Image area */}
-      <div className="relative w-full aspect-[4/3] bg-brand-card">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-surface to-brand-card" />
+      <div className="relative w-full aspect-[4/3] bg-brand-elevated">
         {/* Rating badge skeleton */}
-        <div className="absolute top-3 left-3 w-16 h-6 bg-white/10 rounded-full" />
+        <div className="absolute top-3 left-3 w-16 h-6 bg-brand-line rounded-md" />
         {/* Price badge skeleton */}
-        <div className="absolute top-3 right-3 w-12 h-6 bg-white/10 rounded-full" />
+        <div className="absolute top-3 right-3 w-12 h-6 bg-brand-line rounded-md" />
       </div>
       {/* Content area */}
-      <div className="p-4 bg-brand-card border-t border-white/5 space-y-3">
+      <div className="p-4 bg-brand-surface border-t border-brand-line space-y-3">
         {/* Title */}
-        <div className="h-5 bg-white/10 rounded-lg w-3/4" />
+        <div className="h-5 bg-brand-line rounded-md w-3/4" />
         {/* Tags */}
         <div className="flex gap-2">
-          <div className="h-5 bg-white/5 rounded-full w-20" />
-          <div className="h-5 bg-white/5 rounded-full w-16" />
+          <div className="h-5 bg-brand-elevated rounded-md w-20" />
+          <div className="h-5 bg-brand-elevated rounded-md w-16" />
         </div>
         {/* Products */}
-        <div className="pt-2 border-t border-white/5 space-y-2">
-          <div className="h-3 bg-white/5 rounded w-12" />
+        <div className="pt-2 border-t border-brand-line space-y-2">
+          <div className="h-3 bg-brand-elevated rounded w-12" />
           <div className="flex gap-1.5">
-            <div className="h-5 bg-brand-amber/5 rounded-full w-24" />
-            <div className="h-5 bg-brand-amber/5 rounded-full w-20" />
+            <div className="h-5 bg-brand-elevated rounded-md w-24" />
+            <div className="h-5 bg-brand-elevated rounded-md w-20" />
           </div>
         </div>
       </div>
@@ -51,7 +50,7 @@ export function SkeletonText({ lines = 3 }: { lines?: number }) {
       {Array.from({ length: lines }).map((_, i) => (
         <div
           key={i}
-          className="h-3 bg-white/10 rounded"
+          className="h-3 bg-brand-elevated rounded"
           style={{ width: `${Math.random() * 40 + 60}%` }}
         />
       ))}
@@ -60,7 +59,7 @@ export function SkeletonText({ lines = 3 }: { lines?: number }) {
 }
 
 export function SkeletonButton() {
-  return <div className="animate-pulse h-12 bg-white/10 rounded-xl w-full" />;
+  return <div className="animate-pulse h-11 bg-brand-elevated rounded-xl w-full" />;
 }
 
 export function BattleSkeleton() {
@@ -71,19 +70,19 @@ export function BattleSkeleton() {
         <div className="flex items-center justify-between gap-1">
           {[1,2,3,4].map(i => (
             <div key={i} className="flex items-center gap-1 flex-1">
-              <div className="w-8 h-8 rounded-full bg-white/10 animate-pulse" />
-              {i < 4 && <div className="flex-1 h-0.5 bg-white/5" />}
+              <div className="w-7 h-7 rounded-full bg-brand-elevated animate-pulse" />
+              {i < 4 && <div className="flex-1 h-px bg-brand-line" />}
             </div>
           ))}
         </div>
       </div>
       {/* Header skeleton */}
-      <div className="h-4 bg-white/10 rounded w-48 mx-auto animate-pulse" />
+      <div className="h-4 bg-brand-elevated rounded w-48 mx-auto animate-pulse" />
       {/* Cards */}
       <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center justify-center w-full max-w-4xl">
         <SkeletonCard />
-        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-brand-coral/20 to-brand-amber/20 animate-pulse flex items-center justify-center">
-          <span className="text-white/30 font-bold text-sm">VS</span>
+        <div className="w-12 h-12 rounded-full bg-brand-elevated border border-brand-line animate-pulse flex items-center justify-center">
+          <span className="text-brand-muted font-medium text-xs">VS</span>
         </div>
         <SkeletonCard />
       </div>

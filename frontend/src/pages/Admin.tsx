@@ -175,16 +175,16 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
     <div>
       <label className="block text-xs text-brand-muted mb-1">{label}</label>
       <input type={type} value={(form as Record<string, any>)[key] ?? ''} onChange={e => set(key, type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
-        className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+        className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
     </div>
   )
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-start justify-center z-50 p-4 overflow-y-auto" onClick={onClose}>
-      <div className="bg-brand-card border border-white/10 rounded-2xl p-6 w-full max-w-2xl my-8 shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-brand-card border border-brand-line rounded-2xl p-6 w-full max-w-2xl my-8 shadow-card" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-bold text-brand-cream">{isEdit ? 'Restoran Düzenle' : 'Yeni Restoran'}</h3>
-          <button onClick={onClose} className="text-brand-muted hover:text-white"><I.X /></button>
+          <button onClick={onClose} className="text-brand-muted hover:text-brand-cream"><I.X /></button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -192,7 +192,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
             <div>
               <label className="block text-xs text-brand-muted mb-1">Mutfak Tipi *</label>
               <select value={form.cuisine || ''} onChange={e => set('cuisine', e.target.value)}
-                className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none">
+                className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none">
                 <option value="">Seç...</option>
                 {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -209,7 +209,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
                 set('mahalle', '')
                 if (region) { set('lat', region.lat); set('lng', region.lng) }
               }}
-                className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none">
+                className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none">
                 <option value="">İlçe seç...</option>
                 {formRegions.map(r => <option key={r.ilce} value={r.ilce}>{r.ilce} {r.is_active ? '(Aktif)' : ''}</option>)}
                 {AREAS.filter(a => !formRegions.some(r => r.ilce === a)).map(a => <option key={a} value={a}>{a}</option>)}
@@ -219,13 +219,13 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
               <label className="block text-xs text-brand-muted mb-1">Mahalle</label>
               {mahalleler.length > 0 ? (
                 <select value={form.mahalle || ''} onChange={e => set('mahalle', e.target.value)}
-                  className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none">
+                  className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none">
                   <option value="">Mahalle seç...</option>
                   {mahalleler.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
               ) : (
                 <input type="text" value={form.mahalle || ''} onChange={e => set('mahalle', e.target.value)} placeholder="Mahalle adı girin"
-                  className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                  className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
               )}
             </div>
           </div>
@@ -234,7 +234,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
             <div className="flex gap-2 flex-wrap mt-1">
               {AREA_DISTRICTS.map(d => (
                 <button key={d.name} type="button" onClick={() => { set('area', d.name); set('lat', d.lat); set('lng', d.lng) }}
-                  className={`px-2 py-1 rounded text-xs transition ${form.area === d.name ? 'bg-brand-coral text-white' : 'bg-brand-elevated text-brand-muted hover:bg-white/10'}`}>
+                  className={`px-2 py-1 rounded text-xs transition ${form.area === d.name ? 'bg-brand-cream text-brand-cream' : 'bg-brand-elevated text-brand-muted hover:bg-brand-elevated'}`}>
                   {d.name}
                 </button>
               ))}
@@ -250,7 +250,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
               <div className="flex gap-1">
                 {[1,2,3,4].map(n => (
                   <button key={n} type="button" onClick={() => set('price_level', n)}
-                    className={`flex-1 py-1.5 rounded text-xs font-bold transition ${form.price_level === n ? 'bg-brand-coral text-white' : 'bg-brand-surface text-brand-muted hover:bg-white/10'}`}>
+                    className={`flex-1 py-1.5 rounded text-xs font-bold transition ${form.price_level === n ? 'bg-brand-cream text-brand-cream' : 'bg-brand-surface text-brand-muted hover:bg-brand-elevated'}`}>
                     {PRICE_LABELS[n]}
                   </button>
                 ))}
@@ -262,7 +262,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
           <div>
             <label className="block text-xs text-brand-muted mb-1">Açıklama</label>
             <textarea value={form.description || ''} onChange={e => set('description', e.target.value)} rows={2}
-              className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none resize-none" />
+              className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none resize-none" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {inp('Adres', 'address')}
@@ -283,11 +283,11 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
             <label className="block text-xs text-brand-muted mb-1">Görsel</label>
             <div className="flex items-center gap-3">
               <button type="button" onClick={() => fileRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-muted text-sm hover:bg-white/10">
+                className="flex items-center gap-2 px-4 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-muted text-sm hover:bg-brand-elevated">
                 <I.Upload /> Yükle
               </button>
               <input type="text" value={form.image_url || ''} onChange={e => { set('image_url', e.target.value); setImagePreview(e.target.value) }}
-                placeholder="veya URL yapıştır" className="flex-1 px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                placeholder="veya URL yapıştır" className="flex-1 px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
               <input ref={fileRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
             </div>
             {imagePreview && <img src={imagePreview} alt="preview" className="mt-2 h-24 rounded-lg object-cover" onError={() => setImagePreview('')} />}
@@ -295,11 +295,11 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
           <div>
             <label className="block text-xs text-brand-muted mb-1">Etiketler (virgül ile ayır)</label>
             <input type="text" value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="türk, kebap, kadıköy"
-              className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+              className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
             {tagInput && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {tagInput.split(',').map(t => t.trim()).filter(Boolean).map((t, i) => (
-                  <span key={i} className="px-2 py-0.5 bg-brand-coral/20 text-brand-coral-light rounded-full text-xs">{t}</span>
+                  <span key={i} className="px-2 py-0.5 bg-brand-elevated text-brand-cream-light rounded-full text-xs">{t}</span>
                 ))}
               </div>
             )}
@@ -308,29 +308,29 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
           <div>
             <label className="block text-xs text-brand-muted mb-1">Top 3 Ürün (emoji + isim, virgül ile ayır)</label>
             <input type="text" value={top3Input} onChange={e => setTop3Input(e.target.value)} placeholder="🔥 Adana Kebap, 🥙 Durum, 🍖 Kuzu Şiş"
-              className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+              className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
             {top3Input && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {top3Input.split(',').map(t => t.trim()).filter(Boolean).slice(0, 3).map((t, i) => (
-                  <span key={i} className="px-2 py-0.5 bg-brand-amber/20 text-brand-amber rounded-full text-xs">{t}</span>
+                  <span key={i} className="px-2 py-0.5 bg-brand-elevated text-brand-cream rounded-full text-xs">{t}</span>
                 ))}
               </div>
             )}
           </div>
           {/* District - hidden, replaced by il/ilce/mahalle above */}
           {/* Available Hours */}
-          <div className="border-t border-white/10 pt-4">
+          <div className="border-t border-brand-line pt-4">
             <label className="block text-xs text-brand-muted mb-2 font-semibold">Açılış Saatleri</label>
             <div className="grid grid-cols-2 gap-4 mb-2">
               <div>
                 <label className="text-xs text-brand-muted">Açılış</label>
                 <input type="time" value={form.available_hours?.open || '09:00'} onChange={e => set('available_hours', { ...form.available_hours, open: e.target.value, close: form.available_hours?.close || '23:00', days: form.available_hours?.days || [1,2,3,4,5,6,7] })}
-                  className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                  className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
               </div>
               <div>
                 <label className="text-xs text-brand-muted">Kapanış</label>
                 <input type="time" value={form.available_hours?.close || '23:00'} onChange={e => set('available_hours', { ...form.available_hours, open: form.available_hours?.open || '09:00', close: e.target.value, days: form.available_hours?.days || [1,2,3,4,5,6,7] })}
-                  className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                  className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
               </div>
             </div>
             <label className="text-xs text-brand-muted">Açık Günler</label>
@@ -343,13 +343,13 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
                   <button key={d} type="button" onClick={() => {
                     const newDays = active ? days.filter(x => x !== dayNum) : [...days, dayNum].sort()
                     set('available_hours', { ...form.available_hours, open: form.available_hours?.open || '09:00', close: form.available_hours?.close || '23:00', days: newDays })
-                  }} className={`flex-1 py-1.5 rounded text-xs font-bold transition ${active ? 'bg-brand-coral text-white' : 'bg-brand-surface text-brand-muted hover:bg-white/10'}`}>{d}</button>
+                  }} className={`flex-1 py-1.5 rounded text-xs font-bold transition ${active ? 'bg-brand-cream text-brand-cream' : 'bg-brand-surface text-brand-muted hover:bg-brand-elevated'}`}>{d}</button>
                 )
               })}
             </div>
           </div>
           {/* Competition Slots */}
-          <div className="border-t border-white/10 pt-4">
+          <div className="border-t border-brand-line pt-4">
             <label className="block text-xs text-brand-muted mb-2 font-semibold">Turnuva Slotları</label>
             <div className="flex gap-1 flex-wrap mb-2">
               {SLOT_PRESETS.map(sp => {
@@ -361,7 +361,7 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
                     } else {
                       set('competition_slots', [...(form.competition_slots || []), { slot: sp.slot, start: sp.start, end: sp.end }])
                     }
-                  }} className={`px-2 py-1 rounded text-xs transition ${exists ? 'bg-brand-coral text-white' : 'bg-brand-surface text-brand-muted hover:bg-white/10'}`}>
+                  }} className={`px-2 py-1 rounded text-xs transition ${exists ? 'bg-brand-cream text-brand-cream' : 'bg-brand-surface text-brand-muted hover:bg-brand-elevated'}`}>
                     {sp.label} ({sp.start}-{sp.end})
                   </button>
                 )
@@ -370,11 +370,11 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
             {(form.competition_slots || []).map((slot, idx) => (
               <div key={idx} className="flex gap-2 items-center mb-1">
                 <input type="text" value={slot.slot} onChange={e => { const u = [...(form.competition_slots || [])]; u[idx] = { ...u[idx], slot: e.target.value }; set('competition_slots', u) }}
-                  className="flex-1 px-2 py-1 bg-brand-surface border border-white/10 rounded text-brand-cream text-xs" placeholder="Slot adı" />
+                  className="flex-1 px-2 py-1 bg-brand-surface border border-brand-line rounded text-brand-cream text-xs" placeholder="Slot adı" />
                 <input type="time" value={slot.start} onChange={e => { const u = [...(form.competition_slots || [])]; u[idx] = { ...u[idx], start: e.target.value }; set('competition_slots', u) }}
-                  className="w-24 px-2 py-1 bg-brand-surface border border-white/10 rounded text-brand-cream text-xs" />
+                  className="w-24 px-2 py-1 bg-brand-surface border border-brand-line rounded text-brand-cream text-xs" />
                 <input type="time" value={slot.end} onChange={e => { const u = [...(form.competition_slots || [])]; u[idx] = { ...u[idx], end: e.target.value }; set('competition_slots', u) }}
-                  className="w-24 px-2 py-1 bg-brand-surface border border-white/10 rounded text-brand-cream text-xs" />
+                  className="w-24 px-2 py-1 bg-brand-surface border border-brand-line rounded text-brand-cream text-xs" />
                 <button type="button" onClick={() => set('competition_slots', (form.competition_slots || []).filter((_, i) => i !== idx))}
                   className="text-red-400 hover:text-red-300 text-xs px-1">Sil</button>
               </div>
@@ -387,9 +387,9 @@ function RestForm({ initial, token, onSave, onClose, show }: FormProps) {
             <span className="text-sm text-brand-cream">{form.is_active ? 'Aktif' : 'Pasif'}</span>
           </label>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 bg-brand-surface text-brand-muted rounded-xl hover:bg-white/10 text-sm font-semibold">İptal</button>
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2.5 bg-brand-surface text-brand-muted rounded-xl hover:bg-brand-elevated text-sm font-semibold">İptal</button>
             <button type="submit" disabled={loading}
-              className="flex-1 px-4 py-2.5 bg-brand-coral text-white rounded-xl hover:bg-brand-coral-light text-sm font-semibold disabled:opacity-50 transition">
+              className="flex-1 px-4 py-2.5 bg-brand-cream text-brand-cream rounded-xl hover:bg-brand-cream-light text-sm font-semibold disabled:opacity-50 transition">
               {loading ? 'Kaydediliyor...' : isEdit ? 'Güncelle' : 'Ekle'}
             </button>
           </div>
@@ -573,15 +573,15 @@ export default function Admin() {
   // ─── LOGIN ────
   if (!token) return (
     <div className="min-h-screen bg-brand-dark flex items-center justify-center p-6">
-      <form onSubmit={handleLogin} className="bg-brand-card border border-white/10 rounded-2xl p-8 w-full max-w-sm shadow-2xl">
+      <form onSubmit={handleLogin} className="bg-brand-card border border-brand-line rounded-2xl p-8 w-full max-w-sm shadow-card">
         <div className="text-center mb-6">
           <div className="text-4xl mb-2">🍽️</div>
           <h1 className="text-2xl font-bold text-brand-cream">FoodHunt Admin</h1>
           <p className="text-brand-muted text-sm mt-1">Yönetim paneline giriş</p>
         </div>
         <input type="password" placeholder="Admin şifresi" value={password} onChange={e => setPassword(e.target.value)}
-          className="w-full px-4 py-3 bg-brand-surface border border-white/10 rounded-xl text-brand-cream mb-4 focus:border-brand-coral focus:outline-none" />
-        <button type="submit" className="w-full py-3 bg-brand-coral text-white rounded-xl font-semibold hover:bg-brand-coral-light transition active:scale-95">Giriş Yap</button>
+          className="w-full px-4 py-3 bg-brand-surface border border-brand-line rounded-xl text-brand-cream mb-4 focus:border-brand-line focus:outline-none" />
+        <button type="submit" className="w-full py-3 bg-brand-cream text-brand-cream rounded-xl font-semibold hover:bg-brand-cream-light transition active:scale-95">Giriş Yap</button>
       </form>
     </div>
   )
@@ -597,21 +597,21 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-brand-dark text-brand-cream flex flex-col">
-      <header className="bg-brand-card border-b border-white/10 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+      <header className="bg-brand-card border-b border-brand-line px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <button onClick={() => setMenuOpen(!menuOpen)} className="sm:hidden text-brand-muted"><I.Menu /></button>
           <h1 className="text-lg font-bold">🍽️ FoodHunt Admin</h1>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={loadData} className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-surface rounded-lg text-xs text-brand-muted hover:text-white hover:bg-white/10 transition"><I.RefreshCw /> Yenile</button>
+          <button onClick={loadData} className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-surface rounded-lg text-xs text-brand-muted hover:text-brand-cream hover:bg-brand-elevated transition"><I.RefreshCw /> Yenile</button>
           <button onClick={handleLogout} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg text-xs hover:bg-red-500/20 transition"><I.LogOut /> Çıkış</button>
         </div>
       </header>
       <div className="flex flex-1">
-        <nav className={`${menuOpen ? 'block' : 'hidden'} sm:block w-48 bg-brand-card border-r border-white/10 p-3 space-y-1 shrink-0`}>
+        <nav className={`${menuOpen ? 'block' : 'hidden'} sm:block w-48 bg-brand-card border-r border-brand-line p-3 space-y-1 shrink-0`}>
           {navItems.map(n => (
             <button key={n.key} onClick={() => { setView(n.key); setMenuOpen(false) }}
-              className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition ${view === n.key ? 'bg-brand-coral text-white font-semibold' : 'text-brand-muted hover:bg-white/5 hover:text-white'}`}>
+              className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition ${view === n.key ? 'bg-brand-cream text-brand-cream font-semibold' : 'text-brand-muted hover:bg-brand-elevated hover:text-brand-cream'}`}>
               {n.icon} {n.label}
             </button>
           ))}
@@ -624,38 +624,38 @@ export default function Admin() {
             <div className="space-y-6">
               <h2 className="text-xl font-bold">Dashboard</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[{l:'Toplam Restoran',v:stats.total,c:'text-brand-coral'},{l:'Aktif Restoran',v:stats.active,c:'text-brand-fresh'},{l:'Toplam Kullanıcı',v:stats.users,c:'text-brand-amber'},{l:'Bugün Event',v:stats.todayEvents,c:'text-purple-400'}].map(s=>(
-                  <div key={s.l} className="bg-brand-card border border-white/5 rounded-xl p-4"><p className="text-brand-muted text-xs">{s.l}</p><p className={`text-2xl font-bold ${s.c}`}>{s.v}</p></div>
+                {[{l:'Toplam Restoran',v:stats.total,c:'text-brand-cream'},{l:'Aktif Restoran',v:stats.active,c:'text-brand-fresh'},{l:'Toplam Kullanıcı',v:stats.users,c:'text-brand-cream'},{l:'Bugün Event',v:stats.todayEvents,c:'text-purple-400'}].map(s=>(
+                  <div key={s.l} className="bg-brand-card border border-brand-line rounded-xl p-4"><p className="text-brand-muted text-xs">{s.l}</p><p className={`text-2xl font-bold ${s.c}`}>{s.v}</p></div>
                 ))}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+                <div className="bg-brand-card border border-brand-line rounded-xl p-4">
                   <h3 className="font-bold text-sm mb-3">Bölge Dağılımı</h3>
                   {stats.topAreas?.slice(0,10).map(a=>(
-                    <div key={a.area} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                    <div key={a.area} className="flex items-center justify-between py-1.5 border-b border-brand-line last:border-0">
                       <span className="text-sm">{a.area}</span>
-                      <div className="flex items-center gap-2"><div className="w-24 h-1.5 bg-brand-surface rounded-full overflow-hidden"><div className="h-full bg-brand-amber rounded-full" style={{width:`${(a.n/(stats.topAreas?.[0]?.n||1))*100}%`}}/></div><span className="text-xs text-brand-muted w-6 text-right">{a.n}</span></div>
+                      <div className="flex items-center gap-2"><div className="w-24 h-1.5 bg-brand-surface rounded-full overflow-hidden"><div className="h-full bg-brand-cream rounded-full" style={{width:`${(a.n/(stats.topAreas?.[0]?.n||1))*100}%`}}/></div><span className="text-xs text-brand-muted w-6 text-right">{a.n}</span></div>
                     </div>
                   ))}
                 </div>
-                <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+                <div className="bg-brand-card border border-brand-line rounded-xl p-4">
                   <h3 className="font-bold text-sm mb-3">Mutfak Dağılımı</h3>
                   {stats.topCuisines?.slice(0,8).map(c=>(
-                    <div key={c.cuisine} className="flex items-center justify-between py-1.5 border-b border-white/5 last:border-0">
+                    <div key={c.cuisine} className="flex items-center justify-between py-1.5 border-b border-brand-line last:border-0">
                       <span className="text-sm">{c.cuisine}</span>
-                      <div className="flex items-center gap-2"><div className="w-24 h-1.5 bg-brand-surface rounded-full overflow-hidden"><div className="h-full bg-brand-coral rounded-full" style={{width:`${(c.n/(stats.topCuisines?.[0]?.n||1))*100}%`}}/></div><span className="text-xs text-brand-muted w-6 text-right">{c.n}</span></div>
+                      <div className="flex items-center gap-2"><div className="w-24 h-1.5 bg-brand-surface rounded-full overflow-hidden"><div className="h-full bg-brand-cream rounded-full" style={{width:`${(c.n/(stats.topCuisines?.[0]?.n||1))*100}%`}}/></div><span className="text-xs text-brand-muted w-6 text-right">{c.n}</span></div>
                     </div>
                   ))}
                 </div>
               </div>
               {/* 30 Gün Event Trendi */}
               {stats.dailyTrend && stats.dailyTrend.length > 0 && (
-                <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+                <div className="bg-brand-card border border-brand-line rounded-xl p-4">
                   <h3 className="font-bold text-sm mb-3">Son 30 Gün Event Trendi</h3>
                   <div className="flex items-end gap-[2px] h-28">
                     {stats.dailyTrend.map((d,i)=>{const maxC=Math.max(...stats.dailyTrend.map(x=>x.count),1);return(
                       <div key={i} className="flex-1 flex flex-col items-center justify-end group relative">
-                        <div className="w-full bg-brand-coral/80 rounded-t transition-all hover:bg-brand-coral" style={{height:`${Math.max((d.count/maxC)*100,2)}%`}}/>
+                        <div className="w-full bg-brand-elevated rounded-t transition-all hover:bg-brand-cream" style={{height:`${Math.max((d.count/maxC)*100,2)}%`}}/>
                         <div className="absolute -top-6 bg-brand-dark text-brand-cream text-[10px] px-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap">{d.date.slice(5)} ({d.count})</div>
                       </div>
                     )})}
@@ -663,11 +663,11 @@ export default function Admin() {
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+                <div className="bg-brand-card border border-brand-line rounded-xl p-4">
                   <h3 className="font-bold text-sm mb-3">Son Olaylar</h3>
                   <div className="max-h-56 overflow-y-auto space-y-1">
                     {stats.recentEvents?.slice(0,15).map((e,i)=>(
-                      <div key={i} className="flex justify-between py-1.5 border-b border-white/5 last:border-0 text-xs">
+                      <div key={i} className="flex justify-between py-1.5 border-b border-brand-line last:border-0 text-xs">
                         <span className={e.event_type==='game_complete'?'text-brand-fresh':'text-brand-muted'}>{e.event_type}</span>
                         <span className="text-brand-muted">{e.area||e.game_type||''}</span>
                       </div>
@@ -675,12 +675,12 @@ export default function Admin() {
                   </div>
                 </div>
                 {stats.topWinners && stats.topWinners.length > 0 && (
-                  <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+                  <div className="bg-brand-card border border-brand-line rounded-xl p-4">
                     <h3 className="font-bold text-sm mb-3">En Çok Kazanan</h3>
                     {stats.topWinners.slice(0,5).map((w,i)=>(
-                      <div key={w.restaurant_id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                        <span className="text-sm"><span className="text-brand-amber font-bold mr-2">{i+1}.</span>{w.name}</span>
-                        <span className="text-xs text-brand-coral font-bold">{w.wins} galibiyet</span>
+                      <div key={w.restaurant_id} className="flex items-center justify-between py-2 border-b border-brand-line last:border-0">
+                        <span className="text-sm"><span className="text-brand-cream font-bold mr-2">{i+1}.</span>{w.name}</span>
+                        <span className="text-xs text-brand-cream font-bold">{w.wins} galibiyet</span>
                       </div>
                     ))}
                   </div>
@@ -688,7 +688,7 @@ export default function Admin() {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 {[{l:'Toplam Event',v:stats.totalEvents},{l:'Tamamlama',v:stats.completions},{l:'Deeplink',v:stats.deeplinks}].map(s=>(
-                  <div key={s.l} className="bg-brand-card border border-white/5 rounded-xl p-4 text-center"><p className="text-brand-muted text-xs">{s.l}</p><p className="text-xl font-bold">{s.v}</p></div>
+                  <div key={s.l} className="bg-brand-card border border-brand-line rounded-xl p-4 text-center"><p className="text-brand-muted text-xs">{s.l}</p><p className="text-xl font-bold">{s.v}</p></div>
                 ))}
               </div>
             </div>
@@ -700,53 +700,53 @@ export default function Admin() {
               <div className="flex flex-col sm:flex-row gap-3 justify-between">
                 <h2 className="text-xl font-bold">Restoranlar ({filtered.length})</h2>
                 <div className="flex gap-2 flex-wrap">
-                  <button onClick={() => { setEditRest(undefined); setShowForm(true) }} className="flex items-center gap-1.5 px-3 py-2 bg-brand-coral text-white rounded-lg text-xs font-semibold hover:bg-brand-coral-light transition"><I.Plus /> Yeni</button>
-                  <button onClick={() => fileInputRef.current?.click()} disabled={importLoading} className="flex items-center gap-1.5 px-3 py-2 bg-brand-surface text-brand-muted rounded-lg text-xs hover:bg-white/10 transition disabled:opacity-50"><I.Upload /> {importLoading ? 'Import ediliyor...' : 'Import'}</button>
+                  <button onClick={() => { setEditRest(undefined); setShowForm(true) }} className="flex items-center gap-1.5 px-3 py-2 bg-brand-cream text-brand-cream rounded-lg text-xs font-semibold hover:bg-brand-cream-light transition"><I.Plus /> Yeni</button>
+                  <button onClick={() => fileInputRef.current?.click()} disabled={importLoading} className="flex items-center gap-1.5 px-3 py-2 bg-brand-surface text-brand-muted rounded-lg text-xs hover:bg-brand-elevated transition disabled:opacity-50"><I.Upload /> {importLoading ? 'Import ediliyor...' : 'Import'}</button>
                   <input ref={fileInputRef} type="file" accept=".csv,.json" onChange={handleCSVImport} className="hidden" />
-                  <a href={adminApi.getExportUrl('restaurants','csv')} target="_blank" className="flex items-center gap-1.5 px-3 py-2 bg-brand-surface text-brand-muted rounded-lg text-xs hover:bg-white/10 transition"><I.Download /> CSV</a>
+                  <a href={adminApi.getExportUrl('restaurants','csv')} target="_blank" className="flex items-center gap-1.5 px-3 py-2 bg-brand-surface text-brand-muted rounded-lg text-xs hover:bg-brand-elevated transition"><I.Download /> CSV</a>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                   <div className="absolute left-3 top-2.5 text-brand-muted"><I.Search /></div>
-                  <input type="text" placeholder="Ara..." value={search} onChange={e=>{setSearch(e.target.value);setPage(0)}} className="w-full pl-9 pr-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none"/>
+                  <input type="text" placeholder="Ara..." value={search} onChange={e=>{setSearch(e.target.value);setPage(0)}} className="w-full pl-9 pr-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-sm text-brand-cream focus:border-brand-line focus:outline-none"/>
                 </div>
-                <select value={filterArea} onChange={e=>{setFilterArea(e.target.value);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
+                <select value={filterArea} onChange={e=>{setFilterArea(e.target.value);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-sm text-brand-cream focus:border-brand-line focus:outline-none">
                   <option value="">Tüm Bölgeler</option>{AREAS.map(a=><option key={a} value={a}>{a}</option>)}
                 </select>
-                <select value={filterCuisine} onChange={e=>{setFilterCuisine(e.target.value);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
+                <select value={filterCuisine} onChange={e=>{setFilterCuisine(e.target.value);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-sm text-brand-cream focus:border-brand-line focus:outline-none">
                   <option value="">Tüm Mutfaklar</option>{CUISINES.map(c=><option key={c} value={c}>{c}</option>)}
                 </select>
-                <select value={filterActive} onChange={e=>{setFilterActive(e.target.value as any);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
+                <select value={filterActive} onChange={e=>{setFilterActive(e.target.value as any);setPage(0)}} className="px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-sm text-brand-cream focus:border-brand-line focus:outline-none">
                   <option value="">Tüm Durum</option><option value="1">Aktif</option><option value="0">Pasif</option>
                 </select>
-                <select value={sortBy} onChange={e=>setSortBy(e.target.value as any)} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
+                <select value={sortBy} onChange={e=>setSortBy(e.target.value as any)} className="px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-sm text-brand-cream focus:border-brand-line focus:outline-none">
                   <option value="id">Yeni eklenen</option><option value="name">Ada göre</option><option value="rating">Puana göre</option>
                 </select>
               </div>
               {selected.size > 0 && (
-                <div className="flex items-center gap-3 bg-brand-coral/10 border border-brand-coral/30 rounded-lg px-4 py-2">
-                  <span className="text-sm font-semibold text-brand-coral">{selected.size} seçili</span>
+                <div className="flex items-center gap-3 bg-brand-elevated border border-brand-line rounded-lg px-4 py-2">
+                  <span className="text-sm font-semibold text-brand-cream">{selected.size} seçili</span>
                   <button onClick={()=>handleBulkAction('activate')} disabled={bulkLoading} className="text-xs px-2 py-1 bg-brand-fresh/20 text-brand-fresh rounded hover:bg-brand-fresh/30 disabled:opacity-50">{bulkLoading ? '...' : 'Aktif'}</button>
-                  <button onClick={()=>handleBulkAction('deactivate')} disabled={bulkLoading} className="text-xs px-2 py-1 bg-brand-amber/20 text-brand-amber rounded hover:bg-brand-amber/30 disabled:opacity-50">{bulkLoading ? '...' : 'Pasif'}</button>
+                  <button onClick={()=>handleBulkAction('deactivate')} disabled={bulkLoading} className="text-xs px-2 py-1 bg-brand-elevated text-brand-cream rounded hover:bg-brand-elevated disabled:opacity-50">{bulkLoading ? '...' : 'Pasif'}</button>
                   <button onClick={()=>handleBulkAction('delete')} disabled={bulkLoading} className="text-xs px-2 py-1 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 disabled:opacity-50">{bulkLoading ? '...' : 'Sil'}</button>
                   <button onClick={()=>setSelected(new Set())} className="text-xs text-brand-muted ml-auto">Temizle</button>
                 </div>
               )}
-              <details className="bg-brand-card border border-white/5 rounded-xl">
-                <summary className="px-4 py-3 cursor-pointer text-sm font-semibold flex items-center gap-2 text-brand-muted hover:text-white"><I.MapPin /> Konumdan Restoran Ekle</summary>
+              <details className="bg-brand-card border border-brand-line rounded-xl">
+                <summary className="px-4 py-3 cursor-pointer text-sm font-semibold flex items-center gap-2 text-brand-muted hover:text-brand-cream"><I.MapPin /> Konumdan Restoran Ekle</summary>
                 <div className="px-4 pb-4 space-y-3">
                   <div className="flex flex-wrap gap-2">
-                    {AREA_DISTRICTS.map(d=>(<button key={d.name} onClick={()=>setNearbyDistrict(d.name)} className={`px-3 py-1.5 rounded-lg text-xs transition ${nearbyDistrict===d.name?'bg-brand-coral text-white':'bg-brand-surface text-brand-muted hover:bg-white/10'}`}>{d.name}</button>))}
+                    {AREA_DISTRICTS.map(d=>(<button key={d.name} onClick={()=>setNearbyDistrict(d.name)} className={`px-3 py-1.5 rounded-lg text-xs transition ${nearbyDistrict===d.name?'bg-brand-cream text-brand-cream':'bg-brand-surface text-brand-muted hover:bg-brand-elevated'}`}>{d.name}</button>))}
                   </div>
-                  <button onClick={handleNearbySearch} disabled={nearbyLoading||!nearbyDistrict} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light disabled:opacity-50 transition">{nearbyLoading?'Aranıyor...':'Restoranları Getir'}</button>
+                  <button onClick={handleNearbySearch} disabled={nearbyLoading||!nearbyDistrict} className="px-4 py-2 bg-brand-cream text-brand-cream rounded-lg text-sm font-semibold hover:bg-brand-cream-light disabled:opacity-50 transition">{nearbyLoading?'Aranıyor...':'Restoranları Getir'}</button>
                   {nearbyResults.length>0&&(<div className="max-h-60 overflow-y-auto space-y-2">{nearbyResults.map((r,i)=>(<div key={i} className="flex items-center justify-between bg-brand-surface rounded-lg px-3 py-2"><div><span className="text-sm font-semibold">{r.name}</span><span className="text-xs text-brand-muted ml-2">{r.cuisine} - {r.area}</span></div><button onClick={()=>handleSaveNearby(r)} className="px-2 py-1 bg-brand-fresh/20 text-brand-fresh text-xs rounded hover:bg-brand-fresh/30">Kaydet</button></div>))}</div>)}
                 </div>
               </details>
-              <div className="bg-brand-card border border-white/5 rounded-xl overflow-hidden">
+              <div className="bg-brand-card border border-brand-line rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-brand-surface border-b border-white/5"><tr>
+                    <thead className="bg-brand-surface border-b border-brand-line"><tr>
                       <th className="px-3 py-3 text-left w-8"><input type="checkbox" checked={paged.length>0&&paged.every(r=>selected.has(r.id))} onChange={e=>{const s=new Set(selected);paged.forEach(r=>e.target.checked?s.add(r.id):s.delete(r.id));setSelected(s)}} className="accent-brand-coral"/></th>
                       <th className="px-3 py-3 text-left text-brand-muted text-xs">Restoran</th>
                       <th className="px-3 py-3 text-left text-brand-muted text-xs hidden md:table-cell">Mutfak</th>
@@ -757,25 +757,25 @@ export default function Admin() {
                       <th className="px-3 py-3 text-right text-brand-muted text-xs">İşlem</th>
                     </tr></thead>
                     <tbody>{paged.map(r=>(
-                      <tr key={r.id} className="border-b border-white/5 hover:bg-white/[0.02] transition">
+                      <tr key={r.id} className="border-b border-brand-line hover:bg-white/[0.02] transition">
                         <td className="px-3 py-2.5"><input type="checkbox" checked={selected.has(r.id)} onChange={e=>{const s=new Set(selected);e.target.checked?s.add(r.id):s.delete(r.id);setSelected(s)}} className="accent-brand-coral"/></td>
                         <td className="px-3 py-2.5"><div className="flex items-center gap-2">{r.image_url&&<img src={r.image_url} alt="" className="w-8 h-8 rounded-lg object-cover"/>}<span className="font-semibold text-brand-cream">{r.name}</span></div></td>
                         <td className="px-3 py-2.5 text-brand-muted hidden md:table-cell">{r.cuisine}</td>
                         <td className="px-3 py-2.5 text-brand-muted hidden md:table-cell">{r.area}</td>
-                        <td className="px-3 py-2.5"><span className="flex items-center gap-1 text-brand-amber"><I.Star/>{(r.rating||0).toFixed(1)}</span></td>
+                        <td className="px-3 py-2.5"><span className="flex items-center gap-1 text-brand-cream"><I.Star/>{(r.rating||0).toFixed(1)}</span></td>
                         <td className="px-3 py-2.5 text-brand-muted hidden sm:table-cell">{PRICE_LABELS[r.price_level||2]}</td>
-                        <td className="px-3 py-2.5"><button onClick={()=>handleToggle(r)} className={`px-2 py-0.5 rounded text-xs font-semibold transition ${r.is_active===1?'bg-brand-fresh/20 text-brand-fresh':'bg-white/5 text-brand-muted'}`}>{r.is_active===1?'Aktif':'Pasif'}</button></td>
-                        <td className="px-3 py-2.5 text-right"><div className="flex items-center justify-end gap-1"><button onClick={()=>{setEditRest(r);setShowForm(true)}} className="p-1.5 text-brand-muted hover:text-brand-coral transition"><I.Edit/></button><button onClick={()=>handleDelete(r.id)} className="p-1.5 text-brand-muted hover:text-red-400 transition"><I.Trash/></button></div></td>
+                        <td className="px-3 py-2.5"><button onClick={()=>handleToggle(r)} className={`px-2 py-0.5 rounded text-xs font-semibold transition ${r.is_active===1?'bg-brand-fresh/20 text-brand-fresh':'bg-brand-elevated text-brand-muted'}`}>{r.is_active===1?'Aktif':'Pasif'}</button></td>
+                        <td className="px-3 py-2.5 text-right"><div className="flex items-center justify-end gap-1"><button onClick={()=>{setEditRest(r);setShowForm(true)}} className="p-1.5 text-brand-muted hover:text-brand-cream transition"><I.Edit/></button><button onClick={()=>handleDelete(r.id)} className="p-1.5 text-brand-muted hover:text-red-400 transition"><I.Trash/></button></div></td>
                       </tr>
                     ))}{paged.length===0&&<tr><td colSpan={8} className="px-4 py-8 text-center text-brand-muted">Restoran bulunamadı</td></tr>}</tbody>
                   </table>
                 </div>
                 {totalPages>1&&(
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
+                  <div className="flex items-center justify-between px-4 py-3 border-t border-brand-line">
                     <span className="text-xs text-brand-muted">Sayfa {page+1} / {totalPages}</span>
                     <div className="flex gap-1">
-                      <button onClick={()=>setPage(Math.max(0,page-1))} disabled={page===0} className="px-3 py-1 bg-brand-surface rounded text-xs text-brand-muted hover:bg-white/10 disabled:opacity-30">&larr;</button>
-                      <button onClick={()=>setPage(Math.min(totalPages-1,page+1))} disabled={page>=totalPages-1} className="px-3 py-1 bg-brand-surface rounded text-xs text-brand-muted hover:bg-white/10 disabled:opacity-30">&rarr;</button>
+                      <button onClick={()=>setPage(Math.max(0,page-1))} disabled={page===0} className="px-3 py-1 bg-brand-surface rounded text-xs text-brand-muted hover:bg-brand-elevated disabled:opacity-30">&larr;</button>
+                      <button onClick={()=>setPage(Math.min(totalPages-1,page+1))} disabled={page>=totalPages-1} className="px-3 py-1 bg-brand-surface rounded text-xs text-brand-muted hover:bg-brand-elevated disabled:opacity-30">&rarr;</button>
                     </div>
                   </div>
                 )}
@@ -794,7 +794,7 @@ export default function Admin() {
                 {regions.map(r => {
                   const restCount = districts.find(d => d.name === r.ilce)?.count || 0
                   return (
-                    <div key={r.ilce} className={`bg-brand-card border rounded-xl overflow-hidden transition ${r.is_active ? 'border-brand-fresh/30' : 'border-white/5'}`}>
+                    <div key={r.ilce} className={`bg-brand-card border rounded-xl overflow-hidden transition ${r.is_active ? 'border-brand-fresh/30' : 'border-brand-line'}`}>
                       <div className="flex items-center justify-between px-4 py-3">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <button onClick={async () => {
@@ -807,7 +807,7 @@ export default function Admin() {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="font-semibold text-sm">{r.ilce}</p>
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${r.is_active ? 'bg-brand-fresh/20 text-brand-fresh' : 'bg-white/5 text-brand-muted'}`}>
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${r.is_active ? 'bg-brand-fresh/20 text-brand-fresh' : 'bg-brand-elevated text-brand-muted'}`}>
                                 {r.is_active ? 'AKTIF' : 'PASIF'}
                               </span>
                             </div>
@@ -815,13 +815,13 @@ export default function Admin() {
                           </div>
                         </div>
                         <button onClick={() => setEditMahalle(editMahalle?.ilce === r.ilce ? null : { ilce: r.ilce, mahalleler: [...(r.mahalleler || [])] })}
-                          className="text-xs text-brand-muted hover:text-brand-coral transition px-2 py-1">
+                          className="text-xs text-brand-muted hover:text-brand-cream transition px-2 py-1">
                           {editMahalle?.ilce === r.ilce ? 'Kapat' : 'Mahalleler'}
                         </button>
                       </div>
                       {/* Mahalle Editor */}
                       {editMahalle?.ilce === r.ilce && (
-                        <div className="px-4 pb-4 border-t border-white/5 pt-3 space-y-2">
+                        <div className="px-4 pb-4 border-t border-brand-line pt-3 space-y-2">
                           <div className="flex flex-wrap gap-1.5">
                             {(editMahalle.mahalleler || []).map((m, i) => (
                               <span key={i} className="inline-flex items-center gap-1 bg-brand-surface px-2 py-1 rounded-full text-xs text-brand-cream">
@@ -836,9 +836,9 @@ export default function Admin() {
                           <div className="flex gap-2">
                             <input type="text" placeholder="Yeni mahalle ekle..." value={newMahalle} onChange={e => setNewMahalle(e.target.value)}
                               onKeyDown={e => { if (e.key === 'Enter' && newMahalle.trim()) { setEditMahalle({ ...editMahalle, mahalleler: [...editMahalle.mahalleler, newMahalle.trim()] }); setNewMahalle('') } }}
-                              className="flex-1 px-3 py-1.5 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-xs focus:border-brand-coral focus:outline-none" />
+                              className="flex-1 px-3 py-1.5 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-xs focus:border-brand-line focus:outline-none" />
                             <button onClick={() => { if (newMahalle.trim()) { setEditMahalle({ ...editMahalle, mahalleler: [...editMahalle.mahalleler, newMahalle.trim()] }); setNewMahalle('') } }}
-                              className="px-3 py-1.5 bg-brand-surface text-brand-muted rounded-lg text-xs hover:bg-white/10">Ekle</button>
+                              className="px-3 py-1.5 bg-brand-surface text-brand-muted rounded-lg text-xs hover:bg-brand-elevated">Ekle</button>
                           </div>
                           <button onClick={async () => {
                             try {
@@ -848,7 +848,7 @@ export default function Admin() {
                               loadRegions()
                             } catch { show('Güncelleme basarisiz', 'err') }
                           }}
-                            className="px-4 py-1.5 bg-brand-coral text-white rounded-lg text-xs font-semibold hover:bg-brand-coral-light transition">Kaydet</button>
+                            className="px-4 py-1.5 bg-brand-cream text-brand-cream rounded-lg text-xs font-semibold hover:bg-brand-cream-light transition">Kaydet</button>
                         </div>
                       )}
                     </div>
@@ -865,47 +865,47 @@ export default function Admin() {
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold">Turnuva Yönetimi</h2>
                 <button onClick={() => setShowTournamentForm(!showTournamentForm)}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-brand-coral text-white rounded-lg text-xs font-semibold hover:bg-brand-coral-light transition">
+                  className="flex items-center gap-1.5 px-3 py-2 bg-brand-cream text-brand-cream rounded-lg text-xs font-semibold hover:bg-brand-cream-light transition">
                   <I.Plus /> Özel Turnuva
                 </button>
               </div>
               {showTournamentForm && (
-                <div className="bg-brand-card border border-white/5 rounded-xl p-4 space-y-3">
+                <div className="bg-brand-card border border-brand-line rounded-xl p-4 space-y-3">
                   <input type="text" placeholder="Turnuva Başlığı" value={tournamentForm.title} onChange={e => setTournamentForm(p => ({ ...p, title: e.target.value }))}
-                    className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                    className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
                   <textarea placeholder="Açıklama" value={tournamentForm.description} onChange={e => setTournamentForm(p => ({ ...p, description: e.target.value }))} rows={2}
-                    className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none resize-none" />
+                    className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none resize-none" />
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-xs text-brand-muted">Başlangıç</label>
                       <input type="time" value={tournamentForm.slot_start} onChange={e => setTournamentForm(p => ({ ...p, slot_start: e.target.value }))}
-                        className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                        className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
                     </div>
                     <div>
                       <label className="text-xs text-brand-muted">Bitiş</label>
                       <input type="time" value={tournamentForm.slot_end} onChange={e => setTournamentForm(p => ({ ...p, slot_end: e.target.value }))}
-                        className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                        className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <input type="text" placeholder="Mutfak Filtresi (isteğe bağlı)" value={tournamentForm.cuisine_filter} onChange={e => setTournamentForm(p => ({ ...p, cuisine_filter: e.target.value }))}
-                      className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                      className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
                     <input type="text" placeholder="Bölge Filtresi (isteğe bağlı)" value={tournamentForm.area_filter} onChange={e => setTournamentForm(p => ({ ...p, area_filter: e.target.value }))}
-                      className="w-full px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-brand-cream text-sm focus:border-brand-coral focus:outline-none" />
+                      className="w-full px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-brand-cream text-sm focus:border-brand-line focus:outline-none" />
                   </div>
                   <div className="flex gap-2">
                     <button onClick={async () => { if (!tournamentForm.title.trim()) { show('Başlık gerekli', 'err'); return }; try { await adminApi.createTournament(token, tournamentForm); show('Turnuva oluşturuldu', 'ok'); setTournamentForm({ title: '', description: '', slot_start: '11:00', slot_end: '14:00', cuisine_filter: '', area_filter: '' }); setShowTournamentForm(false); loadTournaments() } catch { show('Oluşturma başarısız', 'err') } }}
-                      className="px-4 py-2 bg-brand-fresh text-white rounded-lg text-sm font-semibold hover:bg-brand-fresh/80 transition">Oluştur</button>
+                      className="px-4 py-2 bg-brand-fresh text-brand-cream rounded-lg text-sm font-semibold hover:bg-brand-fresh/80 transition">Oluştur</button>
                     <button onClick={() => setShowTournamentForm(false)}
-                      className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">İptal</button>
+                      className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-brand-elevated transition">İptal</button>
                   </div>
                 </div>
               )}
-              <div className="bg-brand-card border border-white/5 rounded-xl p-4">
+              <div className="bg-brand-card border border-brand-line rounded-xl p-4">
                 <h3 className="font-bold text-sm mb-3">Sabit Turnuva Slotları</h3>
                 <div className="space-y-2">
                   {SLOT_PRESETS.map(s => (
-                    <div key={s.slot} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                    <div key={s.slot} className="flex items-center justify-between py-2 border-b border-brand-line last:border-0">
                       <span className="text-sm font-semibold">{s.label}</span>
                       <span className="text-xs text-brand-muted">{s.start} - {s.end}</span>
                     </div>
@@ -916,13 +916,13 @@ export default function Admin() {
                 <div className="space-y-2">
                   <h3 className="font-bold text-sm">Özel Turnuvalar</h3>
                   {tournaments.map(t => (
-                    <div key={t.id} className="bg-brand-card border border-white/5 rounded-xl px-4 py-3">
+                    <div key={t.id} className="bg-brand-card border border-brand-line rounded-xl px-4 py-3">
                       <p className="font-semibold text-sm">{t.title}</p>
                       <p className="text-xs text-brand-muted">{t.slot_start} - {t.slot_end}</p>
                       {t.description && <p className="text-xs text-brand-muted mt-1">{t.description}</p>}
                       <div className="flex gap-2 mt-1">
-                        {t.cuisine_filter && <span className="text-xs px-2 py-0.5 bg-brand-coral/20 text-brand-coral-light rounded-full">Mutfak: {t.cuisine_filter}</span>}
-                        {t.area_filter && <span className="text-xs px-2 py-0.5 bg-brand-amber/20 text-brand-amber rounded-full">Bölge: {t.area_filter}</span>}
+                        {t.cuisine_filter && <span className="text-xs px-2 py-0.5 bg-brand-elevated text-brand-cream-light rounded-full">Mutfak: {t.cuisine_filter}</span>}
+                        {t.area_filter && <span className="text-xs px-2 py-0.5 bg-brand-elevated text-brand-cream rounded-full">Bölge: {t.area_filter}</span>}
                       </div>
                     </div>
                   ))}
@@ -936,17 +936,17 @@ export default function Admin() {
           {view === 'cards' && (
             <div className="space-y-4">
               <h2 className="text-xl font-bold">İlham Kartları</h2>
-              <div className="bg-brand-card border border-white/5 rounded-xl p-4 flex flex-col sm:flex-row gap-3">
-                <input type="text" placeholder="Emoji" value={newCard.emoji} onChange={e=>setNewCard(p=>({...p,emoji:e.target.value}))} className="w-16 px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-center text-lg focus:border-brand-coral focus:outline-none"/>
-                <input type="text" placeholder="Kart metni" value={newCard.text} onChange={e=>setNewCard(p=>({...p,text:e.target.value}))} className="flex-1 px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none"/>
-                <select value={newCard.category} onChange={e=>setNewCard(p=>({...p,category:e.target.value}))} className="px-3 py-2 bg-brand-surface border border-white/10 rounded-lg text-sm text-brand-cream focus:border-brand-coral focus:outline-none">
+              <div className="bg-brand-card border border-brand-line rounded-xl p-4 flex flex-col sm:flex-row gap-3">
+                <input type="text" placeholder="Emoji" value={newCard.emoji} onChange={e=>setNewCard(p=>({...p,emoji:e.target.value}))} className="w-16 px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-center text-lg focus:border-brand-line focus:outline-none"/>
+                <input type="text" placeholder="Kart metni" value={newCard.text} onChange={e=>setNewCard(p=>({...p,text:e.target.value}))} className="flex-1 px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-sm text-brand-cream focus:border-brand-line focus:outline-none"/>
+                <select value={newCard.category} onChange={e=>setNewCard(p=>({...p,category:e.target.value}))} className="px-3 py-2 bg-brand-surface border border-brand-line rounded-lg text-sm text-brand-cream focus:border-brand-line focus:outline-none">
                   <option value="">Kategori</option><option value="mood">Mood</option><option value="speed">Hız</option><option value="nutrition">Beslenme</option><option value="adventure">Macera</option><option value="social">Sosyal</option><option value="budget">Bütçe</option>
                 </select>
-                <button onClick={async()=>{if(!newCard.text){show('Metin gerekli','err');return};try{await adminApi.createCard(token,newCard);show('Kart eklendi','ok');setNewCard({text:'',emoji:'',category:''});loadCards()}catch{show('Ekleme başarısız','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition"><I.Plus/></button>
+                <button onClick={async()=>{if(!newCard.text){show('Metin gerekli','err');return};try{await adminApi.createCard(token,newCard);show('Kart eklendi','ok');setNewCard({text:'',emoji:'',category:''});loadCards()}catch{show('Ekleme başarısız','err')}}} className="px-4 py-2 bg-brand-cream text-brand-cream rounded-lg text-sm font-semibold hover:bg-brand-cream-light transition"><I.Plus/></button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {cards.map(c=>(
-                  <div key={c.id} className="bg-brand-card border border-white/5 rounded-xl p-4 flex items-start gap-3">
+                  <div key={c.id} className="bg-brand-card border border-brand-line rounded-xl p-4 flex items-start gap-3">
                     <span className="text-3xl">{c.emoji||'🍽️'}</span>
                     <div className="flex-1"><p className="text-sm text-brand-cream">{c.text}</p>{c.category&&<span className="text-xs text-brand-muted mt-1 inline-block">{c.category}</span>}</div>
                     <button onClick={async()=>{await adminApi.deleteCard(token,c.id);loadCards()}} className="text-brand-muted hover:text-red-400 transition shrink-0"><I.Trash/></button>
@@ -961,18 +961,18 @@ export default function Admin() {
             <div className="space-y-4">
               <h2 className="text-xl font-bold">Veri Export</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-brand-card border border-white/5 rounded-xl p-6 text-center space-y-3">
+                <div className="bg-brand-card border border-brand-line rounded-xl p-6 text-center space-y-3">
                   <h3 className="font-bold">Restoran Verisi</h3>
                   <div className="flex gap-2 justify-center">
-                    <button onClick={async()=>{try{const d=await adminApi.exportRestaurants(token,'json');const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='restaurants.json';a.click();URL.revokeObjectURL(u);show('JSON indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition">JSON</button>
-                    <button onClick={async()=>{try{const res=await fetch(`/api/admin/restaurants/export?format=csv`,{headers:{Authorization:`Bearer ${token}`}});const text=await res.text();const b=new Blob([text],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='restaurants.csv';a.click();URL.revokeObjectURL(u);show('CSV indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">CSV</button>
+                    <button onClick={async()=>{try{const d=await adminApi.exportRestaurants(token,'json');const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='restaurants.json';a.click();URL.revokeObjectURL(u);show('JSON indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-cream text-brand-cream rounded-lg text-sm font-semibold hover:bg-brand-cream-light transition">JSON</button>
+                    <button onClick={async()=>{try{const res=await fetch(`/api/admin/restaurants/export?format=csv`,{headers:{Authorization:`Bearer ${token}`}});const text=await res.text();const b=new Blob([text],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='restaurants.csv';a.click();URL.revokeObjectURL(u);show('CSV indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-brand-elevated transition">CSV</button>
                   </div>
                 </div>
-                <div className="bg-brand-card border border-white/5 rounded-xl p-6 text-center space-y-3">
+                <div className="bg-brand-card border border-brand-line rounded-xl p-6 text-center space-y-3">
                   <h3 className="font-bold">Event Verisi</h3>
                   <div className="flex gap-2 justify-center">
-                    <button onClick={async()=>{try{const d=await adminApi.exportEvents(token,'json');const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='events.json';a.click();URL.revokeObjectURL(u);show('JSON indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-coral text-white rounded-lg text-sm font-semibold hover:bg-brand-coral-light transition">JSON</button>
-                    <button onClick={async()=>{try{const res=await fetch(`/api/admin/events/export?format=csv`,{headers:{Authorization:`Bearer ${token}`}});const text=await res.text();const b=new Blob([text],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='events.csv';a.click();URL.revokeObjectURL(u);show('CSV indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-white/10 transition">CSV</button>
+                    <button onClick={async()=>{try{const d=await adminApi.exportEvents(token,'json');const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='events.json';a.click();URL.revokeObjectURL(u);show('JSON indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-cream text-brand-cream rounded-lg text-sm font-semibold hover:bg-brand-cream-light transition">JSON</button>
+                    <button onClick={async()=>{try{const res=await fetch(`/api/admin/events/export?format=csv`,{headers:{Authorization:`Bearer ${token}`}});const text=await res.text();const b=new Blob([text],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='events.csv';a.click();URL.revokeObjectURL(u);show('CSV indirildi','ok')}catch{show('Export başarısız','err')}}} className="px-4 py-2 bg-brand-surface text-brand-muted rounded-lg text-sm hover:bg-brand-elevated transition">CSV</button>
                   </div>
                 </div>
               </div>
@@ -982,7 +982,7 @@ export default function Admin() {
       </div>
       {showForm && <RestForm initial={editRest} token={token} onSave={loadData} onClose={()=>{setShowForm(false);setEditRest(undefined)}} show={show}/>}
       <div className="fixed bottom-4 right-4 space-y-2 z-50">
-        {toasts.map(t=>(<div key={t.id} className={`px-4 py-3 rounded-xl shadow-lg text-white text-sm font-semibold animate-slide-up ${t.type==='ok'?'bg-brand-fresh':'bg-red-500'}`}>{t.msg}</div>))}
+        {toasts.map(t=>(<div key={t.id} className={`px-4 py-3 rounded-xl shadow-lg text-brand-cream text-sm font-semibold animate-slide-up ${t.type==='ok'?'bg-brand-fresh':'bg-red-500'}`}>{t.msg}</div>))}
       </div>
     </div>
   )

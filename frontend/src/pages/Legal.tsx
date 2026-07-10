@@ -91,21 +91,21 @@ Tarayıcı ayarlarınızdan çerezleri silebilir veya engelleyebilirsiniz. Zorun
   // Simple markdown-like renderer
   const renderBody = (text: string) =>
     text.split('\n').map((line, i) => {
-      if (line.startsWith('## ')) return <h2 key={i} className="text-xl font-bold text-white mt-8 mb-3">{line.slice(3)}</h2>
-      if (line.startsWith('**') && line.endsWith('**')) return <p key={i} className="font-semibold text-white/90 mt-4 mb-1">{line.slice(2,-2)}</p>
-      if (line.startsWith('- ')) return <li key={i} className="text-white/70 ml-4 mb-1 list-disc">{line.slice(2)}</li>
+      if (line.startsWith('## ')) return <h2 key={i} className="text-xl font-bold text-brand-cream mt-8 mb-3">{line.slice(3)}</h2>
+      if (line.startsWith('**') && line.endsWith('**')) return <p key={i} className="font-semibold text-brand-cream/90 mt-4 mb-1">{line.slice(2,-2)}</p>
+      if (line.startsWith('- ')) return <li key={i} className="text-brand-cream/70 ml-4 mb-1 list-disc">{line.slice(2)}</li>
       if (line.trim() === '') return <div key={i} className="h-2" />
-      return <p key={i} className="text-white/70 mb-2 leading-relaxed">{line}</p>
+      return <p key={i} className="text-brand-cream/70 mb-2 leading-relaxed">{line}</p>
     })
 
   return (
     <div className="min-h-dvh bg-brand-dark p-6 max-w-2xl mx-auto">
-      <a href="/" className="inline-flex items-center gap-2 text-white/50 hover:text-white/90 transition-colors mb-8 text-sm">
+      <a href="/" className="inline-flex items-center gap-2 text-brand-cream/50 hover:text-brand-cream/90 transition-colors mb-8 text-sm">
         <ArrowLeftIcon /> Ana sayfaya dön
       </a>
       <div className="card p-6 sm:p-8">
-        <h1 className="text-2xl sm:text-3xl font-black mb-2">{title}</h1>
-        <p className="text-sm text-white/40 mb-8">Son güncelleme: {updated}</p>
+        <h1 className="text-2xl sm:text-3xl font-semibold mb-2">{title}</h1>
+        <p className="text-sm text-brand-cream/40 mb-8">Son güncelleme: {updated}</p>
         <div className="prose prose-invert max-w-none">
           {renderBody(body)}
         </div>

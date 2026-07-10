@@ -227,15 +227,26 @@ router.get('/inspiration', asyncHandler(async (_req, res) => {
 const eventRateLimit = rateLimit(30, 60000); // 30 events/minute
 
 router.post('/events', eventRateLimit, checkTournamentLimit, asyncHandler(async (req, res) => {
-  const { event_type, session_id, area, cuisine, game_type, duration_s, winner_id, extra } = req.body;
+  const {
+    event_type, session_id, area, cuisine, game_type, duration_s,
+    winner_id, loser_id, round, match_index, meal_type, mode, total_count, extra,
+  } = req.body;
+  const num = (v, max = 999999) => (typeof v === 'number' && isFinite(v) ? Math.min(v, max) : null);
   await dbHelpers.insert('events', {
     event_type: safeStr(event_type, 50) || 'unknown',
     session_id: safeStr(session_id, 100) || 'anon',
     area: safeStr(area, 100),
     cuisine: safeStr(cuisine, 100),
     game_type: safeStr(game_type, 20),
-    duration_s: typeof duration_s === 'number' ? Math.min(duration_s, 9999) : null,
-    winner_id: typeof winner_id === 'number' ? winner_id : null,
+    duration_s: num(duration_s, 9999),
+    // ── Pairwise tercih verisi (moat) ──
+    winner_id: num(winner_id),
+    loser_id: num(loser_id),
+    round: num(round, 10),
+    match_index: num(match_index, 50),
+    meal_type: safeStr(meal_type, 30),
+    mode: safeStr(mode, 20),
+    total_count: num(total_count, 64),
     extra: safeStr(typeof extra === 'string' ? extra : JSON.stringify(extra), 1000),
     user_id: req.user?.id || null,
     created_at: new Date().toISOString(),
